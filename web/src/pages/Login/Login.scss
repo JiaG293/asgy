@@ -1,0 +1,135 @@
+//chỉnh thuộc tính của html và body (global)
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body,
+html {
+  height: 100%;
+}
+
+//thuộc tính của toàn page login react
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-family: 'Segoe UI';
+  background-color: #69BC5B;
+}
+
+//khung form login
+.login-form {
+  width: 250px;
+  padding: 5px 25px;
+  border: 1px solid #ccc;
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  background-color: transparent;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+  background-color: white;
+
+}
+
+//Asgy
+.container h1{
+  font-size: 30px;
+  text-align: center;
+  color: #73CAA6;
+  font-weight: 500;
+}
+
+.container h2{
+  font-size: 10px;
+  text-align: center;
+  color: #444444;
+  font-weight: 400;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+
+//div chứa text input
+.login-input-box{
+  position: relative;
+  width: 100%;
+  height: 30px;
+  margin: 10px 0;
+}
+
+//text input
+.login-input{
+  width: 100%;
+  height: 100%;
+  background: #E7E7E7;
+  outline: none;
+  border: 1px solid #ffffff33;
+  border-radius: 10px;
+  padding-left: 25px;
+  padding-right: 25px;
+  font-size: 10px;
+}
+
+//place holder textinput
+.login-input-box input::placeholder{
+  color: #6D6E6C
+}
+
+//margin khoảng cách
+.login-input-box,
+.login-button-box,
+.login-forgot-password,
+.login-signup-link {
+  margin-bottom: 10px;
+}
+
+.icon{
+  position: absolute;
+  left: 8px;
+  margin-top: 7px;
+  font-size: 15px;
+}
+
+// div quên mật khẩu
+.login-forgot-password{
+  display: flex;
+  justify-content: right;
+  font-size: 10px;
+}
+
+//link quên mật khẩu
+.login-forgot-password a{
+  text-decoration: none;
+  color: #73CAA6;
+  font-weight: 400;
+}
+
+// nút button đăng nhập
+.login-button-box button{
+  width: 100%;
+  height: 25px;
+  outline: none;
+  border: none;
+  background-color: #73CAA6;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  cursor: pointer;
+  font-size: 16;
+  color: white;
+  font-weight: 500;
+}
+
+//div chứa link đăng ký
+.login-signup-link{
+  font-size: 10px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+//link đăng ký
+.login-signup-link a{
+  text-decoration: none;
+  color: #73CAA6;
+  font-weight: 400;
+}
