@@ -1,0 +1,150 @@
+//thuộc tính của toàn page register react
+.register-next-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-family: "Segoe UI";
+  background-color: #69bc5b;
+}
+
+//khung form register-next
+.register-next-form {
+  width: 250px;
+  padding: 5px 25px;
+  border: 1px solid #ccc;
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  background-color: transparent;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+  background-color: white;
+}
+
+//Tạo tài khoản mới
+.register-next-container h1 {
+  font-size: 20px;
+  text-align: center;
+  color: #73caa6;
+  font-weight: 500;
+}
+
+//div chứa text input
+.register-next-input-box {
+  position: relative;
+  width: 100%;
+  height: 25px;
+  margin: 10px 0;
+}
+
+//text input
+.register-next-input {
+  width: 100%;
+  height: 100%;
+  background: #e7e7e7;
+  outline: none;
+  border: 1px solid #ffffff33;
+  border-radius: 6px;
+  padding-left: 25px;
+  padding-right: 25px;
+  font-size: 10px;
+}
+
+//margin khoảng cách
+.register-next-input-box,
+.register-next-button-box,
+.register-next-policy,
+.register-next-login-link {
+  margin-bottom: 12px;
+}
+
+//div chứa button đăng ký
+.register-next-button-box {
+  display: flex;
+  justify-content: center;
+}
+
+//nút button đăng ký
+.register-next-button-box button {
+  width: 65%;
+  height: 30px;
+  border-radius: 15px;
+  outline: none;
+  border: none;
+  background-color: #73caa6;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  font-size: 16;
+  color: white;
+}
+
+//div chứa link đăng ký
+.register-next-login-link {
+  font-size: 10px;
+  text-align: center;
+  margin-top: 5px;
+}
+
+//div chứa thông tin chính sách và checkbox
+.register-next-policy {
+  display: flex;
+  text-align: center;
+  font-size: 10px;
+}
+
+//link các thông tin chính sách
+.register-next-policy a {
+  color: #73caa6;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+//link đăng nhập
+.register-next-login-link a {
+  text-decoration: none;
+  color: #73caa6;
+  font-weight: 400;
+}
+
+//khung chứa 3 cái radio box
+.register-next-radio-box{
+  display: flex;
+  flex-direction: row;
+}
+
+.register-next-icon{
+  position: absolute;
+  left: 8px;
+  margin-top: 7px;
+  font-size: 15px;
+}
+
+.register-OTP {
+  width: 70%;
+}
+
+.register-next-OTP-div{
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.register-next-btn-send-OTP{
+  width: 25%;
+  height: 30px;
+  background-color: #73caa6;
+  outline: none;
+  border: 1px solid #73caa6;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s; 
+
+  &:hover {
+    transform: translateY(-2px); /* Đẩy lên khi hover */
+  }
+
+  &:active {
+    transform: translateY(2px); 
+  }
+}

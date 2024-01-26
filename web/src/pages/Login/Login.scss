@@ -1,16 +1,5 @@
-//chỉnh thuộc tính của html và body (global)
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-body,
-html {
-  height: 100%;
-}
-
 //thuộc tính của toàn page login react
-.container {
+.login-container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,14 +22,14 @@ html {
 }
 
 //Asgy
-.container h1{
+.login-container h1{
   font-size: 30px;
   text-align: center;
   color: #73CAA6;
   font-weight: 500;
 }
 
-.container h2{
+.login-container h2{
   font-size: 10px;
   text-align: center;
   color: #444444;
@@ -84,12 +73,22 @@ html {
   margin-bottom: 10px;
 }
 
-.icon{
+.login-icon{
   position: absolute;
   left: 8px;
   margin-top: 7px;
   font-size: 15px;
 }
+
+.login-icon-right{
+  position: absolute;
+  right: 8px;
+  margin-top: 7px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+
 
 // div quên mật khẩu
 .login-forgot-password{
@@ -121,14 +120,14 @@ html {
 }
 
 //div chứa link đăng ký
-.login-signup-link{
+.login-register-link{
   font-size: 10px;
   text-align: center;
   margin-top: 20px;
 }
 
 //link đăng ký
-.login-signup-link a{
+.login-register-link a{
   text-decoration: none;
   color: #73CAA6;
   font-weight: 400;
