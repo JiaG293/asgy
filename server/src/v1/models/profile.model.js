@@ -6,21 +6,27 @@ const profileSchema = new mongoose.Schema({
         default: mongoose.Schema.Types.ObjectId,
         ref: "user"
     },
+    fullName: {
+        type: String,
+        required: [true, "Please enter name"],
+    },
     avatar: {
         type: String,
-        require: true,
-        default: "https://i.imgur.com/fL8RNta.png"
+        default: "https://i.imgur.com/fL8RNta.png",
     },
     info: {
         type: String,
-        default: "Không có thông tin được cấp"
+        default: "Không có thông tin được cấp",
     },
-    phoneNumber: [
-        {
-            type: String,
-            trim: true,
-        }
-    ],
+    birthday: {
+        type: Date,
+    },
+    phoneNumber: {
+        type: String,
+        required: [true, "Please enter phone number"],
+        minlength: [10, "Phone number must be of minimum 10 characters"],
+        maxlength: [10, "Phone number must be of maximum 10 characters"],
+    },
     boxChatRecent: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -34,6 +40,7 @@ const profileSchema = new mongoose.Schema({
             ref: "contact",
         }
     ],
+
 });
 
 module.exports = mongoose.model("profile", profileSchema);

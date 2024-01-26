@@ -9,7 +9,7 @@ const crypto = require('crypto');
 // Signup User
 const signupUser = catchAsync(async (req, res, next) => {
 
-    const { name, email, username, password } = req.body;
+    const { email, username, password } = req.body;
 
     const user = await User.findOne({
         $or: [{ email }, { username }]
@@ -18,18 +18,30 @@ const signupUser = catchAsync(async (req, res, next) => {
         if (user.username === username) {
             return next(new ErrorHandler("Username already exists", 401));
         }
-        return next(new ErrorHandler("Email already exists", 401));
+        if( user.email === email){
+            return next(new ErrorHandler("Email already exists", 401));
+        }
     }
 
     const newUser = await User.create({
-        name,
         email,
         username,
-        password
+        password,
     })
 
     sendCookie(newUser, 201, res);
 });
+
+// Get Code Verify Email
+const getCodeVerifyEmail = catchAsync(async (req, res, next) => {
+    const { email } = req.body;
+
+})
+
+// Verification code from client
+const CodeVerifyEmail = catchAsync(async (req, res, next) => {
+    
+}) 
 
 // Login User
 const loginUser = catchAsync(async (req, res, next) => {

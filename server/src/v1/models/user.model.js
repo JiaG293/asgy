@@ -4,15 +4,19 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const userSchema = new mongoose.Schema(
     {
-        name: {
-            type: String,
-            required: [true, "Please enter name"]
-        },
         email: {
             type: String,
             required: [true, "Please enter email"],
             unique: [true, "Email already exists"],
             lowercase: true,
+            trim: true,
+            validate: {
+                validator: function(mail) {
+                  return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(mail);
+                },
+                message: props => `${props.value} is not a valid email address!`
+              },
+
         },
         username: {
             type: String,
@@ -23,15 +27,17 @@ const userSchema = new mongoose.Schema(
         password: {
             type: String,
             required: [true, "Please enter password"],
-            minlength: [6, "Password must be of minimum 6 characters"],
+            minlength: [6, "Password must be of minimum 8 characters"],
             select: false, // an di khi truy van du lieu
         },
-        isAdmin: {
+        roles: {
+            type: String,
+            enum: ["user", "administrator", "manager"],
+            default: "user",
+        },
+        isVerify: {
             type: Boolean,
             default: false,
-        },
-        birthday: {
-            type: Date, 
         },
         resetPasswordToken: {
             type: String,
@@ -69,7 +75,7 @@ userSchema.methods.getResetPasswordToken = async function () {
     const resetToken = crypto.randomBytes(20).toString("hex");
 
     this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
-    this.resetPasswordExpiry = Date.now() + 1 * 60 * 1000; //het han sau 15p
+    this.resetPasswordExpiry = Date.now() + 1 * 60 * 1000; //het han sau 1p
 
     return resetToken;
 }

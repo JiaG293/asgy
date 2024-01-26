@@ -5,7 +5,7 @@ const app = require('./src/app')
 const {PORT} = process.env;
 
 const server = app.listen( PORT, () => {
-    console.log(`server start with port ${PORT}`);
+    console.log(`server start with  http://locahost:${PORT}`);
 })
 
 process.on('SIGINT', () => {
