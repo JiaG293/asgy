@@ -10,8 +10,8 @@ const fs = require('fs');
 const path = require('path');
 
 //Khoi tao database
-require('./v1/config/init.mongodb')
-// require('./v1/config/init.redis')
+require('./v1/dbs/init.mongodb')
+// require('./v1/dbs/init.redis')
 
 
 
@@ -35,33 +35,32 @@ const accessLogStream = fs.createWriteStream(
     ),
     { flags: 'a' }
 )
+
+
 app.use(morgan(
-    'combined',
+    'common',
     { stream: accessLogStream }
 )
 ) //ghi lai thong tin client truy cap 
 
-
-
-// compress responses
-app.use(compression())
+app.use(compression()) //toi uu response cho client
 
 
 
 // them cookie parser
 app.use(cookieParser());
+
+// body parser
 app.use(express.json())
 app.use(express.urlencoded({
     extended: true
 }))
 
 
-app.use(express.json())
-
-app.use('/public', express.static('public'));
+// app.use('/public', express.static('public'));
 
 //router
-app.use('/v1', require('./v1/routes/index.router'))
+app.use('/', require('./v1/routes'))
 
 // xu li loi 
 app.use((req, res, next) => {
@@ -79,5 +78,3 @@ app.use((error, req, res, next) => {
 });
 
 module.exports = app;
-
-

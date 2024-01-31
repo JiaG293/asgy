@@ -14,18 +14,13 @@
   "dependencies": {
     "aws-sdk": "^2.1536.0",
     "bcrypt": "^5.1.1",
-    "body-parser": "^1.20.2",
-    "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "crypto": "^1.0.1",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "google-auth-library": "^9.4.2",
-    "helmet": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^6.3.3",
-    "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "multer-s3": "^3.0.1",
     "nodemailer": "^6.9.8",
@@ -33,5 +28,11 @@
     "redis": "^3.1.2",
     "socket.io": "^4.7.4",
     "winston": "^3.7.2"
+  },
+  "devDependencies": {
+    "compression": "^1.7.4",
+    "crypto": "^1.0.1",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
   }
 }
