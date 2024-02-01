@@ -15,7 +15,7 @@ const apiKeySchema = new mongoose.Schema(
       default: true,
     },
     permissions: {
-      type: [string],
+      type: [String],
       required: true,
       enum: ['0000', '1111', '2222']
     }

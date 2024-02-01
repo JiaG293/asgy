@@ -6,4 +6,6 @@ const findById = async (key) => {
     return objKey;
 }
 
-module.exports = findById;
+module.exports = {
+    findById,
+};

@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 
 //Khoi tao database
-require('./v1/dbs/init.mongodb')
+require('./dbs/init.mongodb')
 // require('./v1/dbs/init.redis')
 
 
@@ -31,7 +31,7 @@ app.use(helmet()) //che dau cong nghe su dung phia back end x-powered-by
 const accessLogStream = fs.createWriteStream(
     path.join(
         __dirname,
-        'v1/log/access.log'
+        '/log/access.log'
     ),
     { flags: 'a' }
 )
@@ -59,10 +59,12 @@ app.use(express.urlencoded({
 
 // app.use('/public', express.static('public'));
 
-//router
-app.use('/', require('./v1/routes'))
+//routes
+app.use('/', require('./routes/'))
 
-// xu li loi 
+
+
+// xu li loi ma code
 app.use((req, res, next) => {
     const error = new Error("Not found");
     error.status = 404;

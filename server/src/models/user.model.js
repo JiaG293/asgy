@@ -24,13 +24,13 @@ const userSchema = new mongoose.Schema(
         username: {
             type: String,
             required: [true, 'Please enter username'],
-            minlength: [8, 'Username must be of minimum 8 characters'],
+            minlength: [6, 'Username must be of minimum 6 characters'],
             unique: [true, 'Username already exists'],
         },
         password: {
             type: String,
             required: [true, 'Please enter password'],
-            minlength: [6, 'Password must be of minimum 8 characters'],
+            minlength: [8, 'Password must be of minimum 8 characters'],
             select: false, // an di khi truy van du lieu
         },
         verify: {

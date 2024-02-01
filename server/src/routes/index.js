@@ -1,13 +1,13 @@
 const express = require('express');
-const { apiKey } = require('../utils/auth/checkAuth.util');
+const { apiKey } = require('../auth/checkAuthController');
 const router = express.Router();
 
 
-//check Api key 
-router.use(apiKey)
+//kiem tra api key phan quyen nguoi dung
+// router.use(apiKey)
 
 
-//
+//khoi tao routes
 router.use('/v1/api/users', require('./access'))
 
 

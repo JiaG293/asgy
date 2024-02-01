@@ -1,6 +1,6 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const { findById } = require('../../models/user.model');
+const { findById } = require('../services/apiKey.service');
 
 const HEADER = {
     API_KEY: 'x-api-key',
@@ -19,6 +19,7 @@ const apiKey = async (req, res, next) => {
         const objKey = await findById(key)
         if (!objKey) {
             res.status(403).json({
+                code: 403,
                 message: 'Forbidden Error'
             })
         }
