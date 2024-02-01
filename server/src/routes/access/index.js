@@ -1,5 +1,5 @@
 const express = require('express');
-const accessController = require('../../controllers/access.controller');
+const AccessController = require('../../controllers/access.controller');
 const router = express.Router();
 const catchAsync = require('../../middlewares/catchAsync.middleware');
 
@@ -15,6 +15,7 @@ router.route('/user/:username').get(isAuthenticated, getUserInfo)
 router.route("/password/update").patch(isAuthenticated, updatePassword);
 router.route("/search").get(searchUser); */
 
-router.route('/signup').post(catchAsync(accessController.signupUser));
+router.route('/signup').post(catchAsync(AccessController.signupUser));
+router.route('/login').post(catchAsync(AccessController.loginUser));
 
 module.exports = router;

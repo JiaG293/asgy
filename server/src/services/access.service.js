@@ -1,19 +1,79 @@
 const UserModel = require('../models/user.model');
 const ProfileModel = require('../models/profile.model');
 
+const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/sendEmail.util');
 const { createTokenPair } = require('../auth/authUtils');
 const KeyTokenService = require('../services/keyToken.service');
 const { BadRequestError, ConflictRequestError, UnauthorizeError } = require('../utils/responses/error.response');
 const { getInfoData } = require('../utils/getInfoModel.util');
+const { findByUsername } = require('./user.service');
 
 class AccessService {
+
+    static loginUser = async ({ username, email, password, refreshToken = null }) => {
+        //find user
+        const findUser = await findByUsername({ username, email });
+
+        //check user
+        if (!findUser) {
+            throw new UnauthorizeError("User doesn't exist");
+        }
+
+        //check password
+        const match = bcrypt.compare(password, findUser.password)
+        if (!match) {
+            throw new UnauthorizeError("Authentication error")
+        }
+
+        const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+            modulusLength: 4096,
+            publicKeyEncoding: {
+                type: 'pkcs1',
+                format: 'pem',
+            },
+            privateKeyEncoding: {
+                type: 'pkcs1',
+                format: 'pem',
+            }
+        })
+
+        //verify token
+        const tokens = await createTokenPair({ userId: findUser._id, email, username }, publicKey, privateKey);
+        console.log("Created tokens success:", tokens);
+
+        //tao publicKeyString de luu vao database
+        const publicKeyString = await KeyTokenService.createKeyToken({
+            userId: findUser._id,
+            refreshToken: tokens.refreshToken,
+            publicKey,
+            privateKey,
+        })
+        if (!publicKeyString) {
+            throw new UnauthorizeError("Public key string invalid")
+        }
+        console.log("publicKeyString:", publicKeyString);
+
+        //tao publicKeyObject de verify tao token cho user
+        const publicKeyObject = crypto.createPublicKey(publicKeyString);
+        console.log("publicKeyObject:", publicKeyObject);
+
+        //tra ve thong tin tao cho body
+        return {
+            user: getInfoData({ fields: ['_id', 'username', 'email',], object: findUser }),
+            tokens,
+        }
+
+    }
+
     static signUpUser = async ({ email, username, password, fullName, sex, birthday, phoneNumber }) => {
-        //tim kiem user co ton tai trong database khong?
+        /* //tim kiem user co ton tai trong database khong?
         const user = await UserModel.findOne({
             $or: [{ email }, { username }]
         }).lean(); //using tra ve kieu object thay vi json
+ */
+        const user = await findByUsername({ username, email });
 
 
         //bat loi truong hop ton tai tra ve ma loi
@@ -73,10 +133,16 @@ class AccessService {
                 }
             })
 
+            //verify token
+            const tokens = await createTokenPair({ userId: newUser._id, email, username }, publicKey, privateKey);
+            console.log("Created tokens success:", tokens);
+
             //tao publicKeyString de luu vao database
             const publicKeyString = await KeyTokenService.createKeyToken({
                 userId: newUser._id,
-                publicKey
+                refreshToken: tokens.refreshToken,
+                publicKey,
+                privateKey,
             })
             if (!publicKeyString) {
                 throw new UnauthorizeError("Public key string invalid")
@@ -87,19 +153,11 @@ class AccessService {
             const publicKeyObject = crypto.createPublicKey(publicKeyString);
             console.log("publicKeyObject:", publicKeyObject);
 
-            //verify token
-            const tokens = await createTokenPair({ userId: newUser._id, email, username }, publicKeyObject, privateKey);
-            console.log("Created tokens success:", tokens);
-
-
             //tra ve thong tin tao cho body
             return {
-                code: 201,
-                metadata: {
-                    user: getInfoData({ fields: ['_id', 'username', 'email',], object: newUser }),
-                    profile: getInfoData({ fields: ['_id', 'userId', 'fullName', 'sex', 'birthday', 'phoneNumber'], object: newProfile }),
-                    tokens,
-                }
+                user: getInfoData({ fields: ['_id', 'username', 'email',], object: newUser }),
+                profile: getInfoData({ fields: ['_id', 'userId', 'fullName', 'sex', 'birthday', 'phoneNumber'], object: newProfile }),
+                tokens,
             }
         }
 

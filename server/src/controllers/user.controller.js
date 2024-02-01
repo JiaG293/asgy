@@ -3,7 +3,7 @@ const ProfileModel = require('../models/profile.model');
 
 const catchAsync = require('../middlewares/catchAsync.middleware');
 const sendCookie = require('../utils/sendCookie.util');
-const ErrorHandler = require('../utils/errorHandler.util');
+const ErrorHandler = require('../helpers/errorHandler.util');
 const { sendEmail } = require('../utils/sendEmail.util');
 const crypto = require('crypto');
 const { createTokenPair } = require('../utils/auth.util');

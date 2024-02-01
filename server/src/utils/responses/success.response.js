@@ -89,4 +89,5 @@ module.exports = {
     CREATED,
     NO_CONTENT,
     PARTIAL_CONTENT,
+    SuccessResponse,
 }

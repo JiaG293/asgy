@@ -1,6 +1,10 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
+const catchAsync = require('../middlewares/catchAsync.middleware');
 
+const authentication = catchAsync(async (req, res, next) => {
+
+})
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
 
@@ -31,4 +35,5 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
 
 module.exports = {
     createTokenPair,
+    authentication,
 }

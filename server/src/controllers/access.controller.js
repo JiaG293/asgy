@@ -1,7 +1,16 @@
 const AccessService = require("../services/access.service");
-const { CREATED } = require("../utils/responses/success.response");
+const { CREATED, SuccessResponse } = require("../utils/responses/success.response");
 
 class AccessController {
+
+    //Login 
+    loginUser = async (req, res, next) => {
+        new SuccessResponse({
+            metadata: await AccessService.loginUser(req.body)
+        }).send(res)
+    }
+
+
     signupUser = async (req, res, next) => {
 
         //Cach cu khong dung utils handler response
