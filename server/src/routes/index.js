@@ -8,7 +8,7 @@ const router = express.Router();
 
 
 //khoi tao routes
-router.use('/v1/api/users', require('./access'))
+router.use('/api/v1/users', require('./access'))
 
 
 

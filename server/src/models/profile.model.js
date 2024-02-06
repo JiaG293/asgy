@@ -17,7 +17,7 @@ const profileSchema = new mongoose.Schema({
         type: String,
         default: 'https://i.imgur.com/fL8RNta.png',
     },
-    sex: {
+    gender: {
         type: String,
         enum: ['Nam', 'Nữ', 'Bí mật'],
         required: [true, 'Sex must be one of Nam | Nữ | Bí mật'],

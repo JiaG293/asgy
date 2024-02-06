@@ -12,9 +12,9 @@ const { findByUsername } = require('./user.service');
 
 class AccessService {
 
-    static loginUser = async ({ username, email, password, refreshToken = null }) => {
+    static loginUser = async ({ userID, password, refreshToken = null }) => {
         //find user
-        const findUser = await findByUsername({ username, email });
+        const findUser = await findByUsername({ userID });
 
         //check user
         if (!findUser) {
@@ -40,7 +40,7 @@ class AccessService {
         })
 
         //verify token
-        const tokens = await createTokenPair({ userId: findUser._id, email, username }, publicKey, privateKey);
+        const tokens = await createTokenPair({ _id: findUser._id, userID }, publicKey, privateKey);
         console.log("Created tokens success:", tokens);
 
         //tao publicKeyString de luu vao database
@@ -67,7 +67,7 @@ class AccessService {
 
     }
 
-    static signUpUser = async ({ email, username, password, fullName, sex, birthday, phoneNumber }) => {
+    static signUpUser = async ({ email, username, password, fullName, gender, birthday, phoneNumber }) => {
         /* //tim kiem user co ton tai trong database khong?
         const user = await UserModel.findOne({
             $or: [{ email }, { username }]
@@ -95,7 +95,7 @@ class AccessService {
         const dataProfile = await new ProfileModel({
             userId: dataUser._id,
             fullName,
-            sex,
+            gender,
             birthday,
             phoneNumber,
         });
@@ -156,7 +156,7 @@ class AccessService {
             //tra ve thong tin tao cho body
             return {
                 user: getInfoData({ fields: ['_id', 'username', 'email',], object: newUser }),
-                profile: getInfoData({ fields: ['_id', 'userId', 'fullName', 'sex', 'birthday', 'phoneNumber'], object: newProfile }),
+                profile: getInfoData({ fields: ['_id', 'userId', 'fullName', 'gender', 'birthday', 'phoneNumber'], object: newProfile }),
                 tokens,
             }
         }
