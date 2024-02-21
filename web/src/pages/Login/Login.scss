@@ -1,134 +1,120 @@
-//thuộc tính của toàn page login react
+/* Reset CSS */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f2f2f2;
+}
+
 .login-container {
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   height: 100vh;
-  font-family: 'Segoe UI';
-  background-color: #69BC5B;
 }
 
-//khung form login
 .login-form {
-  width: 250px;
-  padding: 5px 25px;
-  border: 1px solid #ccc;
-  backdrop-filter: blur(10px);
-  border-radius: 10px;
-  background-color: transparent;
-  box-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
-  background-color: white;
-
-}
-
-//Asgy
-.login-container h1{
-  font-size: 30px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 400px;
   text-align: center;
-  color: #73CAA6;
-  font-weight: 500;
 }
 
-.login-container h2{
-  font-size: 10px;
-  text-align: center;
-  color: #444444;
-  font-weight: 400;
-  margin-top: 10px;
-  margin-bottom: 20px;
-}
-
-
-//div chứa text input
-.login-input-box{
-  position: relative;
-  width: 100%;
-  height: 30px;
-  margin: 10px 0;
-}
-
-//text input
-.login-input{
-  width: 100%;
-  height: 100%;
-  background: #E7E7E7;
-  outline: none;
-  border: 1px solid #ffffff33;
-  border-radius: 10px;
-  padding-left: 25px;
-  padding-right: 25px;
-  font-size: 10px;
-}
-
-//place holder textinput
-.login-input-box input::placeholder{
-  color: #6D6E6C
-}
-
-//margin khoảng cách
-.login-input-box,
-.login-button-box,
-.login-forgot-password,
-.login-signup-link {
+h1 {
+  color: #69bc5b;
+  font-size: 32px;
+  font-weight: bold;
   margin-bottom: 10px;
 }
 
-.login-icon{
-  position: absolute;
-  left: 8px;
-  margin-top: 7px;
-  font-size: 15px;
+h2 {
+  color: #333333;
+  font-size: 16px;
+  margin-bottom: 20px;
 }
 
-.login-icon-right{
-  position: absolute;
-  right: 8px;
-  margin-top: 7px;
-  font-size: 15px;
-  cursor: pointer;
+.login-input-box {
+  position: relative;
+  margin-bottom: 20px;
 }
 
-
-
-// div quên mật khẩu
-.login-forgot-password{
-  display: flex;
-  justify-content: right;
-  font-size: 10px;
-}
-
-//link quên mật khẩu
-.login-forgot-password a{
-  text-decoration: none;
-  color: #73CAA6;
-  font-weight: 400;
-}
-
-// nút button đăng nhập
-.login-button-box button{
+.login-input {
   width: 100%;
-  height: 25px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   outline: none;
-  border: none;
-  background-color: #73CAA6;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+.login-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 10px;
+}
+
+.login-icon-right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 10px;
   cursor: pointer;
-  font-size: 16;
-  color: white;
-  font-weight: 500;
 }
 
-//div chứa link đăng ký
-.login-register-link{
-  font-size: 10px;
-  text-align: center;
-  margin-top: 20px;
+.login-forgot-password {
+  margin-bottom: 20px;
+  text-align: right;
 }
 
-//link đăng ký
-.login-register-link a{
+.login-forgot-password a {
+  color: #69bc5b;
   text-decoration: none;
-  color: #73CAA6;
-  font-weight: 400;
+  font-size: 14px;
+}
+
+.login-forgot-password a:hover {
+  text-decoration: underline;
+}
+
+.login-button-box {
+  margin-bottom: 20px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #69bc5b;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  outline: none;
+}
+
+.login-register-link {
+  text-align: center;
+}
+
+.login-register-link p {
+  font-size: 14px;
+  color: #333333;
+}
+
+.login-register-link a {
+  color: #69bc5b;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.login-register-link a:hover {
+  text-decoration: underline;
 }
