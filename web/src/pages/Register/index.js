@@ -37,11 +37,6 @@ function Register() {
   };
   const [warningMessages, setWarningMessages] = useState(initialWarningState);
 
-  // // hàm chuyển hướng trang sang trang tiếp
-  // const navigateToCreateUserInfor = () => {
-  //   // navigate("/create-user-infor");
-  // };
-
   //hàm kiểm tra đồng ý điều khoản
   const handleAgreeChange = () => {
     setIsAgree(!isAgree);

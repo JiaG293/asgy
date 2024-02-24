@@ -3,7 +3,6 @@ import { IoMdLock as PasswordIcon } from "react-icons/io";
 import { IoEyeSharp as ShowPasswordIcon } from "react-icons/io5";
 import { IoEyeOffSharp as HidePasswordIcon } from "react-icons/io5";
 import { Link } from "react-router-dom";
-import "../../components/global/GlobalStyle.scss";
 import "../Login/Login.scss";
 import { usePasswordVisibility } from "./action";
 
