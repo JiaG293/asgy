@@ -35,6 +35,7 @@ const profileSchema = new mongoose.Schema({
         required: [true, 'Please enter phone number'],
         minlength: [10, 'Phone number must be of minimum 10 characters'],
         maxlength: [10, 'Phone number must be of maximum 10 characters'],
+        unique: [true, 'Phone number already exists']
     },
     boxChatRecent: [
         {

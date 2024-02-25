@@ -1,6 +1,6 @@
 const UserModel = require("../models/user.model")
 
-const findByUsername = async ({ userID, select = {
+const findByUserID = async ({ userID, select = {
     username: 1,
     email: 1,
     password: 1,
@@ -16,7 +16,17 @@ const findByUsername = async ({ userID, select = {
     }
 }
 
+const findByUsername = async ({ username }) => {
+    return await UserModel.findOne({ username: username }).lean()
+}
+
+const findByEmail = async ({ email }) => {
+    return await UserModel.findOne({ email: email }).lean()
+}
+
 module.exports = {
+    findByUserID,
     findByUsername,
+    findByEmail,
 
 }

@@ -2,6 +2,7 @@ const express = require('express');
 const AccessController = require('../../controllers/access.controller');
 const router = express.Router();
 const catchAsync = require('../../middlewares/catchAsync.middleware');
+const { authentication } = require('../../auth/authUtils');
 
 /* const { forgotPassword, signupUser, logoutUser, loginUser, resetPassword, getUserInfo, updatePassword, searchUser } = require('../../controllers/user.controller');
 const { isAuthenticated } = require('../../middlewares/auth.middleware'); */
@@ -17,5 +18,11 @@ router.route("/search").get(searchUser); */
 
 router.route('/signup').post(catchAsync(AccessController.signupUser));
 router.route('/login').post(catchAsync(AccessController.loginUser));
+
+
+//Luon luon su dung router duoi authentication
+router.use(authentication)
+router.route('/logout').post(catchAsync(AccessController.logoutUser));
+router.route('/handleRefreshToken').post(catchAsync(AccessController.handleRefreshToken));
 
 module.exports = router;
