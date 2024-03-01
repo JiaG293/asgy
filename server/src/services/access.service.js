@@ -1,10 +1,11 @@
 const UserModel = require('../models/user.model');
 const ProfileModel = require('../models/profile.model');
+const KeyTokenModel = require('../models/keyToken.model');
 
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/sendEmail.util');
-const { createTokenPair, verifyJWT } = require('../auth/authUtils');
+const { createTokenPair, verifyJWT} = require('../auth/authUtils');
 const KeyTokenService = require('../services/keyToken.service');
 const { BadRequestError, ConflictRequestError, UnauthorizeError, ForbiddenError } = require('../utils/responses/error.response');
 const { getInfoData } = require('../utils/getInfoModel.util');
@@ -84,7 +85,7 @@ class AccessService {
         }
 
         //check password
-        const match = bcrypt.compare(password, findUser.password)
+        const match = await bcrypt.compare(password, findUser.password)
         if (!match) {
             throw new UnauthorizeError("Authentication error")
         }
@@ -107,7 +108,9 @@ class AccessService {
              keyPrivate = privateKey
          } */
 
-        const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+         
+
+        const { privateKey, publicKey } = await crypto.generateKeyPairSync('rsa', {
             modulusLength: 4096,
             publicKeyEncoding: {
                 type: 'pkcs1',
@@ -120,12 +123,16 @@ class AccessService {
         })
 
 
-        //verify token
-        const tokens = await createTokenPair({ _id: findUser._id, userID }, publicKey, privateKey);
+        //Tao id cho keytoken - client id => de tao ra refrest token theo chua id nay
+        const clientId = await KeyTokenService.createIdKeyToken();
+
+        //Tao tokens de thuc hien xac thuc khi can thiet
+        const tokens = await createTokenPair({ clientId: clientId, userId: findUser._id, userID }, publicKey, privateKey);
         console.log("Created tokens success:", tokens);
 
         //tao publicKeyString de luu vao database
         const publicKeyString = await KeyTokenService.createKeyToken({
+            clientId: clientId,
             userId: findUser._id,
             refreshToken: tokens.refreshToken,
             publicKey,
@@ -145,7 +152,7 @@ class AccessService {
         console.log(publicKeyString);
         //tra ve thong tin tao cho body
         return {
-            client: publicKeyString._id,
+            clientId: publicKeyString._id,
             user: getInfoData({ fields: ['_id', 'username', 'email',], object: findUser }),
             tokens,
         }
@@ -158,9 +165,9 @@ class AccessService {
             $or: [{ email }, { username }]
         }).lean(); //using tra ve kieu object thay vi json
  */
-        const checkUsername = await findByUsername({ username });
-        const checkEmail = await findByEmail({ email });
-        const checkPhoneNumber = await findByPhoneNumber({ phoneNumber })
+        const checkUsername = await findByUsername(username);
+        const checkEmail = await findByEmail(email);
+        const checkPhoneNumber = await findByPhoneNumber(phoneNumber);
 
         //bat loi truong hop ton tai tra ve ma loi
         if (checkUsername?.username === username) {
@@ -203,52 +210,64 @@ class AccessService {
         //Kiem tra USER xem tao co thanh cong hay khong
         if (newUser) {
 
-            /* 
-                tao ma privateKey va publicKey theo RSA
-                privateKey: luu o server dung de sign jwt
-                publicKey: luc o database cho nguoi su dung, dung de decode jwt
-            */
-            const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-                modulusLength: 4096,
-                publicKeyEncoding: {
-                    type: 'pkcs1',
-                    format: 'pem',
-                },
-                privateKeyEncoding: {
-                    type: 'pkcs1',
-                    format: 'pem',
-                }
-            })
+            // /* 
+            //     tao ma privateKey va publicKey theo RSA
+            //     privateKey: luu o server dung de sign jwt
+            //     publicKey: luc o database cho nguoi su dung, dung de decode jwt
+            // */
+            // const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
+            //     modulusLength: 4096,
+            //     publicKeyEncoding: {
+            //         type: 'pkcs1',
+            //         format: 'pem',
+            //     },
+            //     privateKeyEncoding: {
+            //         type: 'pkcs1',
+            //         format: 'pem',
+            //     }
+            // })
 
-            //verify token
-            const tokens = await createTokenPair({ userId: newUser._id, email, username }, publicKey, privateKey);
-            console.log("Created tokens success:", tokens);
+            // //create token tao ra access va refresh token
+            // const tokens = await createTokenPair({ userId: newUser._id, email, username }, publicKey, privateKey);
+            // console.log("Created tokens success:", tokens);
+            // if (!tokens) {
+            //     throw new UnauthorizeError("Tokens must init")
+            // }
 
-            //tao publicKeyString de luu vao database
-            const publicKeyString = await KeyTokenService.createKeyToken({
-                userId: newUser._id,
-                refreshToken: tokens.refreshToken,
-                publicKey,
-                privateKey,
-            })
-            if (!publicKeyString) {
-                throw new UnauthorizeError("Public key string invalid")
-            }
-            console.log("publicKeyString:", publicKeyString);
+            // //tao publicKeyString de luu vao database
+            // const publicKeyString = await KeyTokenService.createKeyToken({
+            //     userId: newUser._id,
+            //     refreshToken: tokens.refreshToken,
+            //     publicKey,
+            //     privateKey,
+            // })
+            // if (!publicKeyString) {
+            //     throw new UnauthorizeError("Public key string invalid")
+            // }
+            // console.log("publicKeyString:", publicKeyString);
 
             //tao publicKeyObject de verify tao token cho user
-            const publicKeyObject = crypto.createPublicKey(publicKeyString.publicKey);
-            console.log("publicKeyObject:", publicKeyObject);
-
+            // const publicKeyObject = crypto.createPublicKey(publicKeyString.publicKey);
+            // console.log("publicKeyObject:", publicKeyObject);
             //tra ve thong tin tao cho body
             return {
-                client: publicKeyString._id,
                 user: getInfoData({ fields: ['_id', 'username', 'email',], object: newUser }),
-                profile: getInfoData({ fields: ['_id', 'userId', 'fullName', 'gender', 'birthday', 'phoneNumber'], object: newProfile }),
-                tokens,
+                profile: getInfoData({ fields: ['_id', 'userId', 'fullName', 'gender', 'birthday', 'phoneNumber'], object: newProfile })
             }
         }
 
+
+
+    }
+
+    //Logout service
+    static test = async (data) => {
+
+        const delKey = await KeyTokenService.checkTokenByUserId(data.client);
+        if (delKey.length() === 3) {
+            throw new ConflictRequestError("Limit 3 login devices!!!")
+        }
+        return delKey;
     }
 }
 

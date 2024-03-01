@@ -1,8 +1,22 @@
 const { Types } = require("mongoose");
+const Mongoose  = require("mongoose");
 const KeyTokenModel = require("../models/keyToken.model");
 
 class KeyTokenService {
-    static createKeyToken = async ({ userId, publicKey, privateKey, refreshToken }) => {
+
+
+
+    static createIdKeyToken = async () => {
+        try {
+            const clientObjectId = new Mongoose.Types.ObjectId();
+            return clientObjectId;
+        }
+        catch (err) {
+            return error;
+        }
+    };
+
+    static createKeyToken = async ({ clientId, userId, publicKey, privateKey, refreshToken }) => {
         try {
             //method simple
             /* const publicKeyString = publicKey.toString();
@@ -14,9 +28,9 @@ class KeyTokenService {
             return tokens ? tokens.publicKey : null; */
 
             //method advanced
-            const filter = { userId: userId }
+            const filter = { _id: clientId }
             const update = {
-                publicKey, privateKey, refreshTokenUsed: [], refreshToken
+                _id: clientId, userId, publicKey, privateKey, refreshTokenUsed: [], refreshToken
             }
             const options = { upsert: true, new: true }
             const tokens = await KeyTokenModel.findOneAndUpdate(filter, update, options);
@@ -32,7 +46,11 @@ class KeyTokenService {
         return await KeyTokenModel.findOne({ userId: Types.ObjectId(userId) }).lean();
     }
 
-    static removeTokenById = async ({ id }) => {
+    static findTokenById = async (id) => {
+        return await KeyTokenModel.findOne({ _id: Types.ObjectId(id) }).lean();
+    }
+
+    static removeTokenById = async (id) => {
         const result = await KeyTokenModel.deleteOne({
             _id: new Types.ObjectId(id)
         })
@@ -49,6 +67,10 @@ class KeyTokenService {
 
     static deleteKeyById = async (idKey) => {
         return await KeyTokenModel.findByIdAndDelete({ _id: idKey })
+    }
+
+    static checkTokenByUserId = async (userId) => {
+        return await KeyTokenModel.find({ userId: Types.ObjectId(userId) }).sort({ userId: 1 }).lean();
     }
 
 }

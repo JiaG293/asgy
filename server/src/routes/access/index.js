@@ -16,6 +16,9 @@ router.route('/user/:username').get(isAuthenticated, getUserInfo)
 router.route("/password/update").patch(isAuthenticated, updatePassword);
 router.route("/search").get(searchUser); */
 
+//test data
+router.route('/test').post(catchAsync(AccessController.test))
+
 router.route('/signup').post(catchAsync(AccessController.signupUser));
 router.route('/login').post(catchAsync(AccessController.loginUser));
 
@@ -24,5 +27,7 @@ router.route('/login').post(catchAsync(AccessController.loginUser));
 router.use(authentication)
 router.route('/logout').post(catchAsync(AccessController.logoutUser));
 router.route('/handleRefreshToken').post(catchAsync(AccessController.handleRefreshToken));
+
+
 
 module.exports = router;

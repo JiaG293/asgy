@@ -10,6 +10,10 @@ const router = express.Router();
 //khoi tao routes
 router.use('/api/v1/users', require('./access'))
 
+router.use('/api/v1/accounts', require('./users'))
+
+router.use('/api/v1/profile', require('./profile'))
+
 
 
 module.exports = router;

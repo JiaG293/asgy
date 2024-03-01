@@ -2,8 +2,8 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const catchAsync = require('../middlewares/catchAsync.middleware');
 
-const { findTokenByUserId } = require('../services/keyToken.service');
-const { UnauthorizeError, BadRequestError } = require('../utils/responses/error.response');
+const { findTokenByUserId, findTokenById } = require('../services/keyToken.service');
+const { UnauthorizeError, BadRequestError, ConflictRequestError } = require('../utils/responses/error.response');
 
 const HEADER = {
     API_KEY: 'x-api-key',
@@ -16,26 +16,27 @@ const verifyJWT = async (token, keySecret) => {
 }
 
 const authentication = catchAsync(async (req, res, next) => {
-    const userId = req.headers[HEADER.CLIENT_ID];
-    if (!userId) {
+    const clientId = await req.headers[HEADER.CLIENT_ID];
+    if (!clientId) {
         throw new UnauthorizeError('Invalid request');
     }
 
-    const keyStore = await findTokenByUserId(userId)
+    const keyStore = await findTokenById(clientId)
     if (!keyStore) {
         throw new BadRequestError('Not found key store');
     }
 
-    const accessToken = req.headers[HEADER.AUTHORIZATION]
+    const accessToken = await req.headers[HEADER.AUTHORIZATION]
     if (!accessToken) {
         throw new UnauthorizeError('Invalid Request')
     }
 
     try {
-        const decodeUser = jwt.verify(accessToken, keyStore.privateKey, { algorithms: ['RS256'] })
+        const decodeUser = await verifyJWT(accessToken, keyStore.privateKey);
         //so sanh thong tin access token mang va decode co verify hay khong boi private va public key pair voi nhau
-        console.log(userId, "dsd", decodeUser);
-        if (userId !== decodeUser._id) {
+        console.log('client id:', clientId, '\nid decode:', decodeUser);
+
+        if (clientId !== decodeUser.clientId) {
             throw new UnauthorizeError('Invalid UserId')
         }
         req.keyStore = keyStore;
@@ -43,7 +44,6 @@ const authentication = catchAsync(async (req, res, next) => {
     } catch (error) {
         throw error;
     }
-
 })
 
 const createTokenPair = async (payload, publicKey, privateKey) => {
@@ -77,5 +77,4 @@ module.exports = {
     createTokenPair,
     authentication,
     verifyJWT,
-    
 }
