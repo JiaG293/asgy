@@ -4,122 +4,36 @@ import { IoMdLock as PasswordIcon } from "react-icons/io";
 import { MdEmail as EmailIcon } from "react-icons/md";
 import { FaCalendarAlt as DateIcon } from "react-icons/fa";
 import { FaPhone as PhoneIcon } from "react-icons/fa";
-import { IoIosSend as SendIcon } from "react-icons/io";
-import { MdOutlineVerifiedUser as OTPIcon } from "react-icons/md";
-import axios from "axios";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Register.scss";
-import { useState } from "react";
+import useRegister from "./action";
 
 // giao diện register
 function Register() {
-  const navigate = useNavigate();
-  const [getUsername, setUsername] = useState("");
-  const [getEmail, setEmail] = useState("");
-  const [getFullname, setFullname] = useState("");
-  const [getPhonenumber, setPhonenumber] = useState("");
-  const [getGender, setGender] = useState("Nam");
-  const [getBirthdate, setBirthdate] = useState("");
-  const [getPassword, setPassword] = useState("");
-  const [getRepassword, setRepassword] = useState("");
-  const [isAgree, setIsAgree] = useState(false);
-
-  const initialWarningState = {
-    email: "",
-    username: "",
-    fullname: "",
-    phone: "",
-    gender: "",
-    birthdate: "",
-    password: "",
-    repassword: "",
-  };
-  const [warningMessages, setWarningMessages] = useState(initialWarningState);
-
-  //hàm kiểm tra đồng ý điều khoản
-  const handleAgreeChange = () => {
-    setIsAgree(!isAgree);
-    console.log("Checkbox checked:", !isAgree);
-  };
-
-  // Hàm kiểm tra hợp lệ
-  const validateInput = () => {
-    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    const currentDate = new Date();
-    const minBirthdate = new Date(
-      currentDate.getFullYear() - 16,
-      currentDate.getMonth(),
-      currentDate.getDate()
-    );
-
-    // Kiểm tra và cập nhật warningMessages
-    setWarningMessages((prev) => ({
-      ...prev,
-      username:
-        getUsername.length < 6 ? "Tên tài khoản phải có ít nhất 6 ký tự" : "",
-      email: !emailRegex.test(getEmail)
-        ? "Vui lòng nhập một địa chỉ email hợp lệ"
-        : "",
-      phone:
-        getPhonenumber.length !== 10 || !getPhonenumber.startsWith("0")
-          ? "Số điện thoại 10 kí tự số và bắt đầu bằng số 0"
-          : "",
-      password:
-        getPassword.length < 8 ? "Mật khẩu phải có ít nhất 8 ký tự" : "",
-      repassword: getPassword !== getRepassword ? "Mật khẩu không khớp" : "",
-      birthdate:
-        new Date(getBirthdate) > minBirthdate
-          ? "Bạn phải đủ 16 tuổi để đăng ký"
-          : "",
-      fullname: getFullname.trim() === "" ? "Vui lòng nhập họ và tên" : "",
-      birthdate: getBirthdate.trim() === "" ? "Vui lòng chọn ngày sinh" : "",
-    }));
-
-    // Kiểm tra tất cả các điều kiện và trả về true hoặc false
-    const isValid =
-      emailRegex.test(getEmail) &&
-      getUsername.length >= 6 &&
-      getPassword.length >= 8 &&
-      getPassword === getRepassword &&
-      getPhonenumber.length === 10 &&
-      getPhonenumber.startsWith("0") &&
-      new Date(getBirthdate) <= minBirthdate;
-
-    // Nếu dữ liệu nhập vào đúng, cập nhật lại state cảnh báo về giá trị mặc định
-    if (isValid) {
-      setWarningMessages(initialWarningState);
-    }
-
-    return isValid;
-  };
-
-  // Hàm xử lý đăng ký
-  const handleRegister = async () => {
-    try {
-      // Kiểm tra hợp lệ
-      const isValid = validateInput();
-
-      // Nếu thông tin không hợp lệ
-      if (!isValid) {
-        return;
-      }
-
-      // Tiếp tục đăng ký nếu thông tin hợp lệ
-      await axios.post("http://localhost:5000/api/v1/users/signup", {
-        email: getEmail,
-        username: getUsername,
-        password: getPassword,
-        fullName: getFullname,
-        gender: getGender,
-        birthday: getBirthdate,
-        phoneNumber: getPhonenumber,
-      });
-      toast.success("Đăng ký thành công");
-    } catch (error) {
-      toast.error("Tên người dùng, SĐT hoặc Email đã được dùng");
-    }
-  };
+  const {
+    getUsername,
+    setUsername,
+    getEmail,
+    setEmail,
+    getFullname,
+    setFullname,
+    getPhonenumber,
+    setPhonenumber,
+    getGender,
+    setGender,
+    getBirthdate,
+    setBirthdate,
+    getPassword,
+    setPassword,
+    getRepassword,
+    setRepassword,
+    isAgree,
+    setIsAgree,
+    warningMessages,
+    handleAgreeChange,
+    handleRegister,
+  } = useRegister();
 
   //render
   return (
@@ -128,7 +42,7 @@ function Register() {
         <h1 style={{ color: "#69bc5b", fontWeight: 500, textAlign: "center" }}>
           Đăng ký tài khoản
         </h1>
-        <br></br>
+        <br />
         {/* Tên tài khoản */}
         <div className="register-input-box">
           <input
@@ -139,7 +53,7 @@ function Register() {
             onChange={(e) => {
               setUsername(e.target.value);
             }}
-          ></input>
+          />
           <UserIcon className="register-icon"></UserIcon>
           <p className="register-warning-text">{warningMessages.username}</p>
         </div>
@@ -153,7 +67,7 @@ function Register() {
             onChange={(e) => {
               setFullname(e.target.value);
             }}
-          ></input>
+          />
           <UserIcon className="register-icon"></UserIcon>{" "}
           <p className="register-warning-text">{warningMessages.fullname}</p>
         </div>
@@ -174,7 +88,7 @@ function Register() {
               onChange={(e) => {
                 setGender(e.target.value);
               }}
-            ></input>
+            />
             <p>Nam</p>
           </div>
           <div className="register-radio">
@@ -186,7 +100,7 @@ function Register() {
               onChange={(e) => {
                 setGender(e.target.value);
               }}
-            ></input>
+            />
             <p>Nữ</p>
           </div>
           <div className="register-radio">
@@ -198,7 +112,7 @@ function Register() {
               onChange={(e) => {
                 setGender(e.target.value);
               }}
-            ></input>
+            />
             <p>Bí mật</p>
           </div>
         </div>
@@ -212,10 +126,7 @@ function Register() {
               placeholder="Ngày sinh"
               value={getBirthdate}
               onChange={(e) => {
-                const formattedDate = new Date(
-                  e.target.value
-                ).toLocaleDateString("en-CA"); // Format: yyyy-mm-dd
-                setBirthdate(formattedDate);
+                setBirthdate(e.target.value);
               }}
             />
             <DateIcon className="register-icon"></DateIcon>{" "}
@@ -233,11 +144,11 @@ function Register() {
             onChange={(e) => {
               setPhonenumber(e.target.value);
             }}
-          ></input>
+          />
           <PhoneIcon className="register-icon"></PhoneIcon>{" "}
           <p className="register-warning-text">{warningMessages.phone}</p>
         </div>
-        {/*Email*/}
+        {/* Email*/}
         <div className="register-input-box">
           <input
             type="text"
@@ -247,7 +158,7 @@ function Register() {
             onChange={(e) => {
               setEmail(e.target.value);
             }}
-          ></input>
+          />
           <EmailIcon className="register-icon"></EmailIcon>
           <p className="register-warning-text">{warningMessages.email}</p>
         </div>
@@ -262,7 +173,7 @@ function Register() {
             onChange={(e) => {
               setPassword(e.target.value);
             }}
-          ></input>
+          />
           <PasswordIcon className="register-icon"></PasswordIcon>{" "}
           <p className="register-warning-text">{warningMessages.password}</p>
         </div>
@@ -276,7 +187,7 @@ function Register() {
             onChange={(e) => {
               setRepassword(e.target.value);
             }}
-          ></input>
+          />
           <PasswordIcon className="register-icon"></PasswordIcon>{" "}
           <p className="register-warning-text">{warningMessages.repassword}</p>
         </div>
@@ -287,7 +198,7 @@ function Register() {
             className="register-checkbox"
             checked={isAgree}
             onChange={handleAgreeChange}
-          ></input>
+          />
           <span>
             Tôi đã đồng ý với <a href="">Điều khoản</a>,{" "}
             <a href="">Chính sách quyền riêng tư</a> và{" "}
@@ -313,7 +224,6 @@ function Register() {
         </div>
       </form>
       <ToastContainer /> {/* Thêm ToastContainer vào cuối component */}
-
     </div>
   );
 }
