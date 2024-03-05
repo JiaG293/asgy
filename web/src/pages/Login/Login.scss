@@ -118,3 +118,56 @@ button {
 .login-register-link a:hover {
   text-decoration: underline;
 }
+
+// styles.scss
+
+// Loading Spinner Keyframes
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Your Component Styles
+.login-button-box {
+  margin-top: 20px;
+
+  button {
+    padding: 10px 20px;
+    background-color: #69bc5b;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #69bc5b;
+    }
+
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+
+  // Loading State Styles
+  button[disabled] {
+    position: relative;
+    cursor: not-allowed;
+
+    &:after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+}
