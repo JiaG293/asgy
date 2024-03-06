@@ -1,0 +1,33 @@
+// Home.scss
+
+.home-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden
+}
+
+.home-header {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-content {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden; /* Tránh tràn nội dung ra khỏi màn hình */
+}
+
+/* Additional styling for responsiveness */
+@media screen and (max-width: 768px) {
+  .home-container {
+    flex-direction: column;
+  }
+
+  .home-content {
+    order: 1;
+  }
+}
+
+

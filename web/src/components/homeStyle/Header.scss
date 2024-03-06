@@ -1,0 +1,48 @@
+// Header.scss
+
+.header {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #69BC5B;
+    color: #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng đổ */
+    height: 0.1*100vh;
+  }
+  
+  
+  
+  .search-bar {
+    display: flex;
+    align-items: center;
+  }
+  
+  .searchBarInput {
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.3); /* Màu nền với độ trong suốt */
+    color: #fff;
+    outline: none; /* Loại bỏ đường viền khi focus */
+  }
+  
+  .searchBarButton {
+    padding: 10px 15px;
+    background-color: #fff;
+    color: #007bff;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s; /* Hiệu ứng chuyển động mượt mà */
+  }
+  
+  .searchBarButton:hover {
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  // Thêm hiệu ứng hover cho avatar
+  .avatar:hover {
+    filter: brightness(1.2); /* Tăng độ sáng khi hover */
+  }
+  
