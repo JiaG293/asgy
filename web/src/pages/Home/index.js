@@ -3,6 +3,12 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 
+import "./Home.scss";
+import Tools from "../../components/home/Tools";
+import ListMess from "../../components/home/ListMess";
+import Chat from "../../components/home/Chat";
+
+
 function Home() {
   const [userName, setUserName] = useState(null);
 
@@ -50,9 +56,16 @@ function Home() {
   }, []);
 
 //render
+
+
+
+
   return (
-    <div>
-      <h2>User Name: {userName}</h2>
+    <div className="home-container">
+      <Tools />
+      <ListMess />
+      <Chat />
+
     </div>
   );
 }
