@@ -7,38 +7,39 @@ import "./Home.scss";
 import Tools from "../../components/home/Tools";
 import ListMess from "../../components/home/ListMess";
 import Chat from "../../components/home/Chat";
-
+import { useNavigate } from "react-router-dom";
 
 function Home() {
-  const [userName, setUserName] = useState(null);
-
+  const navigate = useNavigate();
+  const [getUser, setUser] = useState("");
   useEffect(() => {
     const fetchData = async () => {
       try {
         const refreshToken = Cookies.get("refreshToken");
         if (!refreshToken) {
           console.error("refreshToken không tồn tại");
+          //điều hướng về trang login
+          navigate('/login')
           return;
         }
         // Giải mã refreshToken để xem thông tin chứa trong nó
         const decodedToken = jwt_decode(refreshToken);
-        // Lấy clientID từ decodedToken
+        console.log(decodedToken);
         const clientID = decodedToken.clientId;
-        // Tạo headers chứa thông tin cần thiết
         const headers = {
           "X-Client-Id": clientID,
-          'Authorization': refreshToken,
+          Authorization: refreshToken,
         };
         // Gửi yêu cầu lấy thông tin người dùng sử dụng refreshToken
         const response = await axios.post(
-          "http://localhost:5000/api/v1/accounts/information",
+          "http://localhost:5000/api/v1/profile/personal-information",
           { userId: decodedToken.userId },
           { headers }
         );
+        // Lấy dữ liệu thông tin người dùng và cập nhật state
         if (response.status === 200) {
-          // Lấy tên người dùng từ decodedToken và cập nhật state
-          const userName = decodedToken.userID;
-          setUserName(userName);
+          const user = response.data.metadata;
+          setUser(user);
         } else {
           console.error("Lỗi khi lấy thông tin người dùng");
         }
@@ -55,17 +56,14 @@ function Home() {
     fetchData();
   }, []);
 
-//render
-
-
-
+  //render
 
   return (
     <div className="home-container">
-      <Tools />
+      {console.log(getUser)}
+      <Tools user={getUser}/>
       <ListMess />
       <Chat />
-
     </div>
   );
 }
