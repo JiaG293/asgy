@@ -47,12 +47,7 @@ function Login() {
     } finally {
       setLoading(false);
     }
-  };
-
-  // const handleLogin = () => {
-  //   dispatch(loginUser(getUsernameOrEmail, getPassword, navigate));
-  // };
-  
+  };  
 
   //render
   return (
