@@ -36,26 +36,40 @@ const useRegister = () => {
       currentDate.getMonth(),
       currentDate.getDate()
     );
+    const fullNameRegex = /^[^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]*[A-Z][^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]*([a-zA-Z\s]*[A-Z][^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]*)*$/;
+    const usernameRegex = /^[a-zA-Z0-9_.]+$/;
 
     // Kiểm tra và cập nhật warningMessages
     setWarningMessages((prev) => ({
       ...prev,
       username:
-        getUsername.length < 6 ? "Tên tài khoản phải có ít nhất 6 ký tự" : "",
+        getUsername.length < 6
+          ? "Tên tài khoản phải có ít nhất 6 ký tự"
+          : !usernameRegex.test(getUsername)
+          ? "Tên tài khoản không được chứa ký tự đặc biệt (ngoại trừ _ và .)"
+          : "",
       email: !emailRegex.test(getEmail)
         ? "Vui lòng nhập một địa chỉ email hợp lệ"
         : "",
       phone:
-        getPhonenumber.length !== 10 || !getPhonenumber.startsWith("0")
-          ? "Số điện thoại 10 kí tự số và bắt đầu bằng số 0"
+        getPhonenumber.length !== 10
+          ? "Số điện thoại 10 kí tự số"
+          : !getPhonenumber.startsWith("0")
+          ? "Số điện thoại bắt đầu bằng số 0"
           : "",
       password:
         getPassword.length < 8 ? "Mật khẩu phải có ít nhất 8 ký tự" : "",
       repassword: getPassword !== getRepassword ? "Mật khẩu không khớp" : "",
-      fullname: getFullname.trim() === "" ? "Vui lòng nhập họ và tên" : "",
-      birthdate: getBirthdate.trim() === "" ? "Vui lòng chọn ngày sinh" : "",
+      fullname:
+        getFullname.trim() === ""
+          ? "Vui lòng nhập họ và tên"
+          : !fullNameRegex.test(getFullname)
+          ? "Họ tên không hợp lệ"
+          : "",
       birthdate:
-        new Date(getBirthdate) > minBirthdate
+        getBirthdate.trim() === ""
+          ? "Vui lòng chọn ngày sinh"
+          : new Date(getBirthdate) > minBirthdate
           ? "Bạn phải đủ 16 tuổi để đăng ký"
           : "",
     }));
@@ -94,14 +108,18 @@ const useRegister = () => {
         fullName: getFullname,
         gender: getGender,
         birthday: getBirthdate,
-        phoneNumber: getPhonenumber,
-      });
-      toast.success("Đăng ký thành công");
-      setTimeout(() => {
-        navigate("/login");
-      }, 5000);
+        phoneNumber: getPhonenumber
+      }).then((res)=>{
+        // console.log(res.message);
+        toast.success("Đăng ký thành công")
+        setTimeout(() => {
+          navigate("/login");
+        }, 5000)
+      }).catch((error)=>{      toast.error(error.response.data.error.message);
+      console.log(error.response.data.error.message);
+      })
+      
     } catch (error) {
-      toast.error("Đăng ký thất bại");
     }
   };
 
