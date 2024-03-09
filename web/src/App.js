@@ -10,7 +10,7 @@ function App() {
     const currentPath = window.location.pathname;
     if (!publicRoutes.some(route => route.path === currentPath) &&
         !privateRoutes.some(route => route.path === currentPath)) {
-      navigate("/login");
+      navigate("/home");
     }
   }, [navigate]);
 

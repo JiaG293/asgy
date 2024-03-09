@@ -14,6 +14,7 @@ function Home() {
   const navigate = useNavigate();
   const [getUser, setUser] = useState({});
 
+  //load dữ liệu lên page
   const fetchData = async () => {
     try {
       const refreshToken = Cookies.get("refreshToken");
@@ -26,6 +27,7 @@ function Home() {
       // Giải mã refreshToken để xem thông tin chứa trong nó
       const decodedToken = jwt_decode(refreshToken);
       const clientID = decodedToken.clientId;
+      console.log(`clientID: ${clientID}`);
       const headers = {
         "X-Client-Id": clientID,
         Authorization: refreshToken,
@@ -53,6 +55,29 @@ function Home() {
       }
     }
   };
+  
+  // đăng xuất
+  const handleLogout = async () => {
+    try {
+      // setLoading(true);
+      const response = await axios.post(
+        "http://localhost:5000/api/v1/users/login",
+        {
+          userID: getUser.userId,
+        }
+      );
+      if (response.status === 200) {
+        Cookies.remove();
+        navigate('/home');
+      } else {
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      // setLoading(false);
+    }
+  };  
+
 
   useEffect(() => {
     fetchData();
@@ -65,7 +90,7 @@ function Home() {
       {console.log(getUser)}
       <Tools user={getUser}/>
       <ListMess />
-      <Chat />
+      <Chat/>
     </div>
   );
 }
