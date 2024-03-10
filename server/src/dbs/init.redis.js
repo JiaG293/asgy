@@ -1,17 +1,25 @@
 const { createClient } = require('redis');
-const client= createClient({
-    url: process.env.REDIS_URL
+const { createAdapter } = require('@socket.io/redis-streams-adapter');
+require('dotenv').config();
+
+const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
+
+const redisClient = createClient({
+    host: REDIS_HOST, //<hostname>'
+    port: REDIS_PORT,//<port> 
+    password: REDIS_PASSWORD,//'<password>'
 });
-client.ping(function (err, result) {
+
+redisClient.ping(function (err, result) {
     console.log(result);
 })
 
-client.on('connect', () => {
+redisClient.on('connect', () => {
     console.log('Redis client connected');
 });
 
-client.on("error", (error) => {
+redisClient.on("error", (error) => {
     console.error(error);
 });
 
-module.exports = client
+module.exports = redisClient

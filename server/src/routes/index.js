@@ -14,6 +14,8 @@ router.use('/api/v1/accounts', require('./users'))
 
 router.use('/api/v1/profile', require('./profile'))
 
+router.use('/api/v1/chats', require('./chats'))
+
 
 
 module.exports = router;

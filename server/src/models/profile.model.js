@@ -5,9 +5,9 @@ const DOCUMENT_NAME = 'Profile';
 
 const profileSchema = new mongoose.Schema({
     userId: {
-        type: String,
-        default: mongoose.Schema.Types.ObjectId,
-        ref: 'user'
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User',
     },
     fullName: {
         type: String,
@@ -40,14 +40,14 @@ const profileSchema = new mongoose.Schema({
     boxChatRecent: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'conversation',
+            ref: 'Channel',
             maxItems: 30,
         }
     ],
     friend: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'contact',
+            ref: 'Profile',
         }
     ],
 

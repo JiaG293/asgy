@@ -11,18 +11,18 @@ const path = require('path');
 
 //Khoi tao database
 require('./dbs/init.mongodb')
-// require('./v1/dbs/init.redis')
+// const redisClient = require('./dbs/init.redis')
 
-
+// global._redisClient = redisClient;
 
 //CORS 
 const cors = require("cors");
+
 app.use(cors({
     origin: [`http://localhost:` + PORT, 'http://localhost:8085'],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
 }))
-
 
 
 //middleware for client
@@ -59,9 +59,15 @@ app.use(express.urlencoded({
 
 // app.use('/public', express.static('public'));
 
+
+//config CSP socket io 
+app.use((req, res, next) => {
+    res.setHeader('Content-Security-Policy', "script-src 'self' https://unpkg.com/socket.io-client@4.7.4/dist/socket.io.min.js 'unsafe-inline'");
+    next();
+});
+
 //routes
 app.use('/', require('./routes/'))
-
 
 
 // xu li loi ma code
@@ -70,6 +76,8 @@ app.use((req, res, next) => {
     error.status = 404;
     next(error);
 });
+
+
 app.use((error, req, res, next) => {
     res.status(error.status || 500).send({
         error: {

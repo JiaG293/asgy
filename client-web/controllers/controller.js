@@ -35,6 +35,13 @@ const redirectControllers = {
             res.status(502).json(err); 
         }
     },
+    chat: async(req, res)=>{
+        try {
+            res.sendFile(path.join(process.cwd() +'/html/chat.html'))
+        } catch (err) {
+            res.status(502).json(err); 
+        }
+    },
 }
 
 module.exports = redirectControllers;

@@ -1,14 +1,40 @@
 require('dotenv').config();
+const { Server } = require('socket.io');
 const app = require('./src/app')
+const { PORT } = process.env;
 
 
-const {PORT} = process.env;
+//redis adapter stream
+/* const { createAdapter } = require('@socket.io/redis-streams-adapter');
+const io = new Server({
+    adapter: createAdapter(_redisClient)
+}); */
 
-const server = app.listen( PORT, () => {
+//socket io
+const server = require('http').createServer(app)
+const io = new Server(server); 
+const SocketService = require('./src/services/socket.service')
+global._io = io;
+
+
+/* //middlware socket service
+global._io.use((socket, next) => {
+    const { accessToken } = socket.handshake.headers;
+
+    console.log(`User connect id is ${socket.id}`);
+    next()
+}) */
+
+//connection socket io
+global._io.on('connection', SocketService.connection)
+
+
+server.listen(PORT, () => {
     console.log(`server start with  http://locahost:${PORT}`);
 })
 
 process.on('SIGINT', () => {
-    server.close( () => console.log(`exit server express`))
+    server.close(() => {
+        console.log(`exit server express`)
+    })
 })
-
