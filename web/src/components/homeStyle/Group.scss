@@ -1,0 +1,91 @@
+// ListMess.scss
+
+.group-Panel {
+    width: 20%;
+    height: 100vh;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow-y: auto;
+    margin-right: 10px;
+  
+    @media screen and (max-width: 768px) {
+      width: 100%;
+      margin-right: 0;
+    }
+  
+    .search-bar {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+  
+      .searchBarInput {
+        flex-grow: 1;
+        height: 50px;
+        padding: 15px;
+        padding-left: 35px;
+        margin-right: 10px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 15px;
+        outline: none;
+        color: #555;
+        position: relative;
+        font-size: 14px;
+        &:focus {
+          border-color: #4CAF50;
+        }
+      }
+  
+      .searchIcon {
+        width: 20px;
+        height: 20px;
+        fill: #555;
+        position: absolute;
+        margin-left: 10px;
+        cursor: pointer;
+  
+        &:hover {
+          fill: #85e78a;
+        }
+        &:active {
+          fill: #2c5c2d;
+        }
+      }
+    }
+  
+    .chatItem {
+      display: flex;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      transition: background-color 0.3s;
+  
+      &:hover {
+        background-color: #f5f5f5;
+      }
+  
+      .avatar {
+        width: 40px;
+        height: 40px;
+        background-color: #ddd;
+        border-radius: 50%;
+        margin-right: 10px;
+        flex-shrink: 0;
+      }
+  
+      .content {
+        flex-grow: 1;
+      }
+  
+      .name {
+        font-weight: bold;
+        color: #333;
+      }
+  
+      .message {
+        color: #555;
+      }
+    }
+  }
+  

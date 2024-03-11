@@ -1,0 +1,47 @@
+.profileContainer {
+  width: 30%; // Chiều rộng của Profile
+  float: right; // Để Profile nằm bên phải
+}
+
+.profileHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  font-weight: bold;
+  height: 5%;
+  border-bottom: 1px solid ;
+}
+
+.personalInfo {
+  display: flex;
+  // align-items: center;
+  justify-content:center;
+
+  .avatar {
+    /* Styles for avatar */
+    height: 50px;
+    width: 50px; // Gán kích thước tương ứng cho avatar
+  }
+
+  .groupName {
+    /* Styles for group name */
+  }
+
+  .actionButtons {
+    display: flex;
+
+    .btn {
+      /* Styles for each button */
+      margin-right: 10px; // Khoảng cách giữa các button
+    }
+  }
+}
+
+.storageImages {
+  /* Styles for images storage section */
+}
+
+.storageFiles {
+  /* Styles for files storage section */
+}

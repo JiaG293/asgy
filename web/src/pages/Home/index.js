@@ -8,6 +8,9 @@ import Tools from "../../components/home/Tools";
 import ListMess from "../../components/home/ListMess";
 import Chat from "../../components/home/Chat";
 import { useNavigate } from "react-router-dom";
+import Group from "../../components/home/Group";
+import Profile from "../../components/home/Profile";
+// import Group from "../../components/home/Group";
 var i = 0;
 
 function Home() {
@@ -21,7 +24,7 @@ function Home() {
       if (!refreshToken) {
         console.error("refreshToken không tồn tại");
         //điều hướng về trang login
-        navigate('/login')
+        // navigate('/login')
         return;
       }
       // Giải mã refreshToken để xem thông tin chứa trong nó
@@ -89,8 +92,10 @@ function Home() {
     <div className="home-container">
       {console.log(getUser)}
       <Tools user={getUser}/>
-      <ListMess />
+      {/* <ListMess /> */}
+      <Group/>
       <Chat/>
+      <Profile/>
     </div>
   );
 }

@@ -1,8 +1,9 @@
 // Chat.scss
 
 .chatHome {
-  width: 85%;
-  height: 100vh; /* Sửa chiều cao thành 90vh để tránh vấn đề với *0.9 */
+  width: 50%;
+  height: 100vh;
+  /* Sửa chiều cao thành 90vh để tránh vấn đề với *0.9 */
   border-radius: 5px;
   overflow-y: auto;
   margin-right: 10px;
@@ -29,7 +30,8 @@
 .sendButton {
   width: 80px;
   height: 40px;
-  border-radius: 15px; /* Đồng bộ border-radius với textInput */
+  border-radius: 15px;
+  /* Đồng bộ border-radius với textInput */
 }
 
 .title {
