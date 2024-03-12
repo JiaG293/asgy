@@ -1,7 +1,9 @@
+const ProfileModel = require("../models/profile.model");
+
 class SocketService {
 
 
-    //connectino
+    /* //connectino
     connection(socket) {
         console.log(`User connect id is ${socket.id}`);
 
@@ -9,36 +11,104 @@ class SocketService {
             console.log(`User disconnect id is ${socket.id}`);
         })
 
-        //event join room
-        socket.on('joinRoom', ({ username, room }) => {
-            const user = userJoin(socket.id, username, room);
+     
+        socket.on('chat message', (msg, roomId) => {
+            console.log(`Received message from user ${socket.id} in room ${roomId}: ${msg}`);
 
-            socket.join(user.room);
+     
+            socket.to(roomId).emit('chat message', msg);
+        });
 
-            // Welcome current user
-            socket.emit("message", formatMessage(botName, "Welcome to ChatCord!"));
+    
+        socket.on('join room', (roomId) => {
+            console.log(`User ${socket.id} joined room ${roomId}`);
+            socket.join(roomId);
+        });
 
-            // Broadcast when a user connects
-            socket.broadcast
-                .to(user.room)
-                .emit(
-                    "message",
-                    formatMessage(botName, `${user.username} has joined the chat`)
-                );
+    
+        socket.on('disconnect', () => {
+            console.log(`User disconnected with id: ${socket.id}`);
+        });
+    } */
 
-            // Send users and room info
-            io.to(user.room).emit("roomUsers", {
-                room: user.room,
-                users: getRoomUsers(user.room),
-            });
+    /* async connection(socket) {
+        var activeUsers = {};
+      
+        console.log(`User connected with id: ${socket.id}`);
+        const userId = socket.handshake.query.userId;
+        console.log(`User connected with userid: ${userId}`);
 
-            //event message
-            socket.on('chat message', (msg) => {
-                console.log(`msg is ${msg}`);
-                _io.emit('chat message', msg)
-            })
+        socket.on('join room', (room) => {
+            socket.join(room); //Them nguoi dung vao phong o server side
+            console.log(`User ${socket.id} joined room ${room}`);
+        });
+
+   
+        socket.on('chat message', (data) => {
+            const { text, room } = data;
+            _io.to(room).emit('chat message', text); //Gui tin nhan den tat ca moi nguoi trong phong
+        });
+
+         socket.on('disconnect', () => {
+             console.log(`User disconnected with id: ${socket.id}`);
+         });
+
+
+      
+        socket.emit('initialActiveStatus', activeUsers);
+
+   
+        socket.on('setActive', () => {
+            activeUsers[socket.id] = true; 
+            _io.emit('activeStatus', socket.id, true); 
+        });
+
+  
+        socket.on('disconnect', () => {
+            console.log('A user disconnected:', socket.id);
+            delete activeUsers[socket.id]; 
+            _io.emit('activeStatus', socket.id, false); 
+        });
+
+    } */
+
+    async connection(socket) {
+        var activeUsers = {};
+
+        console.log(`User connected with id: ${socket.id}`);
+        const clientId = socket.handshake.query.clientId; 
+        const userId = socket.handshake.query.userId;
+        console.log(`User connected with clientId: ${clientId}, userId: ${userId}`);
+
+        socket.on('join room', (room) => {
+            socket.join(room);
+            console.log(`User ${socket.id} joined room ${room}`);
+        });
+
+
+        socket.on('chat message', (data) => {
+            const { text, room } = data;
+            _io.to(room).emit('chat message', text);
         })
+
+        socket.emit('initialActiveStatus', activeUsers);
+
+
+        socket.on('setActive', () => {
+            activeUsers[socket.id] = { clientId, userId };
+            _io.emit('activeStatus', socket.id, true);
+        });
+
+
+        socket.on('disconnect', () => {
+            console.log('A user disconnected:', socket.id);
+            delete activeUsers[socket.id];
+            _io.emit('activeStatus', socket.id, false);
+        });
     }
+
+
+
 
 
 

@@ -42,7 +42,7 @@ const messageSchema = new mongoose.Schema(
         },
         status: {
             type: Boolean,
-            default: 'true'
+            default: true
         }
     },
     {

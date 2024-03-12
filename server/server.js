@@ -12,7 +12,7 @@ const io = new Server({
 
 //socket io
 const server = require('http').createServer(app)
-const io = new Server(server); 
+const io = new Server(server);
 const SocketService = require('./src/services/socket.service')
 global._io = io;
 
@@ -25,7 +25,7 @@ global._io.use((socket, next) => {
     next()
 }) */
 
-//connection socket io
+// connection socket io
 global._io.on('connection', SocketService.connection)
 
 

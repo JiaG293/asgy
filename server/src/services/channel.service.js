@@ -1,18 +1,7 @@
-const { Mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 const ChannelModel = require("../models/channel.model");
 const { ConflictRequestError } = require("../utils/responses/error.response");
 
-const getInformationChanel = async (rooom) => {
-    const infoProfile = await findProfileByUserId(profile.userId);
-    if (!infoProfile) {
-        throw new ErrorResponse("User for profile not found");
-    }
-    return infoProfile
-}
-
-const findByPhoneNumber = async ({ phoneNumber }) => {
-    return await ChannelModel.findOne({ phoneNumber: phoneNumber }).lean()
-}
 
 const findChannelByUserId = async (userId) => {
     console.log(userId);

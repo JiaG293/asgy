@@ -1,7 +1,8 @@
 const ProfileModel = require("../models/profile.model");
 const MessageModel = require("../models/message.model");
 const ChannelModel = require("../models/channel.model");
-const { UnauthorizeError } = require("../utils/responses/error.response");
+const { UnauthorizeError, BadRequestError } = require("../utils/responses/error.response");
+const socketService = require("./socket.service");
 
 const accessChat = async (chat) => {
     const { userId } = await chat;
@@ -49,8 +50,54 @@ const accessChat = async (chat) => {
     return "fsf"
 }
 
+const sendMessage = async ({ fromId, toId, typeMessage, messageContent, status }) => {
+
+    const newMessage = await MessageModel.create({
+        fromId,
+        toId,
+        typeMessage,
+        messageContent,
+        status
+    });
+
+    if (!newMessage) {
+        throw new BadRequestError('Send message failed')
+    }
+
+    // const room = await ChannelModel.findOne({ owner: fromId, _id: fromId }).select('_id')
+
+    _io.to(toId).emit('chat message', newMessage);
+
+    return newMessage.messageContent
+
+}
+
+const receiveMessage = async ({ fromId, toId, typeMessage, messageContent, status }) => {
+
+    const newMessage = await MessageModel.create({
+        fromId,
+        toId,
+        typeMessage,
+        messageContent,
+        status
+    });
+
+    if (!newMessage) {
+        throw new BadRequestError('Send message failed')
+    }
+
+    console.log(newMessage);
+    // const room = await ChannelModel.findOne({ owner: fromId, _id: fromId }).select('_id')
+
+    _io.to(toId).emit('chat message', newMessage);
+
+    return newMessage
+
+}
+
 
 module.exports = {
-    accessChat
+    accessChat,
+    sendMessage,
 
 }
