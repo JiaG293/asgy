@@ -94,6 +94,7 @@ function Home() {
       <Tools user={getUser}/>
       {/* <ListMess /> */}
       <Group/>
+      <ListMess/>
       <Chat/>
       <Profile/>
     </div>
