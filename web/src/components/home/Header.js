@@ -1,22 +1,23 @@
 import React from 'react';
 import '../homeStyle/Header.scss'; // Import file SCSS
+import { IoIosCall } from "react-icons/io";
+import { FcVideoCall } from "react-icons/fc";
 
 
 function Header() {
   return (
-    <div className="chatHeader">
-      <div className="headerLeft">
+    <div className="chat-Header">
+      <div className="header-Left">
       <img
         src=""
-        className="avatarHeader"
+        className="avatar-Header"
         alt="Avatar"
       />
-        <h2 className="username">ten gnuoi dung</h2>
+        <h2 className="user-Name">ten gnuoi dung</h2>
       </div>
-      <div className="headerRight">
-        <span className="icon touchOpacity">📞</span>
-        <span className="icon touchOpacity">🎥</span>
-        <span className="icon touchOpacity">ℹ️</span>
+      <div className="header-Right">
+        <IoIosCall className='item'></IoIosCall>
+        <FcVideoCall className='item'></FcVideoCall>
       </div>
     </div>
   );

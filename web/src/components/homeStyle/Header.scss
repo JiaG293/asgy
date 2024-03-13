@@ -1,9 +1,12 @@
-.chatHeader {
+.chat-Header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
   color: #fff;
+  height: 10vh;
+  width: 55vw;
+  background-color: rgb(232, 227, 227);
 
 
   .avatar {
@@ -36,37 +39,26 @@
     }
   }
 
-  .headerLeft {
+  .header-Left {
     display: flex;
     align-items: center;
 
-    .userAvatar {
-      width: 40px;
-      height: 40px;
-      background-color: #ccc;
-      border-radius: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-right: 12px;
-      font-size: 24px; // Size of emoji
-    }
-
-    .username {
+    .user-Name {
       font-size: 20px;
     }
   }
 
-  .headerRight {
+  .header-Right {
     display: flex;
 
-    .touchOpacity {
+    .item {
       display: inline-flex;
       justify-content: center;
       align-items: center;
-      margin-left: 16px;
+      margin-left: 20px;
       cursor: pointer;
       font-size: 24px;
+      margin-bottom: 50%;
 
       // Adding a slightly visual feedback for touch/click
       &:active {

@@ -7,19 +7,19 @@ function Group() {
     <div className="group-Panel">
       {/* Tìm kiếm */}
       <div className="search-bar">
-        <input type="text" placeholder="Tìm kiếm..." className="searchBarInput" />
-        <SearchIcon className="searchIcon" ></SearchIcon>
+        <input type="text" placeholder="Tìm kiếm..." className="searchBar-Input" />
+        <SearchIcon className="search-Icon" ></SearchIcon>
       </div>
 
       {/* danh sach nhom */}
-      <div className="chatItem" >
+      <div className="chat-Item" >
         <div className="avatar"></div>
         <div className="content">
           <div className="name">Nhom 1</div>
           <div className="message">aDSfg</div>
         </div>
       </div>
-      <div className="chatItem" >
+      <div className="chat-Item" >
         <div className="avatar"></div>
         <div className="content">
           <div className="name">Nhom 2</div>

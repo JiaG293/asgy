@@ -10,8 +10,10 @@ import Chat from "../../components/home/Chat";
 import { useNavigate } from "react-router-dom";
 import Group from "../../components/home/Group";
 import Profile from "../../components/home/Profile";
+import Header from "../../components/home/Header";
+import Contacts from "../../components/home/Contacts";
+import ListFriend from "../../components/home/ListFriend";
 // import Group from "../../components/home/Group";
-var i = 0;
 
 function Home() {
   const navigate = useNavigate();
@@ -58,7 +60,7 @@ function Home() {
       }
     }
   };
-  
+
   // đăng xuất
   const handleLogout = async () => {
     try {
@@ -79,7 +81,7 @@ function Home() {
     } finally {
       // setLoading(false);
     }
-  };  
+  };
 
 
   useEffect(() => {
@@ -91,11 +93,16 @@ function Home() {
   return (
     <div className="home-container">
       {console.log(getUser)}
-      <Tools user={getUser}/>
+      <Tools user={getUser} />
       {/* <ListMess /> */}
-      <Group/>
-      <Chat/>
-      <Profile/>
+      {/* <Group /> */}
+      <Contacts/>
+      <ListFriend/>
+      <div>
+        {/* <Header />
+        <Chat /> */}
+      </div>
+      {/* <Profile /> */}
     </div>
   );
 }

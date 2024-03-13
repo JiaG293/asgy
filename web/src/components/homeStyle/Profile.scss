@@ -1,6 +1,7 @@
 .profileContainer {
-  width: 30%; // Chiều rộng của Profile
+  width: 20vw; // Chiều rộng của Profile
   float: right; // Để Profile nằm bên phải
+  background-color: red;
 }
 
 .profileHeader {
@@ -24,24 +25,12 @@
     width: 50px; // Gán kích thước tương ứng cho avatar
   }
 
-  .groupName {
-    /* Styles for group name */
-  }
 
   .actionButtons {
     display: flex;
 
     .btn {
-      /* Styles for each button */
       margin-right: 10px; // Khoảng cách giữa các button
     }
   }
-}
-
-.storageImages {
-  /* Styles for images storage section */
-}
-
-.storageFiles {
-  /* Styles for files storage section */
 }
