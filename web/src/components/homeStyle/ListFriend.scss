@@ -1,28 +1,46 @@
-.listFriends {
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.listfriends-container {
   height: 100vh;
   width: 75vw;
 
-  .header {
+  .listfriend-header {
     height: 10vh;
     width: 100%;
     padding: 10px 15px;
-    // background-color: red;
     display: flex;
     align-items: center;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-left: none;
 
-    .icon {
+    .listfriend-icon {
       font-size: 30px;
       margin-right: 10px;
     }
 
-    .text {
+    .listfriend-text {
       font-size: 20px;
       font-weight: bold;
     }
   }
 
-  .list-card {
-    height: 90vh;
+  .listfriend-card {
+    height: 90vh; /* Chiều cao phần danh sách cân đối với phần header */
     width: 100%;
+    border: 1px solid #f9f9f9;
+    background-color: #fff;
+    overflow-y: auto; /* Hiển thị thanh cuộn nếu nội dung vượt quá kích thước */
+    padding: 10px; /* Thêm padding để tạo khoảng cách với biên */
+  }
+
+  .friend-item {
+    padding: 10px; /* Thêm padding cho mỗi mục bạn bè */
+    border-bottom: 1px solid #ddd; /* Thêm đường kẻ ngăn cách giữa các mục */
+    &:last-child {
+      border-bottom: none; /* Loại bỏ đường kẻ ngăn cách cho mục cuối cùng */
+    }
   }
 }

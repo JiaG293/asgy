@@ -1,4 +1,7 @@
 // ListMess.scss
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
 .listmess-chat-panel {
   width: 20vw;
@@ -66,6 +69,10 @@
       border: 1px solid #ccc; 
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
     }
+
+    &:active {
+        background-color: #ddd;
+      }
 
     .listmess-avatar {
       width: 40px;

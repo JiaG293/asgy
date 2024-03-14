@@ -1,19 +1,33 @@
 import React from "react";
-import "../homeStyle/ListFriend.scss"
-import { FaUserFriends } from "react-icons/fa";
+import "../homeStyle/ListGroup.scss";
+import { FaUserGroup as GroupIcon} from "react-icons/fa6";
 
 function ListGroup() {
-    return (
-        <div className="listGroup">
-            <div className="header">
-                <FaUserFriends className="icon" />
-                <span className="text">Danh sách nhom</span>
-            </div>
-            <div className="list-card">
-                
-            </div>
-        </div>
-    )
+  // Mảng dữ liệu nhóm ảo
+  const groups = [
+    { id: 1, name: "Nhóm A" },
+    { id: 2, name: "Nhóm B" },
+    { id: 3, name: "Nhóm C" },
+    { id: 4, name: "Nhóm D" },
+    // Thêm các nhóm khác vào đây
+  ];
+
+  return (
+    <div className="listgroup-container">
+      <div className="listgroup-header">
+        <GroupIcon className="listgroup-icon" />
+        <span className="listgroup-text">Danh sách nhóm</span>
+      </div>
+      <div className="listgroup-card">
+        {/* Render danh sách nhóm */}
+        {groups.map((group) => (
+          <div key={group.id} className="group-item">
+            {group.name}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default ListGroup;

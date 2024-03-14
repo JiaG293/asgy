@@ -1,43 +1,51 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 
 import "./Home.scss";
 import ListMess from "../../components/home/ListMess";
-import { useNavigate } from "react-router-dom";
-import Detail from "../../components/home/Detail";
 import Conversation from "../../components/home/Conversation";
+import Detail from "../../components/home/Detail";
 import Menu from "../../components/home/Menu";
+import Contacts from "../../components/home/Contacts";
+import ListFriend from "../../components/home/ListFriend";
+import ListGroup from "../../components/home/ListGroup";
+
+import { useNavigate } from "react-router-dom";
+import ListRequest from "../../components/home/ListRequest";
+
 function Home() {
   const navigate = useNavigate();
   const [getUser, setUser] = useState({});
+  const [selectedMenuItem, setSelectedMenuItem] = useState("messages"); // chứa trạng thái menu đang chọn
+  const [currentComponent, setCurrentComponent] = useState(null); // chứa component render ra màn hình
 
-  //load dữ liệu lên page
+  // Load dữ liệu người dùng
   const fetchData = async () => {
     try {
       const refreshToken = Cookies.get("refreshToken");
       if (!refreshToken) {
         console.error("refreshToken không tồn tại");
-        //điều hướng về trang login
-        navigate('/login')
+        navigate("/login");
         return;
       }
+
       // Giải mã refreshToken để xem thông tin chứa trong nó
       const decodedToken = jwt_decode(refreshToken);
       const clientID = decodedToken.clientId;
-      console.log(clientID);
-      console.log(decodedToken);
       const headers = {
         "X-Client-Id": clientID,
         Authorization: refreshToken,
       };
+
       // Gửi yêu cầu lấy thông tin người dùng sử dụng refreshToken
       const response = await axios.post(
         "http://localhost:5000/api/v1/profile/personal-information",
         { userId: decodedToken.userId },
         { headers }
       );
+
       // Lấy dữ liệu thông tin người dùng và cập nhật state
       if (response.status === 200) {
         const user = response.data.metadata;
@@ -55,20 +63,64 @@ function Home() {
       }
     }
   };
- 
+
   useEffect(() => {
     fetchData();
   }, []);
 
-  //render
+  // Xử lý khi chọn mục trong menu
+  useEffect(() => {
+    switch (selectedMenuItem) {
+      case "messages":
+        setCurrentComponent(
+          <>
+            <ListMess />
+            <Conversation />
+            <Detail />
+          </>
+        );
+        break;
+      case "contacts":
+        setCurrentComponent(
+          <>
+            <Contacts onSelectMenuItem={setSelectedMenuItem} />
+            <ListFriend />
+          </>
+        );
+        break;
+      case "friendList":
+        setCurrentComponent(
+          <>
+            <Contacts onSelectMenuItem={setSelectedMenuItem} />
+            <ListFriend />
+          </>
+        );
+        break;
+      case "groupList":
+        setCurrentComponent(
+          <>
+            <Contacts onSelectMenuItem={setSelectedMenuItem} />
+            <ListGroup />
+          </>
+        );
+        break;
+      case "requestList":
+        setCurrentComponent(
+          <>
+            <Contacts onSelectMenuItem={setSelectedMenuItem} />
+            <ListRequest />
+          </>
+        );
+        break;
+      default:
+        break;
+    }
+  }, [selectedMenuItem]);
 
   return (
     <div className="home-container">
-      {console.log(getUser)}
-      <Menu user={getUser} />
-      <ListMess />
-      <Conversation />
-      <Detail />
+      <Menu user={getUser} onSelectMenuItem={setSelectedMenuItem} />
+      {currentComponent}
     </div>
   );
 }
