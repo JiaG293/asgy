@@ -19,7 +19,6 @@ function Chat() {
 
   return (
     <div className="chatHome">
-      <Header/>
         <div className="inputContainer">
           <input
             className="textInput"
