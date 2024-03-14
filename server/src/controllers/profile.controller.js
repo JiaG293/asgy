@@ -13,7 +13,7 @@ class ProfileController {
     getInformationProfile = async (req, res, next) => {
         new SuccessResponse({
             message: 'Get information profile is successfully',
-            metadata: await getInformationProfile(req.body)
+            metadata: await getInformationProfile(req.headers)
         }).send(res)
     }
 

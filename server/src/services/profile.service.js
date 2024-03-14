@@ -11,10 +11,15 @@ const HEADER = {
 }
 
 //LAY THONG TIN PROFILE
-const getInformationProfile = async (profile) => {
-    const infoProfile = await findProfileByUserId(profile.userId);
+const getInformationProfile = async (headers) => {
+
+   
+    const { authorization } = await headers;
+    const clientId = await headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
+    const infoProfile = await findProfileByUserId(decodeToken.userId);
     if (!infoProfile) {
-        throw new ErrorResponse('User for profile not found');
+        throw new BadRequestError('User for profile not found');
     }
     return infoProfile
 }

@@ -51,14 +51,22 @@ const authentication = catchAsync(async (req, res, next) => {
 const createTokenPair = async (payload, publicKey, privateKey) => {
 
     try {
-        const decodeUser = await verifyJWT(accessToken, keyStore.privateKey);
-        //so sanh thong tin access token mang va decode co verify hay khong boi private va public key pair voi nhau
-        console.log('client id:', clientId, '\nid decode:', decodeUser);
+        const accessToken = await jwt.sign(payload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: process.env.JWT_EXPIRE_ACCESS,
+        })
 
-        if (clientId !== decodeUser.clientId) {
-            throw new UnauthorizeError('Invalid UserId')
-        }
-        req.keyStore = keyStore;
+        const refreshToken = await jwt.sign(payload, privateKey, {
+            algorithm: 'RS256',
+            expiresIn: process.env.JWT_EXPIRE_REFRESH,
+        })
+
+        await jwt.verify(accessToken, publicKey, (err, decode) => {
+            err ?
+                console.log("error verify:", err) :
+                console.log("decode verify:", decode);
+
+        })
         return { accessToken, refreshToken }
     } catch (error) {
         console.log("error createTokenPair:", error);
