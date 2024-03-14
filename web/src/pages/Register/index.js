@@ -39,7 +39,7 @@ function Register() {
   return (
     <div className="register-container">
       <form className="register-form" action="">
-        <h1 style={{ color: "#69bc5b", fontWeight: 500, textAlign: "center" }}>
+        <h1 style={{ color: "#3cd9b6", fontWeight: 500, textAlign: "center" }}>
           Đăng ký tài khoản
         </h1>
         <br />

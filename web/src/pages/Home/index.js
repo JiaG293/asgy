@@ -4,12 +4,11 @@ import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 
 import "./Home.scss";
-import Tools from "../../components/home/Tools";
 import ListMess from "../../components/home/ListMess";
-import Chat from "../../components/home/Chat";
 import { useNavigate } from "react-router-dom";
 import Detail from "../../components/home/Detail";
-import Header from "../../components/home/Header";
+import Conversation from "../../components/home/Conversation";
+import Menu from "../../components/home/Menu";
 function Home() {
   const navigate = useNavigate();
   const [getUser, setUser] = useState({});
@@ -56,29 +55,7 @@ function Home() {
       }
     }
   };
-
-  // đăng xuất
-  const handleLogout = async () => {
-    try {
-      // setLoading(true);
-      const response = await axios.post(
-        "http://localhost:5000/api/v1/users/login",
-        {
-          userID: getUser.userId,
-        }
-      );
-      if (response.status === 200) {
-        Cookies.remove();
-        navigate("/home");
-      } else {
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      // setLoading(false);
-    }
-  };
-
+ 
   useEffect(() => {
     fetchData();
   }, []);
@@ -88,9 +65,9 @@ function Home() {
   return (
     <div className="home-container">
       {console.log(getUser)}
-      <Tools user={getUser} />
+      <Menu user={getUser} />
       <ListMess />
-      <Chat />
+      <Conversation />
       <Detail />
     </div>
   );

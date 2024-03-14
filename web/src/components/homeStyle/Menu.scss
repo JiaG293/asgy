@@ -80,14 +80,13 @@
   padding: 20px;
   border-radius: 5px;
   position: fixed;
-  z-index: 1001; 
-  width: 17.5%; 
+  z-index: 1001;
+  width: 17.5%;
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   top: 9vh; // Adjust the top value as needed to position the popup close to the top
   margin-left: 40px; // Use percentage-based margin-left for responsiveness
-  
 
   .close-button {
     position: absolute;
@@ -100,9 +99,6 @@
     &:hover {
       color: #ff0000;
     }
-
-
-
   }
 }
 
@@ -210,7 +206,6 @@
       background-color: #3cd9b6;
       color: #fff;
       width: 45%;
-
     }
   }
 }

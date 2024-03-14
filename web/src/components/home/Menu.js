@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../homeStyle/Tools.scss";
+import "../homeStyle/Menu.scss";
 import { AiOutlineMessage as MessageIcon } from "react-icons/ai";
 import { RiContactsBookFill as ContactIcon } from "react-icons/ri";
 import { IoSettingsOutline as SettingsIcon } from "react-icons/io5";
@@ -11,7 +11,7 @@ import Cookies from "js-cookie";
 import jwtDecode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
-function Tools({ user }) {
+function Menu({ user }) {
   const [showForm, setShowForm] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
@@ -133,4 +133,4 @@ function Tools({ user }) {
   );
 }
 
-export default Tools;
+export default Menu;
