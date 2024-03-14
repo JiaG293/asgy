@@ -1,23 +1,29 @@
-import React from 'react';
-import '../homeStyle/Header.scss'; // Import file SCSS
-import { IoIosCall } from "react-icons/io";
-import { FcVideoCall } from "react-icons/fc";
-
+import React from "react";
+import "../homeStyle/Header.scss";
+import { CiSearch as SearchIcon } from "react-icons/ci";
+import { BiPhoneCall as CallIcon } from "react-icons/bi";
+import { LuVideo as VideoIcon} from "react-icons/lu";
+import { CiBookmark as MarkIcon} from "react-icons/ci";
 
 function Header() {
   return (
-    <div className="chat-Header">
-      <div className="header-Left">
-      <img
-        src=""
-        className="avatar-Header"
-        alt="Avatar"
-      />
-        <h2 className="user-Name">ten gnuoi dung</h2>
+    <div className="header-container">
+      <div className="header-left">
+        <img
+          src="https://sanghynhdemo.s3.ap-southeast-1.amazonaws.com/logo.ico"
+          alt="avatar"
+          className="header-avatar"
+        />
+        <div>
+        <h2 className="header-name">Tên người dùng</h2>
+        <MarkIcon className="header-mark"/>
+        </div>
       </div>
-      <div className="header-Right">
-        <IoIosCall className='item'></IoIosCall>
-        <FcVideoCall className='item'></FcVideoCall>
+      <div className="header-right">
+        <SearchIcon className="header-icon" />
+        <CallIcon className="header-icon" />
+        <VideoIcon className="header-icon" />
+
       </div>
     </div>
   );

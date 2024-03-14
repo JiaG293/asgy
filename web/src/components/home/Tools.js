@@ -83,7 +83,7 @@ function Tools({ user }) {
       {showForm && (
         <div className="popup-overlay">
           <div className="popup-content detailedInfoForm">
-            <h1 style={{ fontSize: 20 }}>{user.fullName}</h1>
+            <h1 style={{ fontSize: 20, color: '#3cd9b6'  }}>{user.fullName}</h1>
             <div className="form-container">
               <div className="popup-information">
                 <p className="popup-information-key">Giới tính</p>

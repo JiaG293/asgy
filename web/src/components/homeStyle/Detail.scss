@@ -1,0 +1,53 @@
+.detail-container {
+  width: 20vw;
+  height: 100vh;
+  border: 1px solid #ddd;
+  background-color: #f8f8f8;
+  display: flex;
+  flex-direction: column;
+  // justify-content: center; /* Canh giữa theo chiều dọc */
+
+  .detail-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    font-weight: bold;
+    height: 5%;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .detail-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Canh giữa theo chiều ngang */
+    margin-top: 20px; /* Khoảng cách giữa header và thông tin */
+  
+    .detail-avatar {
+      height: 70px; /* Kích thước avatar */
+      width: 70px; /* Kích thước avatar */
+      border-radius: 50%; 
+      margin-bottom: 10px; /* Khoảng cách giữa avatar và các phần tử khác */
+    }
+
+    .detail-group-name {
+      font-size: 18px; /* Kích thước font cho tên nhóm */
+      margin-bottom: 10px; /* Khoảng cách giữa tên nhóm và các phần tử khác */
+    }
+
+    .detail-action-buttons {
+      display: flex;
+  
+      .detail-item {
+      
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .detail-storage-images,
+  .detail-storage-files {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+  }
+}

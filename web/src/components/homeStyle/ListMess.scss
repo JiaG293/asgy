@@ -1,44 +1,39 @@
 // ListMess.scss
 
-.chatPanel {
+.listmess-chat-panel {
   width: 20vw;
   height: 100vh;
   border: 1px solid #ddd;
-  // border-radius: 5px;
   overflow-y: auto;
-  background-color: red;
-  // margin-right: 10px;
+  background: linear-gradient(45deg, #f9f9f9, #f5f5f5); /* Gradient từ #f9f9f9 đến #e0e0e0 */
 
   @media screen and (max-width: 768px) {
     width: 100%;
-    
   }
 
-  .search-bar {
+  .listmess-search-bar {
     display: flex;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #ddd;
 
-    .searchBarInput {
+    .listmess-search-bar-input {
       flex-grow: 1;
-      height: 50px;
-      padding: 15px;
-      padding-left: 35px;
-      margin-right: 10px;
+      height: 40px; 
+      padding: 10px; 
+      padding-left: 30px; 
       box-sizing: border-box;
       border: 1px solid #ccc;
-      border-radius: 15px;
+      border-radius: 20px; 
       outline: none;
       color: #555;
-      position: relative;
       font-size: 14px;
       &:focus {
         border-color: #4CAF50;
       }
     }
 
-    .searchIcon {
+    .listmess-search-icon {
       width: 20px;
       height: 20px;
       fill: #555;
@@ -47,26 +42,32 @@
       cursor: pointer;
 
       &:hover {
-        fill: #85e78a;
+        fill: #3cd9b6;
       }
       &:active {
-        fill: #2c5c2d;
+        fill: #20826d;
       }
     }
   }
 
-  .chatItem {
+  .listmess-chat-item {
     display: flex;
+    align-items: center; 
     padding: 10px;
-    border-bottom: 1px solid #eee;
+    margin: 5px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    background-color: #fff;
+    transition: background-color 0.3s, border-radius 0.3s, box-shadow 0.3s; 
+    border: 1px solid transparent; 
 
     &:hover {
       background-color: #f5f5f5;
+      border: 1px solid #ccc; 
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
     }
 
-    .avatar {
+    .listmess-avatar {
       width: 40px;
       height: 40px;
       background-color: #ddd;
@@ -75,16 +76,16 @@
       flex-shrink: 0;
     }
 
-    .content {
+    .listmess-content {
       flex-grow: 1;
     }
 
-    .name {
+    .listmess-name {
       font-weight: bold;
       color: #333;
     }
 
-    .message {
+    .listmess-message {
       color: #555;
     }
   }

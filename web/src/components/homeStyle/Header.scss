@@ -1,69 +1,51 @@
-.chat-Header {
+.header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
-  color: #fff;
+  color: #333;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #ddd;
   height: 10vh;
   width: 55vw;
-  background-color: rgb(232, 227, 227);
+}
 
+.header-left {
+  display: flex;
+  align-items: center;
+}
 
-  .avatar {
-    width: 50px;
-    height: 50px;
-    background-color: #ccc;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.header-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
 
-    @media screen and (max-width: 768px) {
-      width: 30px;
-      height: 30px;
-    }
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain; // Resize to fit within the container without distortion
-      border-radius: 50%; // Ensure the image itself is also circular
-    }
-
-    &:hover {
-      background-color: #ddd;
-      transform: scale(1.1);
-      cursor: pointer;
-    }
+.header-mark {
+  font-size: 20px;
+  transform: rotate(90deg); /* Xoay biểu tượng mark 90 độ */
+  cursor: pointer;
+  &:hover {
+    opacity: 0.6;
   }
+}
 
-  .header-Left {
-    display: flex;
-    align-items: center;
+.header-name {
+  font-size: 18px;
+}
 
-    .user-Name {
-      font-size: 20px;
-    }
-  }
+.header-right {
+  display: flex;
+  align-items: center; /* Thêm để căn giữa theo chiều dọc */
+}
 
-  .header-Right {
-    display: flex;
+.header-icon {
+  font-size: 24px;
+  margin-left: 10px;
+  cursor: pointer;
 
-    .item {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      margin-left: 20px;
-      cursor: pointer;
-      font-size: 24px;
-      margin-bottom: 50%;
-
-      // Adding a slightly visual feedback for touch/click
-      &:active {
-        opacity: 0.7;
-      }
-    }
+  &:hover {
+    opacity: 0.6;
   }
 }

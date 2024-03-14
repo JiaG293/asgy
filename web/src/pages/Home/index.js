@@ -8,7 +8,8 @@ import Tools from "../../components/home/Tools";
 import ListMess from "../../components/home/ListMess";
 import Chat from "../../components/home/Chat";
 import { useNavigate } from "react-router-dom";
-// import Group from "../../components/home/Group";
+import Detail from "../../components/home/Detail";
+import Header from "../../components/home/Header";
 function Home() {
   const navigate = useNavigate();
   const [getUser, setUser] = useState({});
@@ -20,7 +21,7 @@ function Home() {
       if (!refreshToken) {
         console.error("refreshToken không tồn tại");
         //điều hướng về trang login
-        //navigate('/login')
+        navigate('/login')
         return;
       }
       // Giải mã refreshToken để xem thông tin chứa trong nó
@@ -68,7 +69,7 @@ function Home() {
       );
       if (response.status === 200) {
         Cookies.remove();
-        navigate('/home');
+        navigate("/home");
       } else {
       }
     } catch (error) {
@@ -77,7 +78,6 @@ function Home() {
       // setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchData();
@@ -88,9 +88,10 @@ function Home() {
   return (
     <div className="home-container">
       {console.log(getUser)}
-      <Tools user={getUser}/>
-      <ListMess/>
-      <Chat/>
+      <Tools user={getUser} />
+      <ListMess />
+      <Chat />
+      <Detail />
     </div>
   );
 }

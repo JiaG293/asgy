@@ -1,40 +1,28 @@
-import React, { useState } from 'react';
-import '../homeStyle/Chat.scss'; //
+// Chat.js
+
+import React from "react";
+import "../homeStyle/Chat.scss"; //
+import Header from "./Header"; // Import Header component
+import { FiSend as SendIcon } from "react-icons/fi";
 
 function Chat() {
-  // State để theo dõi nội dung nhập vào
-  const [message, setMessage] = useState('');
-
-  // Hàm gọi khi nút gửi được nhấn
-  const sendMessage = () => {
-    setMessage(''); // Reset input field sau khi gửi
-  };
-
-  const handerSendMessage = (e) => {
-    if (e.key === 'Enter') {
-      sendMessage();
-    }
-  };
-
   return (
-    <div className="chat-Home">
-      {/* <Header/> */}
-        <div className="input-Container">
+    <div className="chat-container">
+      <Header />
+      <div className="chat-messages"></div>
+      <div className="chat-input-container">
+        <div className="chat-input-with-button">
           <input
-            className="text-Input"
+            className="chat-input"
             type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={handerSendMessage}
             placeholder="Nhập tin nhắn của bạn..."
           />
-          <button className="send-Button" onClick={sendMessage}>
-            Gửi
+          <button className="chat-button">
+            <span style={{marginRight:10}}>Gửi</span>
+            <SendIcon />
           </button>
-
         </div>
-      
-
+      </div>
     </div>
   );
 }
