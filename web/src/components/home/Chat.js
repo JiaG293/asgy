@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import '../homeStyle/Chat.scss'; // Import file SCSS
-import Header from './Header'; //
+import '../homeStyle/Chat.scss'; //
 
 function Chat() {
   // State để theo dõi nội dung nhập vào
@@ -18,17 +17,18 @@ function Chat() {
   };
 
   return (
-    <div className="chatHome">
-        <div className="inputContainer">
+    <div className="chat-Home">
+      {/* <Header/> */}
+        <div className="input-Container">
           <input
-            className="textInput"
+            className="text-Input"
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handerSendMessage}
             placeholder="Nhập tin nhắn của bạn..."
           />
-          <button className="sendButton" onClick={sendMessage}>
+          <button className="send-Button" onClick={sendMessage}>
             Gửi
           </button>
 

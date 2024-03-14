@@ -1,0 +1,86 @@
+.contacts-Panel {
+    width: 20vw;
+    height: 100vh;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow-y: auto;
+
+    @media screen and (max-width: 768px) {
+        width: 100%;
+        margin-right: 0;
+    }
+
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+
+        .searchBar-Input {
+            flex-grow: 1;
+            height: 50px;
+            padding: 15px;
+            padding-left: 35px;
+            margin-right: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            outline: none;
+            color: #555;
+            position: relative;
+            font-size: 14px;
+
+            &:focus {
+                border-color: #4CAF50;
+            }
+        }
+
+        .search-Icon {
+            width: 20px;
+            height: 20px;
+            fill: #555;
+            position: absolute;
+            margin-left: 10px;
+            cursor: pointer;
+
+            &:hover {
+                fill: #85e78a;
+            }
+
+            &:active {
+                fill: #2c5c2d;
+            }
+        }
+    }
+
+    .menu-Contacts {
+        display: flex;
+        flex-direction: column;
+         
+    
+        .menu-Item {
+          display: flex;
+          align-items: center; 
+          padding: 10px 15px; 
+          color: #000;
+          text-decoration: none;
+          border-radius: 4px; 
+          cursor: pointer;
+          transition: background-color 0.3s ease; 
+          
+          .menu-Icon {
+            font-size: 20px;
+            margin-right: 10px;
+          }
+    
+          .menu-Text {
+            font-size: 16px;
+            font-weight: bold; 
+          }
+        }
+      }
+
+
+
+}

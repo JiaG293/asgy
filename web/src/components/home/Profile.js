@@ -1,5 +1,8 @@
 import React from "react";
-import '../homeStyle/Profile.scss'; // Đảm bảo đường dẫn đúng đến file SCSS của bạn
+import '../homeStyle/Profile.scss';
+import { IoIosNotifications } from "react-icons/io";
+import { MdOutlinePushPin } from "react-icons/md";
+import { MdGroupAdd } from "react-icons/md";
 
 function Profile() {
   return (
@@ -15,9 +18,9 @@ function Profile() {
         </div>
         <div className="groupName">Tên nhóm</div>
         <div className="actionButtons">
-          <button className="btn">Thông Báo</button>
-          <button className="btn">Ghim</button>
-          <button className="btn">Tạo Nhóm</button>
+          <IoIosNotifications className="item"></IoIosNotifications>
+          <MdOutlinePushPin className="item"></MdOutlinePushPin>
+          <MdGroupAdd className="item"></MdGroupAdd>
         </div>
       </div>
       <div className="storageImages">

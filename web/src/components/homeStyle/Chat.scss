@@ -1,39 +1,33 @@
 // Chat.scss
 
-.chatHome {
-  width: 50%;
+.chat-Home {
+  width: 55vw;
   height: 100vh;
   /* Sửa chiều cao thành 90vh để tránh vấn đề với *0.9 */
-  border-radius: 5px;
+
   overflow-y: auto;
-  margin-right: 10px;
   position: relative;
-  padding-bottom: 50px;
-}
 
-.inputContainer {
-  position: absolute;
-  bottom: 20px;
-  left: 10px;
-  right: 10px;
-}
 
-.textInput {
-  width: calc(100% - 90px);
-  height: 40px;
-  padding: 5px;
-  margin-right: 10px;
-  box-sizing: border-box;
-  border-radius: 15px;
-}
+  .input-Container {
+    position: absolute;
+    bottom: 20px;
+    left: 10px;
+    right: 10px;
+  }
 
-.sendButton {
-  width: 80px;
-  height: 40px;
-  border-radius: 15px;
-  /* Đồng bộ border-radius với textInput */
-}
+  .text-Input {
+    width: calc(100% - 90px);
+    height: 40px;
+    margin-right: 10px;
+    box-sizing: border-box;
+    border-radius: 15px;
+  }
 
-.title {
-  margin-left: 400px;
+  .send-Button {
+    width: 80px;
+    height: 40px;
+    border-radius: 15px;
+  }
+
 }

@@ -8,9 +8,7 @@ import Tools from "../../components/home/Tools";
 import ListMess from "../../components/home/ListMess";
 import Chat from "../../components/home/Chat";
 import { useNavigate } from "react-router-dom";
-
-var i = 0;
-
+// import Group from "../../components/home/Group";
 function Home() {
   const navigate = useNavigate();
   const [getUser, setUser] = useState({});
@@ -57,7 +55,7 @@ function Home() {
       }
     }
   };
-  
+
   // đăng xuất
   const handleLogout = async () => {
     try {
@@ -78,7 +76,7 @@ function Home() {
     } finally {
       // setLoading(false);
     }
-  };  
+  };
 
 
   useEffect(() => {
