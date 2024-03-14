@@ -1,5 +1,5 @@
 const { Types } = require("mongoose");
-const Mongoose  = require("mongoose");
+const Mongoose = require("mongoose");
 const KeyTokenModel = require("../models/keyToken.model");
 
 class KeyTokenService {
@@ -71,6 +71,10 @@ class KeyTokenService {
 
     static checkTokenByUserId = async (userId) => {
         return await KeyTokenModel.find({ userId: Types.ObjectId(userId) }).sort({ userId: 1 }).lean();
+    }
+
+    static findTokenById = async (id) => {
+        return await KeyTokenModel.findOne({ _id: id }).lean();
     }
 
 }

@@ -3,6 +3,10 @@ const { getInformationProfile, updateInformationProfile, findProfileByRegex, get
 const { CREATED, SuccessResponse } = require('../utils/responses/success.response');
 const { sendFriendRequest, acceptFriendRequest } = require('../services/friend.service');
 
+const HEADER = {
+    API_KEY: 'x-api-key',
+    AUTHORIZATION: 'authorization',
+}
 class ProfileController {
 
 
@@ -16,7 +20,7 @@ class ProfileController {
     updateInformationProfile = async (req, res, next) => {
         new SuccessResponse({
             message: 'Updated info profile is successfully',
-            metadata: await updateInformationProfile(req.body)
+            metadata: await updateInformationProfile(req)
         }).send(res)
     }
 
@@ -41,7 +45,7 @@ class ProfileController {
         }).send(res)
     }
 
-    
+
 
 
 

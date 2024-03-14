@@ -2,7 +2,13 @@ const ProfileModel = require('../models/profile.model')
 const FriendModel = require('../models/friend.model');
 const { BadRequestError } = require('../utils/responses/error.response');
 const mongoose = require('mongoose');
+const { decodeTokens } = require('../auth/authUtils');
 
+const HEADER = {
+    API_KEY: 'x-api-key',
+    AUTHORIZATION: 'authorization',
+    X_CLIENT_ID: 'x-client-id',
+}
 
 //LAY THONG TIN PROFILE
 const getInformationProfile = async (profile) => {
@@ -14,7 +20,12 @@ const getInformationProfile = async (profile) => {
 }
 
 //CAP NHAT THONG TIN PROFILE
-const updateInformationProfile = async ({ userId, fullName, avatar, gender, info, birthday, phoneNumber }) => {
+const updateInformationProfile = async (req) => {
+    const { fullName, avatar, gender, info, birthday, phoneNumber } = await req.body
+    const { authorization } = await req.headers;
+    const clientId = await req.headers[HEADER.X_CLIENT_ID]
+
+    const decodeToken = await decodeTokens(clientId, authorization);
 
     //KHONG DUNG TRANSACTION
     /* const filter = { userId: userId }
@@ -34,9 +45,9 @@ const updateInformationProfile = async ({ userId, fullName, avatar, gender, info
     session.startTransaction();
 
     try {
-        const filter = { userId: userId }
+        const filter = { userId: decodeToken.userId }
         const update = {
-            userId, fullName, avatar, gender, info, birthday, phoneNumber
+            fullName, avatar, gender, info, birthday, phoneNumber
         }
         const options = { upsert: false, new: true }
 
@@ -44,7 +55,7 @@ const updateInformationProfile = async ({ userId, fullName, avatar, gender, info
         const profileUpdate = await ProfileModel.findOneAndUpdate(filter, update, options).session(session);
 
         // Cap nhat cac thong tin nhung trong bang friend
-        await FriendModel.updateMany({ profileFriendId: userId }, { $set: { 'profileFriend.$': update } }, options).session(session);
+        await FriendModel.updateMany({ profileFriendId: decodeToken.userId }, { $set: { 'profileFriend.$': update } }, options).session(session);
 
         await session.commitTransaction();
         session.endSession();
