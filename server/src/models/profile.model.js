@@ -20,7 +20,7 @@ const profileSchema = new mongoose.Schema({
     gender: {
         type: String,
         enum: ['Nam', 'Nữ', 'Bí mật'],
-        required: [true, 'Sex must be one of Nam | Nữ | Bí mật'],
+        required: [true, 'Gender must be one of Nam | Nữ | Bí mật'],
     },
     info: {
         type: String,
@@ -37,17 +37,26 @@ const profileSchema = new mongoose.Schema({
         maxlength: [10, 'Phone number must be of maximum 10 characters'],
         unique: [true, 'Phone number already exists']
     },
-    boxChatRecent: [
+    listChannels: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Channel',
-            maxItems: 30,
+            // maxItems: 30,
         }
     ],
-    friend: [
+    friends: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Profile',
+            profileId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Profile',
+            },
+            friendDated: {
+                type: Date,
+            },
+            isBlocked: {
+                type: Boolean,
+                default: false,
+            }
         }
     ],
 

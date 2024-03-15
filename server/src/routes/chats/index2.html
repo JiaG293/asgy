@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Chat</title>
+    <script src="https://unpkg.com/socket.io-client@4.7.4/dist/socket.io.min.js"></script>
+    <script>
+        const socket = io(); // Đổi địa chỉ server tương ứng
+
+        socket.emit('addUser', { userId: "65f401b7ec07e9ea6c2b457e" })
+        socket.emit('addChannel', {
+            senderId: "65f401b7ec07e9ea6c2b457e", channels: {
+                _id: "65f421456957be1099c49d5f",
+                members: [
+                    {
+                        profileId: "65f401b7ec07e9ea6c2b457e",
+
+                    }, {
+                        profileId: "65f417a034e9a9f7e2f3cf9f",
+
+                    }
+                ]
+            }
+        })
+
+        socket.on('connect', () => {
+
+        })
+
+
+        document.getElementById('messageInput').addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                const message = document.getElementById('messageInput').value;
+                const channel = '65f421456957be1099c49d5f';
+                const messageData = {
+                    senderId: "65f401b7ec07e9ea6c2b457e",
+                    receiverId: "65f421456957be1099c49d5f",
+                    typeContent: "test1",
+                    messageContent: "Hello!",
+                    _id: "65f44ef48e32a95acac2b0c4",
+                };
+                socket.emit("sendMessage", messageData);
+                document.getElementById('messageInput').value = '';
+            }
+        });
+
+        socket.emit("loadChat", "65f401b7ec07e9ea6c2b457e");
+        //const loadMessageData = {
+        //    sender_id: "65f401b7ec07e9ea6c2b457e",
+        //    messages: [messageData],
+        //    receiverId: "65f421456957be1099c49d5f",
+        //};
+        //socket.emit("loadMessage", loadMessageData);
+
+
+
+        socket.on("getMessage", (data) => {
+            const { senderId, messageContent } = data;
+            console.log(senderId);
+
+            const messageList = document.getElementById('messageList');
+            const li = document.createElement('li');
+            li.textContent = `From: ${senderId}, Message: ${messageContent}`;
+            messageList.appendChild(li);
+        });
+    </script>
+
+</head>
+
+<body>
+    <h1>Socket.IO Chat</h1>
+    <ul id="messageList"></ul>
+    <input type="text" id="messageInput" placeholder="Type your message">
+</body>
+
+
+
+</html>

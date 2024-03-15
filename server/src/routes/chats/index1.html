@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Socket.IO chat</title>
+    <style>
+        body {
+            margin: 0;
+            padding-bottom: 3rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        #sidebar {
+            background-color: #f2f2f2;
+            padding: 10px;
+            height: 100vh;
+            overflow-y: auto;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            right: 0;
+        }
+
+        #activeUsers {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #activeUsers li {
+            padding: 0.5rem;
+            margin-bottom: 5px;
+            background-color: #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #activeUsers li:hover {
+            background-color: #ccc;
+        }
+
+        #activeUsers li.active-user {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            margin-right: 260px;
+        }
+
+        #messages>li {
+            padding: 0.5rem 1rem;
+            max-width: 80%;
+            border-radius: 15px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        #messages>li:nth-child(odd) {
+            background: #efefef;
+        }
+
+        .username {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .message-content {
+            display: block;
+        }
+
+        .timestamp {
+            font-size: 0.8em;
+            color: #888;
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+        }
+
+        #form {
+            background-color: rgba(0, 0, 0, 0.15);
+            /* Màu nền đen xám */
+            color: #333;
+            /* Màu chữ xám */
+            padding: 0.25rem;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, auto);
+            grid-gap: 0.5rem;
+
+            align-items: center;
+        }
+
+        #form>* {
+            grid-column: span 1;
+
+        }
+
+        #userId,
+        #clientId {
+            margin-top: 0.5rem;
+
+        }
+
+        #input {
+            border: none;
+            padding: 0 1rem;
+            border-radius: 2rem;
+            margin: 0.25rem;
+            background-color: #fff;
+        }
+
+        input {
+            border: none;
+            padding: 0 1rem;
+            border-radius: 2rem;
+            margin: 0.25rem;
+            background-color: #fff;
+        }
+
+        #input:focus {
+            outline: none;
+        }
+
+        #form>button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://unpkg.com/socket.io-client@4.7.4/dist/socket.io.min.js"></script>
+
+</head>
+
+<body>
+    <div id="sidebar">
+        <h2>Active Users</h2>
+        <ul id="activeUsers">
+            <!-- Danh sach nguoi hoạt dong -->
+        </ul>
+    </div>
+    <ul id="messages"></ul>
+    <form id="form" action="">
+        <input id="input" autocomplete="off" placeholder="Type a message..." value="1" />
+        <button>Send</button>
+        <input id="roomInput" autocomplete="off" placeholder="Enter room name..." value="65edc3483f77a5fab415f64b" />
+        <button id="connectButton">Connect</button>
+        <input type="text" id="userId" value="65ed69104f7be99485114791" name="userId">
+        <input type="text" id="clientId" value="65ed69104f7be99485114733" name="clientId">
+        <button id="saveUserId">Save User ID</button>
+    </form>
+    <script>
+        // const socket = io(); //{ query: { userId: localStorage.getItem('user_id') } }
+
+        const socket = io(({ query: { clientId: localStorage.getItem('client_id'), userId: localStorage.getItem('user_id') } }))
+
+
+
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+        const connectButton = document.getElementById('connectButton');
+
+
+        //Nhap userid
+        const userIdInput = document.getElementById('userId');
+        const clientIdInput = document.getElementById('clientId');
+        const saveUserIdButton = document.getElementById('saveUserId');
+
+        saveUserIdButton.addEventListener('click', () => {
+            const userId = userIdInput.value.trim();
+            const clientId = clientIdInput.value.trim();
+            if (userId) {
+                localStorage.setItem('user_id', userId);
+                localStorage.setItem('client_id', clientId);
+                alert('User ID saved successfully!');
+            } else {
+                alert('Please enter a valid User ID!');
+            }
+        });
+
+
+        // Gui tin nhan khi thuc hien submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (input.value) {
+                const room = await document.getElementById('roomInput').value; // get room tu input
+
+                // Gui tin nhan thong qua api
+                try {
+                    const response = await fetch('http://localhost:5000/api/v1/chats/sendMessage', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            fromId: "65edc036072f18aeeedeab06",
+                            toId: "65edc3483f77a5fab415f64b",
+                            typeMessage: "text",
+                            messageContent: {
+                                messageText: input.value
+                            },
+                            status: "true"
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to send message');
+                    }
+
+                    input.value = Number(++input.value);
+
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                }
+            }
+        });
+
+        // Xu li su kien nhan tu server
+        socket.on('chat message', (data) => {
+            console.log(socket.id);
+            const item = document.createElement('li');
+            item.textContent = data.messageContent.messageText //lay data tu send message trong newMessage => _io.to(toId).emit('chat message', newMessage); ra
+            messages.appendChild(createMessageHTML(data)); //item
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        // Gui su kien join room len server xu li
+        connectButton.addEventListener('click', () => {
+            const room = document.getElementById('roomInput').value;
+            socket.emit('join room', room); // su kien thong bao len server de join room
+        });
+
+        function createMessageHTML(data) {
+            const { messageContent, createdAt, fromId } = data
+            // Tao component lon cho messsage
+            const messageLi = document.createElement('li');
+            messageLi.classList.add('message');
+
+            // Tao component cho ten nguoi dung 
+            const usernameSpan = document.createElement('span');
+            usernameSpan.classList.add('username');
+            usernameSpan.textContent = fromId + ': ';
+            messageLi.appendChild(usernameSpan);
+
+            // Tao component cho phan chat
+            const messageContentSpan = document.createElement('span');
+            messageContentSpan.classList.add('message-content');
+            messageContentSpan.textContent = messageContent.messageText;
+            messageLi.appendChild(messageContentSpan);
+
+            // Tao component cho ngay thang nam
+            const timestampSpan = document.createElement('span');
+            timestampSpan.classList.add('timestamp');
+            const formattedTimestamp = new Date(createdAt).toLocaleString();
+            timestampSpan.textContent = formattedTimestamp;
+            messageLi.appendChild(timestampSpan);
+
+            return messageLi;
+        }
+
+
+        /*
+         function createMessage(data) {
+             const clientId = localStorage.getItem('client_id');
+             const { messageContent, createdAt, fromId, toId } = data
+             const messageElement = document.createElement('li');
+             messageElement.classList.add('message');
+             if (isSent) {
+                 messageElement.classList.add('sent-message');
+             } else {
+                 messageElement.classList.add('received-message');
+             }
+ 
+             const usernameElement = document.createElement('div');
+             usernameElement.classList.add('username');
+             usernameElement.textContent = fromId;
+             messageElement.appendChild(usernameElement);
+ 
+             const contentElement = document.createElement('div');
+             contentElement.textContent = messageContent.messageText;
+             messageElement.appendChild(contentElement);
+ 
+             const timestampElement = document.createElement('div');
+             timestampElement.classList.add('timestamp');
+             timestampElement.textContent = createdAt;
+             messageElement.appendChild(timestampElement);
+ 
+             return messageElement;
+         } */
+
+
+
+        const activeUsers = {};
+
+        //active user
+        socket.emit('setActive');
+
+        socket.on('initialActiveStatus', (initialActiveUsers) => {
+            Object.assign(activeUsers, initialActiveUsers);
+            updateActiveUsersList();
+        });
+
+        socket.on('activeStatus', (userId, isActive) => {
+            activeUsers[userId] = isActive;
+            updateActiveUsersList();
+        });
+
+        function updateActiveUsersList() {
+            const activeUserList = document.getElementById('activeUsers');
+            activeUserList.innerHTML = '';
+
+            Object.keys(activeUsers).forEach(userId => {
+                const isActive = activeUsers[userId];
+                const listItem = document.createElement('li');
+                listItem.textContent = userId;
+                if (isActive) {
+                    listItem.classList.add('active-user');
+                }
+                activeUserList.appendChild(listItem);
+            });
+        }
+    </script>
+</body>
+
+</html>

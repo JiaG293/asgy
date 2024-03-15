@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Client</title>
+</head>
+
+<body>
+    <h1>Socket.IO Client Example</h1>
+
+    <textarea id="messageInput" placeholder="Type your message..."></textarea>
+    <button onclick="sendMessage()">Send</button>
+
+    <script src="https://unpkg.com/socket.io-client@4.7.4/dist/socket.io.min.js"></script>
+    <script>
+        const socket = io.connect("http://your_server_url"); // Thay thế "your_server_url" bằng URL của máy chủ Socket.IO
+
+        // Sự kiện khi kết nối thành công
+        socket.on("connect", () => {
+            console.log("Connected to server");
+        });
+
+        // Hàm gửi tin nhắn khi nhấn nút "Send"
+        function sendMessage() {
+            const message = document.getElementById('messageInput').value;
+            const senderId = "your_sender_id"; // Thay thế "your_sender_id" bằng ID của người gửi
+            const receiverId = "receiver_user_id"; // Thay thế "receiver_user_id" bằng ID của người nhận
+            const typeContent = "text"; // Loại nội dung (ví dụ: text, image, video)
+            const _id = "message_id"; // ID của tin nhắn (nếu có)
+
+            // Gửi sự kiện "sendMessage" với dữ liệu tin nhắn
+            socket.emit("sendMessage", { senderId, receiverId, typeContent, messageContent: message, _id });
+
+            // Xóa nội dung tin nhắn sau khi gửi
+            document.getElementById('messageInput').value = '';
+        }
+
+        // Lắng nghe sự kiện từ server (nếu cần)
+        socket.on("loadChat", () => {
+            console.log("Loading chat...");
+        });
+
+        socket.on("loadMessage", (data) => {
+            console.log("Loading message:", data);
+        });
+
+        socket.on("getMessage", (data) => {
+            console.log("Received message:", data);
+        });
+
+        socket.on("disconnect", () => {
+            console.log("Disconnected from server");
+        });
+    </script>
+</body>
+
+</html>

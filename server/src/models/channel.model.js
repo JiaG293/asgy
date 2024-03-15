@@ -15,33 +15,43 @@ const channelSchema = new mongoose.Schema(
     },
     background: {
       type: String,
-      default: "default",
+      default: "https://i.imgur.com/WCRmPDS.png",
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: 'User',
+      ref: 'Profile',
     },
-    typeRoom: {
+    typeChannel: {
       type: Number,
       enum: [999, 998, 101, 102, 201, 202],
-      required: [true, 'Room type must be one of 999 | 998 | 101 | 102 | 201 | 202'],
+      required: [true, 'Channel type must be one of 999 | 998 | 101 | 102 | 201 | 202'],
       /*
       100 la public | 101 la public 1-1 | 201 la private 1-1
       200 la private | 102 la public group | 202 la private group
       999 la cloud luu tru ca nhan | 998 dich vu bot, khach hang, tin nhan tu dong  
       */
     },
-    members: [{
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: 'User',
-    }
+    members: [
+      {
+        profileId: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: true,
+          ref: 'Profile',
+        },
+        joinedDate: { type: Date },
+        isRemoved: { type: Boolean, default: false },
+        _id: false,
+      }
     ],
-    isActive: {
-      type: Boolean,
-      default: "true"
-    }
+    options: {
+      isFreeEnter: { type: Boolean },
+      isFreeKickMem: { type: Boolean },
+      isFreeEdit: { type: Boolean },
+    },
+    requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "Profile" }],
+
+    last_message: { type: mongoose.Schema.Types.ObjectId, ref: "Message" },
+    seen_last_messages: { type: Boolean, require: true, default: false },
   },
   {
     collection: COLLECTION_NAME,

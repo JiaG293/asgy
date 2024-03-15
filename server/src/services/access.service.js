@@ -5,28 +5,37 @@ const KeyTokenModel = require('../models/keyToken.model');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/sendEmail.util');
-const { createTokenPair, verifyJWT} = require('../auth/authUtils');
+const { createTokenPair, verifyJWT } = require('../auth/authUtils');
 const KeyTokenService = require('../services/keyToken.service');
 const { BadRequestError, ConflictRequestError, UnauthorizeError, ForbiddenError } = require('../utils/responses/error.response');
 const { getInfoData } = require('../utils/getInfoModel.util');
-const { findByUserID, findByEmail, findByUsername } = require('./user.service');
-const { findByPhoneNumber } = require('./profile.service');
+const { findByUserID, findByEmail, findByUsername, findUserById } = require('./user.service');
+const { findByPhoneNumber, findProfileByUserId } = require('./profile.service');
+
+
+const HEADER = {
+    API_KEY: 'x-api-key',
+    AUTHORIZATION: 'authorization',
+    X_CLIENT_ID: 'x-client-id',
+}
 
 class AccessService {
 
     //Handle refresh token service
-    static handleRefreshTokenService = async (refreshToken) => {
+    static handleRefreshTokenService = async ({ body, headers }) => {
+        const { refreshToken } = await body;
+        const CLIENT_ID = await headers[HEADER.X_CLIENT_ID];
         const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken);
 
-        console.log("token moiiiiiiiiiiiiiiiiiiiiiii\n\n ", foundToken);
+        console.log("token new: \n\n ", foundToken);
 
         //Neu no co bi su dung lai 
         if (foundToken) {
             //decode xem day la _id nao
-            const { _id, userID } = await verifyJWT(refreshToken, foundToken.privateKey)
-            console.log('used', { _id, userID });
+            const { clientId, profileId, userId } = await verifyJWT(refreshToken, foundToken.privateKey)
+            console.log('used', { clientId, profileId, userId });
             //xoa tat ca token trong keystore
-            await KeyTokenService.deleteKeyById(foundToken._id) // xoa keytoken bang _id cua keytoken
+            await KeyTokenService.deleteKeyById(foundToken.clientId) // xoa keytoken bang _id cua keytoken
             throw new ForbiddenError('Please login again!!!')
         }
 
@@ -36,10 +45,10 @@ class AccessService {
             throw new UnauthorizeError('User not login')
         }
 
-        const { _id, userID } = await verifyJWT(refreshToken, holderToken.privateKey)
-        console.log('not used', { _id, userID });
+        const { clientId, profileId, userId } = await verifyJWT(refreshToken, holderToken.privateKey)
+        console.log('not used', { clientId, profileId, userId });
 
-        const foundUser = await findByUserID({ userID })
+        const foundUser = await findUserById(userId)
         console.log("found user " + JSON.stringify(foundUser));
 
         if (!foundUser) {
@@ -47,7 +56,12 @@ class AccessService {
         }
 
         //tao token moi
-        const tokens = await createTokenPair({ _id, userID }, holderToken.publicKey, holderToken.privateKey);
+        const findProfile = await findProfileByUserId(userId);
+        if (!findProfile) {
+            throw new BadRequestError('Profile not found please check your id')
+        }
+
+        const tokens = await createTokenPair({ clientId: clientId, userId: foundUser._id, profileId: findProfile._id }, holderToken.publicKey, holderToken.privateKey);
 
         //cap nhat token moi vao collections keys
         await holderToken.update({
@@ -84,6 +98,8 @@ class AccessService {
             throw new UnauthorizeError("User doesn't exist");
         }
 
+        const findProfile = await findProfileByUserId(findUser._id);
+
         //check password
         const match = await bcrypt.compare(password, findUser.password)
         if (!match) {
@@ -108,7 +124,7 @@ class AccessService {
              keyPrivate = privateKey
          } */
 
-         
+
 
         const { privateKey, publicKey } = await crypto.generateKeyPairSync('rsa', {
             modulusLength: 4096,
@@ -123,17 +139,18 @@ class AccessService {
         })
 
 
-        //Tao id cho keytoken - client id => de tao ra refrest token theo chua id nay
+        //Tao id cho keytoken - client id => de tao ra refresh token theo chua id nay
         const clientId = await KeyTokenService.createIdKeyToken();
 
         //Tao tokens de thuc hien xac thuc khi can thiet
-        const tokens = await createTokenPair({ clientId: clientId, userId: findUser._id, userID }, publicKey, privateKey);
+        const tokens = await createTokenPair({ clientId: clientId, userId: findUser._id, profileId: findProfile._id }, publicKey, privateKey);
         console.log("Created tokens success:", tokens);
 
         //tao publicKeyString de luu vao database
         const publicKeyString = await KeyTokenService.createKeyToken({
             clientId: clientId,
             userId: findUser._id,
+            profileId: findProfile._id,
             refreshToken: tokens.refreshToken,
             publicKey,
             privateKey,
@@ -146,13 +163,14 @@ class AccessService {
         console.log("publicKeyString:", publicKeyString.publicKey);
 
         //tao publicKeyObject de verify tao token cho user
-        const publicKeyObject = crypto.createPublicKey(publicKeyString.publicKey);
-        console.log("publicKeyObject:", publicKeyObject);
+        /* const publicKeyObject = crypto.createPublicKey(publicKeyString.publicKey);
+        console.log("publicKeyObject:", publicKeyObject); */
 
         console.log(publicKeyString);
         //tra ve thong tin tao cho body
         return {
-            clientId: publicKeyString._id,
+            clientId: clientId,
+            profile: getInfoData({ fields: ['_id', 'channelId', 'friend', 'avatar', 'gender', 'birthday', 'info',], object: findProfile }),
             user: getInfoData({ fields: ['_id', 'username', 'email',], object: findUser }),
             tokens,
         }

@@ -6,44 +6,29 @@ const DOCUMENT_NAME = 'Message'
 
 const messageSchema = new mongoose.Schema(
     {
-        fromId: {
+        senderId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: 'User',
+            ref: 'Profile',
         },
-        toId: {
-            type: String,
+        receiverId: {
+            type: mongoose.Schema.Types.ObjectId,
             required: true,
+            ref: 'Channel',
         },
-        typeMessage: {
+        typeContent: {
             type: String,
             enum: ['text', 'link', 'file', 'image', 'video', 'audio', 'document', 'extension'],
             required: [true, 'Room type must be one of text | link | file | image | video | audio | document | extension']
         },
         messageContent: {
-            messageText: {
-                type: String,
-            },
-            messageLink: {
-                type: String,
-            },
-            messageFile: {
-                type: String,
-            },
-            messageImage: {
-                type: String,
-            },
-            messageAudio: {
-                type: String,
-            },
-            messageDocument: {
-                type: String,
-            }
+            type: String,
+            required: [true, 'Content not empty']
         },
-        status: {
+        isDeleted: {
             type: Boolean,
-            default: true
-        }
+            default: false,
+        },
     },
     {
         collection: COLLECTION_NAME,

@@ -1,5 +1,5 @@
 const { accessChat, sendMessage } = require("../services/chat.service");
-const { createPublicChannel, findChannelByUserId, checkChannelExists } = require("../services/channel.service");
+const { createSingleChat, findChannelByUserId, checkChannelSingleExists, getListChannels } = require("../services/channel.service");
 const { CREATED, SuccessResponse } = require("../utils/responses/success.response");
 
 class ChatController {
@@ -12,17 +12,31 @@ class ChatController {
         }).send(res)
     }
 
-    createChanel = async (req, res, next) => {
+    createSingleChat = async (req, res, next) => {
         new SuccessResponse({
-            message: 'Created channel',
-            metadata: await createPublicChannel(req.body)
+            message: 'Created single chat',
+            metadata: await createSingleChat(req)
+        }).send(res)
+    }
+
+    createChannelChat = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Created channel chat',
+            metadata: await createSingleChat(req.body)
         }).send(res)
     }
 
     findChannel = async (req, res, next) => {
         new SuccessResponse({
             message: 'Find channel',
-            metadata: await checkChannelExists(req.body)
+            metadata: await createSingleChat(req.body)
+        }).send(res)
+    }
+
+    getListChannels = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Get sucessfully channel list',
+            metadata: await getListChannels(req.headers)
         }).send(res)
     }
 

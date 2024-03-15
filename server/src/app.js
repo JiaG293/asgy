@@ -17,13 +17,16 @@ require('./dbs/init.mongodb')
 
 //CORS 
 const cors = require("cors");
-
 app.use(cors({
     origin: [`http://localhost:` + PORT, 'http://localhost:8085'],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
 }))
 
+//SOCKET.IO
+/* const socketService = require('./services/socket.service')
+const server = require('http').createServer(app);
+socketService.io.attach(server); */
 
 //middleware for client
 app.use(helmet()) //che dau cong nghe su dung phia back end x-powered-by

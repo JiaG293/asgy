@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema(
         resetPasswordExpiry: Date,
         profile: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'profile',
+            ref: 'Profile',
         }
     },
     {

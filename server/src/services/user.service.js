@@ -1,6 +1,8 @@
 const { Mongoose, Types } = require("mongoose");
 const UserModel = require("../models/user.model")
 const { BadRequestError, ConflictRequestError, UnauthorizeError, ForbiddenError } = require('../utils/responses/error.response');
+const { findChannelByUserId } = require("./channel.service");
+const uuid = require('uuid')
 
 
 const getInformationUser = async (user) => {
@@ -43,11 +45,13 @@ const findUserById = async (id) => {
 
 
 
+
+
 module.exports = {
     findByUserID,
     findByUsername,
     findByEmail,
     findUserById,
-    getInformationUser,
+    getInformationUser
 
 }

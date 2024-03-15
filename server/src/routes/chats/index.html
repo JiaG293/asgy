@@ -155,183 +155,148 @@
     <form id="form" action="">
         <input id="input" autocomplete="off" placeholder="Type a message..." value="1" />
         <button>Send</button>
-        <input id="roomInput" autocomplete="off" placeholder="Enter room name..." value="65edc3483f77a5fab415f64b" />
+        <input id="roomInput" autocomplete="off" placeholder="Enter channel" />
         <button id="connectButton">Connect</button>
-        <input type="text" id="userId" value="65ed69104f7be99485114791" name="userId">
-        <input type="text" id="clientId" value="65ed69104f7be99485114733" name="clientId">
+        <input type="text" id="userId" placeholder="UserId" name="userId">
+        <input type="text" id="clientId" placeholder="clientId" name="clientId">
+        <input type="text" id="authorization" placeholder="authorization" name="authorization">
         <button id="saveUserId">Save User ID</button>
     </form>
+    <form id="form1" action="">
+        <input id="input1" autocomplete="off" placeholder="Type a message..." value="test" />
+        <button>Send</button>
+
+    </form>
     <script>
-        // const socket = io(); //{ query: { userId: localStorage.getItem('user_id') } }
 
-        const socket = io(({ query: { clientId: localStorage.getItem('client_id'), userId: localStorage.getItem('user_id') } }))
-
-
-
-        const form = document.getElementById('form');
-        const input = document.getElementById('input');
-        const messages = document.getElementById('messages');
-        const connectButton = document.getElementById('connectButton');
-
-
-        //Nhap userid
         const userIdInput = document.getElementById('userId');
+        const input1 = document.getElementById('input1');
         const clientIdInput = document.getElementById('clientId');
+        const authorization = document.getElementById('authorization');
+        const channel = document.getElementById('roomInput');
         const saveUserIdButton = document.getElementById('saveUserId');
+        const message = document.getElementById('input');
+        const listMessage = document.getElementById('messages')
+        const form = document.getElementById('form')
+        const form1 = document.getElementById('form1')
 
-        saveUserIdButton.addEventListener('click', () => {
-            const userId = userIdInput.value.trim();
-            const clientId = clientIdInput.value.trim();
-            if (userId) {
-                localStorage.setItem('user_id', userId);
-                localStorage.setItem('client_id', clientId);
-                alert('User ID saved successfully!');
-            } else {
-                alert('Please enter a valid User ID!');
-            }
-        });
+        const socket = io()
 
+        const user1 = {
+            clientId: '65f301e243670a1c36706e8d',
+            authorization: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IjY1ZjMwMWUyNDM2NzBhMWMzNjcwNmU4ZCIsInVzZXJJZCI6IjY1ZWQ2OTEwNGY3YmU5OTQ4NTExNDc5MSIsInVzZXJJRCI6ImFzZ3kyMDAyQGdtYWlsLmNvbSIsImlhdCI6MTcxMDQyNDU0NiwiZXhwIjoxNzEwNTEwOTQ2fQ.EBAwIzfCFxt7vTNStsTf4sb0gSibR8LuUX1F6_m32veUu6B8aGHYW6v32esGYu5KX4GIwMAvIZhBINLrpILijxaCzbxWu4P02CgGfYkNiom1Ef9LtP7Orf3BO7kX0gWVqmkSTwk2-pnnjyDO4xqqCr2OlazGFpJAGL2mY7OF3ybozG_uqmG7DgxaLTBNyHi7XuPYRs1SCuu6nzKyN7PJSOdh1nk7jnhKwDEjxUFAKCHnLfvt2J02WQhOqtkU6UAUz3LNSwTZJsncaNM9rAdk8Y2pUP5Tm7SliNgUmQN4qhtFJRWlhcEILk2hkQH9BW3JY1W4hrwz9RQEcatc5AqtvtEetmwFS51Ze9rffsuMbQ-ApmRmc0XP17rh9AwYE56ewS9ps7--MvkNsDjKearOJYh3jUnDIX5GRxmavPbmVUJpo6zIklWrRsAja-FryBislfJtpfm481_YJG-NRDefDGRkKz6OejJN-SVqzWCJ0VEqE0CW1nN2P-Nouf-ejgr7jiJ7Fjsw2AenRhqdvh5po3DQrC30FvvZYoCtxDl8EC38bDrz75wUWceqov4Brb1fQ-MXwz3QYQ_aEAdMZCps9r6SyJ2kAmhdVTGPYd_sX6AmEnFYA29K0ghnsaADvE35M7ucSgpUKUYhJ7TlefV78cwWnBQjc7e8Xb-uaYZuQZI',
+            channel: '65f31811b57c18d983b1feff',
+            userId: '65ed69104f7be99485114791'
+        }
 
-        // Gui tin nhan khi thuc hien submit
+        const user2 = {
+            clientId: '65f31ecd57433659587d92dc',
+            authorization: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IjY1ZjMxZWNkNTc0MzM2NTk1ODdkOTJkYyIsInVzZXJJZCI6IjY1ZWQ2OTFjNGY3YmU5OTQ4NTExNDc5OCIsInVzZXJJRCI6ImFzZ3kyMDAyMUBnbWFpbC5jb20iLCJpYXQiOjE3MTA0MzE5NDksImV4cCI6MTcxMDUxODM0OX0.NsA9ueCr8wKVVvbYvTgAgc8jfW95ApWVQOsu467MsNO253xC5st-wcv6WMUCLAiarmrgHc6muX71sT4jC25RuwU0CP-2QeQ4mmSszXQ7y6KMzadP1-uQdLqHhVS79CT0GlTje2mJz8qncZ1WUJ9Inl0k3pmtVOvqPjYso62djPYVKNFgk-xICNQ9m9QQwGppSLaFCOV9mMybnC_757zxEZWLw_yYjVeKw91fzkFujoYRRDMNKT24Hv0ZYVLB922ASqkvf9EYtiGiUI7QLi8nJGYLBppU7ayPksbFT7Oz5bxXGdh6Wf8Q9FHNWAND6BwCYXc1B8Tcr_7_hXtXheEbdnpThSTxWZz-OMz1kiamnQZKmc0U730uK653dnibrTe4l4zQ7pltKJh5iue5la5IoLRmdidSVa-PFuuVqohWh_9aQhyKFKKvt06ImMzXnK4GuinUml9YTQXSOwqkgi2-d7K7tJauRRmldKQDORy-JnFZJw7GGBYaugH0DMqcEZEhLUmUGs2S5J9w5Yey6OrLdYAc9uDIBtbMq2DnKqRXJwO1h10x8VYz-EB-sApmdcniG9-D7bN1XTBhXBwSLSchgEo-LbBF2TSUrI4k7KfT2Jna9DStFj03uGbG408aHWa72DfarV4W6JxSzs3UCWNs8vf-YNAeoFRpdbcMTkSO-NQ',
+            channel: '65f31811b57c18d983b1feff',
+            userId: '65ed691c4f7be99485114798'
+        }
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            if (input.value) {
-                const room = await document.getElementById('roomInput').value; // get room tu input
 
-                // Gui tin nhan thong qua api
-                try {
-                    const response = await fetch('http://localhost:5000/api/v1/chats/sendMessage', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            fromId: "65edc036072f18aeeedeab06",
-                            toId: "65edc3483f77a5fab415f64b",
-                            typeMessage: "text",
-                            messageContent: {
-                                messageText: input.value
-                            },
-                            status: "true"
-                        })
-                    });
+            if (Number(message.value) == 1) {
+                save(user1)
+            } else save(user2)
+        })
 
-                    if (!response.ok) {
-                        throw new Error('Failed to send message');
-                    }
+        form1.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-                    input.value = Number(++input.value);
+            socket.emit('chat message', { text: input1.value, channel: channel.value })
+            console.log("da gui chat");
 
-                } catch (error) {
-                    console.error('Error sending message:', error);
-                }
-            }
-        });
+        })
 
-        // Xu li su kien nhan tu server
         socket.on('chat message', (data) => {
-            console.log(socket.id);
-            const item = document.createElement('li');
-            item.textContent = data.messageContent.messageText //lay data tu send message trong newMessage => _io.to(toId).emit('chat message', newMessage); ra
-            messages.appendChild(createMessageHTML(data)); //item
-            window.scrollTo(0, document.body.scrollHeight);
+            // Tạo một phần tử li mới cho tin nhắn
+            const messageElement = document.createElement('li');
+            // Đặt nội dung của tin nhắn là văn bản của tin nhắn được gửi từ máy chủ
+            messageElement.textContent = data.text;
+            // Thêm tin nhắn vào danh sách tin nhắn
+            listMessage.appendChild(messageElement);
+            console.log("data", data.text);
         });
 
-        // Gui su kien join room len server xu li
-        connectButton.addEventListener('click', () => {
-            const room = document.getElementById('roomInput').value;
-            socket.emit('join room', room); // su kien thong bao len server de join room
-        });
+
+        function save(user) {
+
+            userIdInput.value = user.userId
+            clientIdInput.value = user.clientId
+            authorization.value = user.authorization
+            channel.value = user.channel
+            socket.emit('addUser', { userId: userIdInput.value }) //'65ed395373341407accd50d8'
+            // Make a GET request to the specified URL with custom headers
+            fetch('http://localhost:5000/api/v1/chats/list-channels', {
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                    'x-client-id': clientIdInput.value, // '65f301e243670a1c36706e8d',
+                    'authorization': authorization.value //'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IjY1ZjMwMWUyNDM2NzBhMWMzNjcwNmU4ZCIsInVzZXJJZCI6IjY1ZWQ2OTEwNGY3YmU5OTQ4NTExNDc5MSIsInVzZXJJRCI6ImFzZ3kyMDAyQGdtYWlsLmNvbSIsImlhdCI6MTcxMDQyNDU0NiwiZXhwIjoxNzEwNTEwOTQ2fQ.EBAwIzfCFxt7vTNStsTf4sb0gSibR8LuUX1F6_m32veUu6B8aGHYW6v32esGYu5KX4GIwMAvIZhBINLrpILijxaCzbxWu4P02CgGfYkNiom1Ef9LtP7Orf3BO7kX0gWVqmkSTwk2-pnnjyDO4xqqCr2OlazGFpJAGL2mY7OF3ybozG_uqmG7DgxaLTBNyHi7XuPYRs1SCuu6nzKyN7PJSOdh1nk7jnhKwDEjxUFAKCHnLfvt2J02WQhOqtkU6UAUz3LNSwTZJsncaNM9rAdk8Y2pUP5Tm7SliNgUmQN4qhtFJRWlhcEILk2hkQH9BW3JY1W4hrwz9RQEcatc5AqtvtEetmwFS51Ze9rffsuMbQ-ApmRmc0XP17rh9AwYE56ewS9ps7--MvkNsDjKearOJYh3jUnDIX5GRxmavPbmVUJpo6zIklWrRsAja-FryBislfJtpfm481_YJG-NRDefDGRkKz6OejJN-SVqzWCJ0VEqE0CW1nN2P-Nouf-ejgr7jiJ7Fjsw2AenRhqdvh5po3DQrC30FvvZYoCtxDl8EC38bDrz75wUWceqov4Brb1fQ-MXwz3QYQ_aEAdMZCps9r6SyJ2kAmhdVTGPYd_sX6AmEnFYA29K0ghnsaADvE35M7ucSgpUKUYhJ7TlefV78cwWnBQjc7e8Xb-uaYZuQZI'
+                },
+            })
+                .then(response => {
+                    // Check if the request was successful
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // Log the response headers
+                    console.log('Response Headers:', response.headers);
+                    // Parse the response body as JSON
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data.metadata);
+                    socket.emit('addChannel', { userId: userId.value, channels: data.metadata })
+                    console.log("xong", user.userId);
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+
+        }
+
+
+
 
         function createMessageHTML(data) {
-            const { messageContent, createdAt, fromId } = data
+            const { text, channel } = data
             // Tao component lon cho messsage
             const messageLi = document.createElement('li');
             messageLi.classList.add('message');
 
             // Tao component cho ten nguoi dung 
-            const usernameSpan = document.createElement('span');
-            usernameSpan.classList.add('username');
-            usernameSpan.textContent = fromId + ': ';
-            messageLi.appendChild(usernameSpan);
+            //const usernameSpan = document.createElement('span');
+            //usernameSpan.classList.add('username');
+            //usernameSpan.textContent = fromId + ': ';
+            //messageLi.appendChild(usernameSpan);
 
             // Tao component cho phan chat
             const messageContentSpan = document.createElement('span');
             messageContentSpan.classList.add('message-content');
-            messageContentSpan.textContent = messageContent.messageText;
+            messageContentSpan.textContent = text;
             messageLi.appendChild(messageContentSpan);
 
             // Tao component cho ngay thang nam
-            const timestampSpan = document.createElement('span');
-            timestampSpan.classList.add('timestamp');
-            const formattedTimestamp = new Date(createdAt).toLocaleString();
-            timestampSpan.textContent = formattedTimestamp;
-            messageLi.appendChild(timestampSpan);
+            //const timestampSpan = document.createElement('span');
+            //timestampSpan.classList.add('timestamp');
+            //const formattedTimestamp = new Date(createdAt).toLocaleString();
+            //timestampSpan.textContent = formattedTimestamp;
+            //messageLi.appendChild(timestampSpan);
 
             return messageLi;
         }
 
 
-        /*
-         function createMessage(data) {
-             const clientId = localStorage.getItem('client_id');
-             const { messageContent, createdAt, fromId, toId } = data
-             const messageElement = document.createElement('li');
-             messageElement.classList.add('message');
-             if (isSent) {
-                 messageElement.classList.add('sent-message');
-             } else {
-                 messageElement.classList.add('received-message');
-             }
- 
-             const usernameElement = document.createElement('div');
-             usernameElement.classList.add('username');
-             usernameElement.textContent = fromId;
-             messageElement.appendChild(usernameElement);
- 
-             const contentElement = document.createElement('div');
-             contentElement.textContent = messageContent.messageText;
-             messageElement.appendChild(contentElement);
- 
-             const timestampElement = document.createElement('div');
-             timestampElement.classList.add('timestamp');
-             timestampElement.textContent = createdAt;
-             messageElement.appendChild(timestampElement);
- 
-             return messageElement;
-         } */
 
 
 
-        const activeUsers = {};
 
-        //active user
-        socket.emit('setActive');
-
-        socket.on('initialActiveStatus', (initialActiveUsers) => {
-            Object.assign(activeUsers, initialActiveUsers);
-            updateActiveUsersList();
-        });
-
-        socket.on('activeStatus', (userId, isActive) => {
-            activeUsers[userId] = isActive;
-            updateActiveUsersList();
-        });
-
-        function updateActiveUsersList() {
-            const activeUserList = document.getElementById('activeUsers');
-            activeUserList.innerHTML = '';
-
-            Object.keys(activeUsers).forEach(userId => {
-                const isActive = activeUsers[userId];
-                const listItem = document.createElement('li');
-                listItem.textContent = userId;
-                if (isActive) {
-                    listItem.classList.add('active-user');
-                }
-                activeUserList.appendChild(listItem);
-            });
-        }
     </script>
 </body>
 

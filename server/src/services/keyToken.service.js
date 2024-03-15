@@ -16,7 +16,7 @@ class KeyTokenService {
         }
     };
 
-    static createKeyToken = async ({ clientId, userId, publicKey, privateKey, refreshToken }) => {
+    static createKeyToken = async ({ clientId, profileId, userId, publicKey, privateKey, refreshToken }) => {
         try {
             //method simple
             /* const publicKeyString = publicKey.toString();
@@ -30,7 +30,7 @@ class KeyTokenService {
             //method advanced
             const filter = { _id: clientId }
             const update = {
-                _id: clientId, userId, publicKey, privateKey, refreshTokenUsed: [], refreshToken
+                _id: clientId, profileId, userId, publicKey, privateKey, refreshTokenUsed: [], refreshToken
             }
             const options = { upsert: true, new: true }
             const tokens = await KeyTokenModel.findOneAndUpdate(filter, update, options);

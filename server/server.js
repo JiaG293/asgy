@@ -10,11 +10,14 @@ const io = new Server({
     adapter: createAdapter(_redisClient)
 }); */
 
-//socket io
-const server = require('http').createServer(app)
-const io = new Server(server);
-const SocketService = require('./src/services/socket.service')
-global._io = io;
+//SOCKET.IO
+// const server = require('http').createServer(app)
+// const io = new Server(server);
+// const SocketService = require('./src/services/socket1.service')
+// global._io = io;
+const socketService = require('./src/services/socket.service')
+const server = require('http').createServer(app);
+socketService.io.attach(server);
 
 
 /* //middlware socket service
@@ -26,7 +29,7 @@ global._io.use((socket, next) => {
 }) */
 
 // connection socket io
-global._io.on('connection', SocketService.connection)
+// global._io.on('connection', SocketService.connection)
 
 
 server.listen(PORT, () => {
