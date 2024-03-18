@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/socket.io-client@4.7.4/dist/socket.io.min.js"></script>
+    <script>
+        function navigateToNewPageWithData() {
+            const userDataSelect = document.getElementById("userDataSelect");
+            const userData = userDataSelect.value;
+            if (userData) {
+                const { userId, channels } = JSON.parse(userData);
+                const dataString = encodeURIComponent(JSON.stringify({ userId, channels }));
+
+                window.location.href = "chat1?data=" + dataString;
+                console.log(window.location.href);
+            } else {
+                alert("Please select User Data");
+            }
+
+
+        }
+    </script>
+</head>
+
+<body>
+    <select id="userDataSelect">
+
+        <!-- TAO user va cac channel roi bo vao day, userId o day la lay _id cua profile id nhe-->
+        <!-- Xong thi truy cap http://localhost:5000/api/v1/chats/home -->
+        <!-- CHon user login vao  -->
+        <!-- Thuc hien chat -->
+        <option value="">Select User Data</option>
+        <option value='{"userId": "65f401b7ec07e9ea6c2b457e", "channels": ["65f421456957be1099c49d5f"]}'>User 1 -
+            Room 1</option>
+        <option
+            value='{"userId": "65f417a034e9a9f7e2f3cf9f", "channels": ["65f421456957be1099c49d5f", "65f421456957be1099c49d5c"]}'>
+            User 2 -
+            Room 2</option>
+        <option
+            value='{"userId": "65f806fe141880574bb04421", "channels": ["65f421456957be1099c49d5f", "65f421456957be1099c49d5c" , "65f421456957be1099c49d5e"]}'>
+            User 3 -
+            Room 3</option>
+        <!-- Thêm các option khác tương ứng với user và room tương ứng -->
+    </select>
+    <button onclick="navigateToNewPageWithData()">chuyen trang</button>
+</body>
+
+
+</html>

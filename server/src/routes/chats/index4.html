@@ -4,56 +4,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Socket.IO Client</title>
+    <title>Socket.io Client Test</title>
+    <script src="https://unpkg.com/socket.io-client@4.7.4/dist/socket.io.min.js"></script>
 </head>
 
 <body>
-    <h1>Socket.IO Client Example</h1>
 
-    <textarea id="messageInput" placeholder="Type your message..."></textarea>
+    <h1>Socket.io Client Test</h1>
+
+    <div id="messages"></div>
+    <div>
+        <select id="userDataSelect">
+            <option value="">Select User Data</option>
+            <option value='{"userId": "65f401b7ec07e9ea6c2b457e", "channels": ["65f421456957be1099c49d5f"]}'>User 1 -
+                Room 1</option>
+            <option
+                value='{"userId": "65f417a034e9a9f7e2f3cf9f", "channels": ["65f421456957be1099c49d5f", "65f421456957be1099c49d5c"]}'>
+                User 2 -
+                Room 2</option>
+            <option
+                value='{"userId": "65f806fe141880574bb04421", "channels": ["65f421456957be1099c49d5f", "65f421456957be1099c49d5c" , "65f421456957be1099c49d5e"]}'>
+                User 3 -
+                Room 3</option>
+            <!-- Thêm các option khác tương ứng với user và room tương ứng -->
+        </select>
+        <button onclick="assignUserData()">test</button>
+    </div>
+    <button onclick="assignIds()">Assign IDs</button>
+    <input type="text" id="messageInput" placeholder="Type your message..." value="test">
+    <input type="text" id="channelInput" placeholder="Type your channel..." value="65f421456957be1099c49d5f">
     <button onclick="sendMessage()">Send</button>
 
-    <script src="https://unpkg.com/socket.io-client@4.7.4/dist/socket.io.min.js"></script>
     <script>
-        const socket = io.connect("http://your_server_url"); // Thay thế "your_server_url" bằng URL của máy chủ Socket.IO
 
-        // Sự kiện khi kết nối thành công
-        socket.on("connect", () => {
-            console.log("Connected to server");
-        });
+        function autoMessage() {
 
-        // Hàm gửi tin nhắn khi nhấn nút "Send"
-        function sendMessage() {
-            const message = document.getElementById('messageInput').value;
-            const senderId = "your_sender_id"; // Thay thế "your_sender_id" bằng ID của người gửi
-            const receiverId = "receiver_user_id"; // Thay thế "receiver_user_id" bằng ID của người nhận
-            const typeContent = "text"; // Loại nội dung (ví dụ: text, image, video)
-            const _id = "message_id"; // ID của tin nhắn (nếu có)
-
-            // Gửi sự kiện "sendMessage" với dữ liệu tin nhắn
-            socket.emit("sendMessage", { senderId, receiverId, typeContent, messageContent: message, _id });
-
-            // Xóa nội dung tin nhắn sau khi gửi
-            document.getElementById('messageInput').value = '';
         }
 
-        // Lắng nghe sự kiện từ server (nếu cần)
-        socket.on("loadChat", () => {
-            console.log("Loading chat...");
-        });
+        // Thay đổi 'YOUR_SERVER_URL' thành URL thực tế của máy chủ Socket.io
+        const socket = io();
 
-        socket.on("loadMessage", (data) => {
-            console.log("Loading message:", data);
-        });
+        function assignUserData() {
+            const userDataSelect = document.getElementById("userDataSelect");
+            socket.emit('test')
 
+        }
+
+        function assignIds() {
+            const userDataSelect = document.getElementById("userDataSelect");
+            const userData = userDataSelect.value;
+            if (userData) {
+                const { userId, channels } = JSON.parse(userData);
+                socket.emit("addUser", { userId, channels })
+            } else {
+                alert("Please select User Data");
+            }
+        }
+
+        // Xử lý các tin nhắn đến
         socket.on("getMessage", (data) => {
-            console.log("Received message:", data);
+            const { senderId, messageContent } = data;
+            const messageElement = document.createElement("div");
+            messageElement.textContent = `${senderId}: ${messageContent}`;
+            document.getElementById("messages").appendChild(messageElement);
         });
 
-        socket.on("disconnect", () => {
-            console.log("Disconnected from server");
-        });
+        // Gửi tin nhắn đến máy chủ
+        function sendMessage() {
+
+            const userDataSelect = document.getElementById("userDataSelect");
+            const userData = userDataSelect.value;
+
+            const { userId, channels } = JSON.parse(userData);
+            const messageInput = document.getElementById("messageInput");
+            const messageContent = messageInput.value;
+            const senderId = userId; // Thay thế bằng ID thực sự của người gửi
+            const receiverId = document.getElementById('channelInput').value //"65f421456957be1099c49d5f"; // Thay thế bằng ID thực sự của người nhận
+            const typeContent = "text"; // Loại nội dung tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
+            const _id = "1214"; // ID của tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
+            socket.emit("sendMessage", { senderId, receiverId, typeContent, messageContent, _id });
+            messageInput.value = ""; // Xóa nội dung trong ô nhập sau khi gửi tin nhắn
+        }
     </script>
+
 </body>
 
 </html>

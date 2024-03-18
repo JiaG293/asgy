@@ -15,7 +15,10 @@ const io = new Server({
 // const io = new Server(server);
 // const SocketService = require('./src/services/socket1.service')
 // global._io = io;
+
+
 const socketService = require('./src/services/socket.service')
+
 const server = require('http').createServer(app);
 socketService.io.attach(server);
 
