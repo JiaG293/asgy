@@ -80,6 +80,7 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            height: 90%;
         }
 
         #group-info {
@@ -239,12 +240,14 @@
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            width: calc(100% - 20px);
+            width: calc(100% - 900px);
             /* Độ rộng chiếm toàn bộ phần chat */
         }
 
         .chat-input {
             display: flex;
+            position: fixed;
+            bottom: 0;
             /* Đẩy phần input xuống dưới cùng */
             padding: 10px;
             margin-top: auto;
@@ -332,6 +335,7 @@
             <button id="button-send" onclick="sendMessage()">Send message</button>
         </div>
     </div>
+
     <div id="member-list">
         <h2>Members Online</h2>
         <ul>
@@ -430,12 +434,8 @@
 
     //kiem tra so phong room hien co
     function getStatusServer() {
+        console.log("status cua danh sach phong trong server");
         socket.emit('test')
-        console.log("dfsdf");
-        socket.emit('loadMessage', {
-            senderId: sessionStorage.getItem('userId')
-        })
-
     }
 
 
@@ -464,12 +464,20 @@
                 </div>
             </li>`
             if (senderId === sessionStorage.getItem('userId')) {
+                document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
                 document.getElementById(`${receiverId}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
             } else {
+                document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
                 document.getElementById(`${receiverId}-chat`).insertAdjacentHTML('beforeend', messageReceiverElement);
+
             }
         });
 
+    }
+
+    function scrollToBottom(receiverId) {
+        const messageListScroll = document.getElementById(`${receiverId}-chat`)
+        return messageListScroll.scrollTop = messageListScroll.scrollHeight;
     }
 
 

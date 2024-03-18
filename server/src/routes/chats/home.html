@@ -14,7 +14,7 @@
                 const { userId, channels } = JSON.parse(userData);
                 const dataString = encodeURIComponent(JSON.stringify({ userId, channels }));
 
-                window.location.href = "chat1?data=" + dataString;
+                window.location.href = "chat?data=" + dataString;
                 console.log(window.location.href);
             } else {
                 alert("Please select User Data");
