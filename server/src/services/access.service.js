@@ -2,7 +2,7 @@ const UserModel = require('../models/user.model');
 const ProfileModel = require('../models/profile.model');
 const KeyTokenModel = require('../models/keyToken.model');
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs'); //const bcrypt = require('bcrypt'); //THAY DOI THANH CAI NAY SAU KHI DEPLOYMENT DO BCRYPT PERFOMANCE HON
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/sendEmail.util');
 const { createTokenPair, verifyJWT } = require('../auth/authUtils');
