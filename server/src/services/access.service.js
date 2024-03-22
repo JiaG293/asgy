@@ -9,9 +9,13 @@ const { createTokenPair, verifyJWT } = require('../auth/authUtils');
 const KeyTokenService = require('../services/keyToken.service');
 const { BadRequestError, ConflictRequestError, UnauthorizeError, ForbiddenError } = require('../utils/responses/error.response');
 const { getInfoData } = require('../utils/getInfoModel.util');
-const { findByUserID, findByEmail, findByUsername, findUserById } = require('./user.service');
+const { findByUserID, findByEmail, findByUsername, findUserById, getResetPasswordToken } = require('./user.service');
 const { findByPhoneNumber, findProfileByUserId } = require('./profile.service');
+require('dotenv').config()
+const { URL_CLIENT } = process.env
 
+
+const { copyToClipboard } = require('../utils/temp.util')
 
 const HEADER = {
     API_KEY: 'x-api-key',
@@ -20,6 +24,68 @@ const HEADER = {
 }
 
 class AccessService {
+
+    // Forgot Password
+    static forgotPassword = async (req) => {
+        const user = await findByUserID({
+            userID: req.body.userID, select: {
+                username: 1,
+                email: 1,
+                password: 1,
+                verify: 1,
+                resetPasswordToken: 1,
+                resetPasswordExpiry: 1,
+            }
+        });
+        if (!user) {
+            throw new BadRequestError("User Not Found forgot password");
+        }
+        const resetPasswordToken = await getResetPasswordToken(user);
+        await user.save();
+
+        //HAM DE TAM COPY SAN VAO CLIPBOARD KHI CHAY CAI NAY
+        copyToClipboard(resetPasswordToken)
+
+
+        const resetPasswordUrl = `${URL_CLIENT}/users/new-password/${resetPasswordToken}`; //Dua frontend uri router vao day de tu dong input token vao
+        const checkSending = await sendEmail({
+            email: user.email,
+            subject: 'RESET PASSWORD',
+            content: resetPasswordUrl
+        });
+        if (checkSending.success) {
+            return {
+                email: user.email
+            };
+        } else {
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpiry = undefined;
+            await user.save({ validateBeforeSave: false });
+            throw new UnauthorizeError("Failed sending link reset password");
+        }
+    };
+
+    // Get token from email 
+    static resetPassword = async (token, password) => {
+
+        const resetPasswordToken = crypto.createHash("sha256").update(token).digest("hex");
+        //decode password tu token da cho 
+
+        const user = await UserModel.findOne({
+            resetPasswordToken,
+            resetPasswordExpiry: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            throw new UnauthorizeError("User Not Found Or Token Expire")
+        }
+        user.password = password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+
+        await user.save();
+        return true;
+    }
 
     //Handle refresh token service
     static handleRefreshTokenService = async ({ body, headers }) => {

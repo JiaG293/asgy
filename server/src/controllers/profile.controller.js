@@ -41,7 +41,7 @@ class ProfileController {
     getListFriends = async (req, res, next) => {
         new SuccessResponse({
             message: 'List friends',
-            metadata: await getListFriends(req.body)
+            metadata: await getListFriends(req)
         }).send(res)
     }
 

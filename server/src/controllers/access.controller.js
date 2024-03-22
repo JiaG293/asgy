@@ -3,6 +3,23 @@ const { CREATED, SuccessResponse } = require("../utils/responses/success.respons
 
 class AccessController {
 
+
+    //Forgot password
+    forgotPassword = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Send token to email success',
+            metadata: await AccessService.forgotPassword(req)
+        }).send(res)
+    }
+
+    //Get token from email 
+    resetPassword = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Reset Password Success',
+            metadata: await AccessService.resetPassword(req.params.token, req.body.password)
+        }).send(res)
+    }
+
     //Handle refresh token 
     handleRefreshToken = async (req, res, next) => {
         new SuccessResponse({

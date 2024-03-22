@@ -3,8 +3,21 @@ const UserModel = require("../models/user.model")
 const { BadRequestError, ConflictRequestError, UnauthorizeError, ForbiddenError } = require('../utils/responses/error.response');
 const { findChannelByUserId } = require("./channel.service");
 const uuid = require('uuid')
+const crypto = require('crypto')
 
 
+const getResetPasswordToken = async (user) => {
+
+    const resetToken = crypto.randomBytes(20).toString('hex');
+
+    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.resetPasswordExpiry = Date.now() + 1 * 60 * 1000; //het han sau 1p
+
+    return resetToken;
+}
+
+
+//get infomation user
 const getInformationUser = async (user) => {
     const infoUser = await findUserById(user.userId);
     if (!infoUser) {
@@ -20,13 +33,14 @@ const findByUserID = async ({ userID, select = {
     password: 1,
     verify: 1,
     resetPasswordToken: 1,
+    resetPasswordExpiry: 1,
 } }) => {
     //cu voi email va password
     //return await UserModel.findOne({ $or: [{ username: username }, { email: email }] }).select(select).lean()
     if (/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(userID)) {
-        return await UserModel.findOne({ email: userID }).select(select).lean()
+        return await UserModel.findOne({ email: userID }).select(select)
     } else {
-        return await UserModel.findOne({ username: userID }).select(select).lean()
+        return await UserModel.findOne({ username: userID }).select(select)
     }
 }
 
@@ -47,7 +61,9 @@ const findUserById = async (id) => {
 
 
 
+
 module.exports = {
+    getResetPasswordToken,
     findByUserID,
     findByUsername,
     findByEmail,

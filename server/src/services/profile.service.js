@@ -13,7 +13,7 @@ const HEADER = {
 //LAY THONG TIN PROFILE
 const getInformationProfile = async (headers) => {
 
-   
+
     const { authorization } = await headers;
     const clientId = await headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
@@ -76,8 +76,31 @@ const updateInformationProfile = async (req) => {
 
 
 //LAY RA DANH SACH BAN BE 
-const getListFriends = async ({ userId }) => {
-    return await ProfileModel.findOne({ userId: userId }).select('userId friend').populate('friend', '-friend -createdAt -updatedAt -__v').lean()
+const getListFriends = async (req) => {
+    //Cach cu req.body.
+    // return await ProfileModel.findOne({ _id: req.params.profileId }).select('userId friends').populate('friends', '-friends -createdAt -updatedAt -__v').lean()
+    const profileFriendId = req.params?.profileFriendId
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
+
+    const decodeToken = await decodeTokens(clientId, authorization);
+    console.log(decodeToken);
+    if (profileFriendId) {
+        console.log("GET LIST PROFILE FRIEND");
+        return await ProfileModel
+            .findOne({ _id: profileFriendId })
+            .select('friends')
+            .populate('friends', '-friends -createdAt -updatedAt -__v')
+            .lean()
+    }
+    else {
+        return await ProfileModel
+            .findOne({ _id: decodeToken.profileId })
+            .select('friends')
+            .populate('friends', '-friends -createdAt -updatedAt -__v')
+            .lean()
+    }
+
 }
 
 

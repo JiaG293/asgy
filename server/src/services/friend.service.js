@@ -4,22 +4,25 @@ const { BadRequestError, ConflictRequestError } = require('../utils/responses/er
 const mongoose = require('mongoose');
 
 //GUI YEU CAU KET BAN
-const sendFriendRequest = async ({ userIdSend, userIdReceive }) => {
+const sendFriendRequest = async ({ profileIdSend, profileIdReceive }) => {
     //1. Kiem tra yeu cau ton tai hay chua 
-    const requestExists = await FriendModel.findOne({ profileId: userIdSend, 'profileFriend.profileFriendId': userIdReceive });
+    const requestExists = await FriendModel.findOne({ profileId: profileIdSend, 'profileFriend.profileFriendId': profileIdReceive });
 
     if (requestExists) {
         throw new ConflictRequestError('Request make friend is exists')
     }
 
     // 2. Lay du lieu profile id muon ket ban
-    const getDataProfile = await ProfileModel.findOne({ userId: userIdReceive }).select('-_id birthday gender fullName info avatar').lean()
+    const getDataProfile = await ProfileModel.findOne({ _id: profileIdReceive }).select('-_id birthday gender fullName info avatar').lean()
 
+    if (!getDataProfile) {
+        throw new BadRequestError("Not found profile")
+    }
     // 3. Tao yeu cau ket ban neu chua ton tai
     const newFriendRequest = new FriendModel({
-        profileId: userIdSend,
+        profileId: profileIdSend,
         profileFriend: {
-            profileFriendId: userIdReceive,
+            profileFriendId: profileIdReceive,
             ...getDataProfile,
         },
         status: 'Đang chờ chấp nhận'
@@ -35,7 +38,7 @@ const sendFriendRequest = async ({ userIdSend, userIdReceive }) => {
 }
 
 //CHAP NHAN KET BAN
-const acceptFriendRequest = async ({ userIdReceive, userIdSend }) => {
+const acceptFriendRequest = async ({ profileIdReceive, profileIdSend }) => {
 
     //KHONG DUNG TRANSACTION
 
@@ -69,7 +72,7 @@ const acceptFriendRequest = async ({ userIdReceive, userIdSend }) => {
     //DUNG TRANSACTION
 
     //1. Lay ra yeu cau ket ban
-    const friendRequest = await FriendModel.findOne({ profileId: userIdSend, 'profileFriend.profileFriendId': userIdReceive })
+    const friendRequest = await FriendModel.findOne({ profileId: profileIdSend, 'profileFriend.profileFriendId': profileIdReceive })
 
     if (!friendRequest) {
         throw new BadRequestError('Friend request not found');
@@ -82,19 +85,20 @@ const acceptFriendRequest = async ({ userIdReceive, userIdSend }) => {
     try {
 
         //Lay ra profile id
-        const senderProfileId = await ProfileModel.findOne({ userId: '65ed69104f7be99485114791' }).select('_id')
-        const receiverProfileId = await ProfileModel.findOne({ userId: '65ed69104f7be99485114791' }).select('_id')
+        /* const senderProfileId = await ProfileModel.findOne({ _id: profileIdSend }).select('_id')
+        const receiverProfileId = await ProfileModel.findOne({ userId: profileIdReceive }).select('_id') */
 
         //2. Tao quan he ban be giua 2 nguoi dung 
         await ProfileModel.findOneAndUpdate(
-            { userId: userIdSend },
-            { $addToSet: { friend: receiverProfileId } },  //Dua du lieu moi vao trong mang va khong bi trung lap
+            { _id: profileIdSend },
+            { $addToSet: { friends: profileIdReceive } },  //Dua du lieu moi vao trong mang va khong bi trung lap
             { new: true }
         ).session(session);
 
+
         await ProfileModel.findOneAndUpdate(
-            { userId: userIdReceive },
-            { $addToSet: { friend: senderProfileId } },  //Dua du lieu moi vao trong mang va khong bi trung lap
+            { _id: profileIdReceive },
+            { $addToSet: { friends: profileIdSend } },  //Dua du lieu moi vao trong mang va khong bi trung lap
             { new: true }
         ).session(session);
 

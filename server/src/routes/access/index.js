@@ -17,7 +17,8 @@ router.route("/password/update").patch(isAuthenticated, updatePassword);
 router.route("/search").get(searchUser); */
 
 //test data
-router.route('/test').post(catchAsync(AccessController.test))
+router.route('/reset-password/:token').post(catchAsync(AccessController.resetPassword)) //Lay token tu email link email
+router.route('/forgot-password').post(catchAsync(AccessController.forgotPassword)) //Nhan vao id nguoi dung (email sdt)
 
 router.route('/signup').post(catchAsync(AccessController.signupUser));
 router.route('/login').post(catchAsync(AccessController.loginUser));

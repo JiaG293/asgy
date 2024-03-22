@@ -7,13 +7,13 @@ const friendSchema = new mongoose.Schema({
     profileId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'User',
+        ref: 'Profile',
     },
     profileFriend: {
         profileFriendId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: 'User',
+            ref: 'Profile',
         },
         fullName: {
             type: String,
