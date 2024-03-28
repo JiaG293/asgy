@@ -1,19 +1,23 @@
+// Menu.jsx
+
 import React, { useState } from "react";
 import "../homeStyle/Menu.scss";
 import { AiOutlineMessage as MessageIcon } from "react-icons/ai";
 import { RiContactsBookFill as ContactIcon } from "react-icons/ri";
 import { IoSettingsOutline as SettingsIcon } from "react-icons/io5";
-import { CiLogout as LogoutIcon } from "react-icons/ci";
-import { PiPencilSimpleLineLight as UpdateIcon } from "react-icons/pi";
 import axios from "axios";
 import Cookies from "js-cookie";
 import jwtDecode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+import UpdateModal from "./UpdateModal";
+import LogoutModal from "./LogoutModal";
+import InfoPopup from "./InfoPopup";
+import SettingsPopup from "./SettingsPopup";
 
-function Menu({ user, onSelectMenuItem }) {
+function Menu({ user, onSelectMenuItem}) {
   const [showFormInfo, setShowFormInfo] = useState(false);
   const [showFormSettings, setShowFormSettings] = useState(false);
-
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
@@ -51,7 +55,6 @@ function Menu({ user, onSelectMenuItem }) {
         null,
         { headers }
       );
-
       if (response.status === 200) {
         Cookies.remove("refreshToken");
         navigate("/login");
@@ -81,11 +84,11 @@ function Menu({ user, onSelectMenuItem }) {
           <MessageIcon
             className="menu-item"
             onClick={() => handleMenuItemClick("messages")}
-          ></MessageIcon>
+          />
           <ContactIcon
             className="menu-item"
             onClick={() => handleMenuItemClick("contacts")}
-          ></ContactIcon>
+          />
         </div>
         <div className="menu-group-bot">
           <SettingsIcon
@@ -93,88 +96,33 @@ function Menu({ user, onSelectMenuItem }) {
             onClick={() => setShowFormSettings(!showFormSettings)}
           />
         </div>
-
-        {/* <LogoutIcon
-          className="menu-item"
-          onClick={() => setShowLogoutModal(true)}
-        ></LogoutIcon> */}
       </div>
 
-      {/* show form thông tin */}
+      {/* Info form */}
       {showFormInfo && (
-        <div className="info-popup-overlay">
-          <div className="info-popup-content">
-            <h1 style={{ fontSize: 20, color: "#3cd9b6" }}>{user.fullName}</h1>
-            <div className="info-form-container">
-              <div className="info-popup-information">
-                <p className="info-popup-information-key">Giới tính</p>
-                <p className="info-popup-information-value">{user.gender}</p>
-              </div>
-              <div className="info-popup-information">
-                <p className="info-popup-information-key">Ngày sinh</p>
-                <p className="info-popup-information-value">
-                  {formatDate(user.birthday)}
-                </p>
-              </div>
-              <div className="info-popup-information">
-                <p className="info-popup-information-key">Số điện thoại</p>
-                <p className="info-popup-information-value">
-                  {user.phoneNumber}
-                </p>
-              </div>
-            </div>
-            <button className="info-popup-update-button">
-              <span>Cập nhật</span>
-              <UpdateIcon></UpdateIcon>
-            </button>
-          </div>
-        </div>
+        <InfoPopup
+          user={user}
+          formatDate={formatDate}
+          setShowUpdateModal={setShowUpdateModal}
+        />
       )}
 
+      {/* Form setting */}
       {showFormSettings && (
-        <div className="settings-popup-overlay">
-          <div className="settings-popup-content">
-            <ul className="settings-popup-list">
-              <li>
-                <button className="settings-popup-button">
-                  Cập nhật thông tin
-                </button>
-              </li>
-              <li>
-                <button className="settings-popup-button">
-                  Cài đặt tài khoản
-                </button>
-              </li>
-              <li>
-                <button className="settings-popup-button">Giới thiệu</button>
-              </li>
-              <li>
-                <button className="settings-popup-button" onClick={()=>{setShowLogoutModal(true)}}>Đăng xuất</button>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <SettingsPopup setShowLogoutModal={setShowLogoutModal} />
       )}
 
-      {/* form đăng xuất */}
+      {/* form logout */}
       {showLogoutModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>Xác nhận đăng xuất</h2>
-            <p>Bạn có chắc muốn đăng xuất?</p>
-            <div className="modal-buttons">
-              <button onClick={() => setShowLogoutModal(false)}>Hủy</button>
-              <button
-                onClick={() => {
-                  handleLogout();
-                  setShowLogoutModal(true);
-                }}
-              >
-                Đăng xuất
-              </button>
-            </div>
-          </div>
-        </div>
+        <LogoutModal
+          setShowLogoutModal={setShowLogoutModal}
+          handleLogout={handleLogout}
+        />
+      )}
+
+      {/* form update */}
+      {showUpdateModal && (
+        <UpdateModal user={user} setShowUpdateModal={setShowUpdateModal} />
       )}
     </div>
   );

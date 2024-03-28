@@ -19,15 +19,5 @@
   overflow: hidden; /* Tránh tràn nội dung ra khỏi màn hình */
 }
 
-/* Additional styling for responsiveness */
-@media screen and (max-width: 768px) {
-  .home-container {
-    flex-direction: column;
-  }
-
-  .home-content {
-    order: 1;
-  }
-}
 
 

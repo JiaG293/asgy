@@ -38,13 +38,13 @@ function Home() {
         "X-Client-Id": clientID,
         Authorization: refreshToken,
       };
-
       // Gửi yêu cầu lấy thông tin người dùng sử dụng refreshToken
       const response = await axios.post(
         "http://localhost:5000/api/v1/profile/personal-information",
         { userId: decodedToken.userId },
         { headers }
       );
+      console.log(response.data.metadata);
 
       // Lấy dữ liệu thông tin người dùng và cập nhật state
       if (response.status === 200) {
@@ -119,6 +119,7 @@ function Home() {
 
   return (
     <div className="home-container">
+
       <Menu user={getUser} onSelectMenuItem={setSelectedMenuItem} />
       {currentComponent}
     </div>

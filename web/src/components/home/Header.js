@@ -10,7 +10,7 @@ function Header() {
     <div className="header-container">
       <div className="header-left">
         <img
-          src="https://sanghynhdemo.s3.ap-southeast-1.amazonaws.com/logo.ico"
+          src="https://media.tenor.com/kXWb4lofzQcAAAAe/hiroi-kikuri-hiroi.png"
           alt="avatar"
           className="header-avatar"
         />

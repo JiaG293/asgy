@@ -1,0 +1,76 @@
+.info-popup-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  position: fixed;
+  z-index: 1001;
+  width: 17.5%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  top: 9vh;
+  margin-left: 50px;
+}
+
+.info-popup-information {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.info-popup-information-key {
+  color: #747474;
+}
+
+.info-popup-information-value {
+  color: #000000;
+}
+
+.info-avatar-container {
+  width: 100px;
+  height: 100px;
+  overflow: hidden; 
+  border-radius: 50%; 
+  margin: 0 auto;
+  position: relative;
+}
+
+.info-avatar-container img {
+  width: 100%; 
+  height: auto; 
+  transition: transform 0.5s ease; 
+}
+
+.info-avatar-container:hover  {
+  transform: scale(1.1); 
+  transition: transform 0.5s ease;
+}
+
+.info-popup-update-button {
+  background-color: #3cd9b6;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+
+  span {
+    margin-right: 8px;
+  }
+
+  &:hover {
+    background-color: #61dec3;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+
+  &:active {
+    background-color: #169a7d;
+    transform: scale(0.9);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+}

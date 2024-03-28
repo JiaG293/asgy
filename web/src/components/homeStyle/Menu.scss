@@ -13,9 +13,6 @@ body {
   align-items: center;
   padding-top: 20px;
 
-  @media screen and (max-width: 768px) {
-    width: 15%;
-  }
 }
 
 .menu-avatar-container {
@@ -34,16 +31,11 @@ body {
   align-items: center;
   justify-content: center;
 
-  @media screen and (max-width: 768px) {
-    width: 30px;
-    height: 30px;
-  }
-
   img {
     width: 100%;
     height: 100%;
-    object-fit: contain; // Resize to fit within the container without distortion
-    border-radius: 50%; // Ensure the image itself is also circular
+    object-fit: contain;
+    border-radius: 50%; 
   }
 
   &:hover {
@@ -77,238 +69,18 @@ body {
     margin-top: 30px;
     transform: scale(0.8);
 
-    @media screen and (max-width: 768px) {
-      width: 20px;
-      height: 20px;
-    }
-
     &:hover {
       transform: scale(1.3);
     }
   }
 }
 
-.info-popup-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 5px;
-  position: fixed;
-  z-index: 1001;
-  width: 17.5%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  top: 9vh;
-  margin-left: 40px;
-}
 
-.info-popup-information {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
-}
 
-.info-popup-information-key {
-  color: #747474;
-}
 
-.info-popup-information-value {
-  color: #000000;
-}
 
-.info-popup-update-button {
-  background-color: #3cd9b6;
-  color: #fff;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  display: flex;
-  justify-content: center; // Center items horizontally
-  align-items: center; // Center items vertically
-  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
 
-  span {
-    margin-right: 8px;
-  }
 
-  &:hover {
-    background-color: #61dec3;
-    transform: scale(1.1);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  }
 
-  &:active {
-    background-color: #169a7d;
-    transform: scale(0.9);
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
-  }
-}
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1500;
-}
 
-.modal-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 5px;
-  width: 300px;
-  text-align: center;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-
-  h2 {
-    margin-bottom: 15px;
-    color: #333;
-  }
-
-  p {
-    margin-bottom: 20px;
-    color: #555;
-  }
-
-  .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
-
-      &:hover {
-        background-color: #eee;
-      }
-
-      &:active {
-        transform: scale(0.95);
-      }
-    }
-
-    button:first-child {
-      background-color: #ddd;
-      color: #555;
-      width: 45%;
-    }
-
-    button:last-child {
-      background-color: #3cd9b6;
-      color: #fff;
-      width: 45%;
-    }
-  }
-}
-
-.settings-popup-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 5px;
-  position: fixed;
-  z-index: 1001;
-  width: 17.5%;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  bottom: 5vh;
-  margin-left: 40px;
-}
-
-/* Xóa các dấu của ul và li */
-.settings-popup-content ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-.settings-popup-content li {
-  margin-bottom: 10px;
-}
-
-/* Đổi màu cho button */
-.settings-popup-content button {
-  background-color: #297d6b;
-  color: #fff;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 100%;
-  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
-}
-
-.settings-popup-content button:hover {
-  background-color: #61dec3;
-}
-
-.settings-popup-content button:active {
-  background-color: #169a7d;
-  .settings-popup-content ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .settings-popup-content li {
-    margin-bottom: 10px;
-  }
-
-  /* Đổi màu cho button */
-  .settings-popup-content button {
-    background-color: #3cd9b6;
-    color: #fff;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
-  }
-
-  .settings-popup-content button:hover {
-    background-color: #61dec3;
-  }
-
-  .settings-popup-content button:active {
-    background-color: #169a7d;
-  }
-  .settings-popup-content ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .settings-popup-content li {
-    margin-bottom: 10px;
-  }
-
-  /* Đổi màu cho button */
-  .settings-popup-content button {
-    background-color: #3cd9b6;
-    color: #fff;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
-  }
-
-  .settings-popup-content button:hover {
-    background-color: #47b39b;
-  }
-
-  .settings-popup-content button:active {
-    background-color: #13705c;
-  }
-}

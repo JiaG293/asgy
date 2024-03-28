@@ -15,7 +15,7 @@ function Detail() {
 
       <div className="detail-info">
         <img
-          src="https://sanghynhdemo.s3.ap-southeast-1.amazonaws.com/logo.ico"
+          src="https://media.tenor.com/kXWb4lofzQcAAAAe/hiroi-kikuri-hiroi.png"
           className="detail-avatar"
         />
         <div className="detail-group-name">Tên người dùng</div>
