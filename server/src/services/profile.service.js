@@ -3,6 +3,7 @@ const FriendModel = require('../models/friend.model');
 const { BadRequestError } = require('../utils/responses/error.response');
 const mongoose = require('mongoose');
 const { decodeTokens } = require('../auth/authUtils');
+const { deleteFileS3 } = require('./s3.service');
 
 const HEADER = {
     API_KEY: 'x-api-key',
@@ -17,7 +18,7 @@ const getInformationProfile = async (headers) => {
     const { authorization } = await headers;
     const clientId = await headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
-    const infoProfile = await findProfileByUserId(decodeToken.userId);
+    const infoProfile = await findProfileById(decodeToken.profileId);
     if (!infoProfile) {
         throw new BadRequestError('User for profile not found');
     }
@@ -26,11 +27,11 @@ const getInformationProfile = async (headers) => {
 
 //CAP NHAT THONG TIN PROFILE
 const updateInformationProfile = async (req) => {
-    const { fullName, avatar, gender, info, birthday, phoneNumber } = await req.body
-    const { authorization } = await req.headers;
-    const clientId = await req.headers[HEADER.X_CLIENT_ID]
-
+    const { fullName, gender, info, birthday, phoneNumber } = req.body
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
+
 
     //KHONG DUNG TRANSACTION
     /* const filter = { userId: userId }
@@ -50,17 +51,29 @@ const updateInformationProfile = async (req) => {
     session.startTransaction();
 
     try {
-        const filter = { userId: decodeToken.userId }
-        const update = {
-            fullName, avatar, gender, info, birthday, phoneNumber
+
+        const update = {};
+        if (fullName !== undefined) update.fullName = fullName;
+        if (req.file.location !== undefined) {
+            const user = await findProfileByUserId(decodeToken.userId)
+            await deleteFileS3(user.avatar)
+            update.avatar = await req.file.location;
         }
+        if (gender !== undefined) update.gender = gender;
+        if (info !== undefined) update.info = info;
+        if (birthday !== undefined) update.birthday = birthday;
+        if (phoneNumber !== undefined) update.phoneNumber = phoneNumber;
+        console.log("update", update);
+
+        const filter = { userId: decodeToken.userId }
+
         const options = { upsert: false, new: true }
 
         // Cap nhat thong tin trong bang profile 
         const profileUpdate = await ProfileModel.findOneAndUpdate(filter, update, options).session(session);
 
         // Cap nhat cac thong tin nhung trong bang friend
-        await FriendModel.updateMany({ profileFriendId: decodeToken.userId }, { $set: { 'profileFriend.$': update } }, options).session(session);
+        await FriendModel.updateMany({ profileFriendId: decodeToken.profileId }, { $set: { 'profileFriend.$': update } }, options).session(session);
 
         await session.commitTransaction();
         session.endSession();
@@ -75,16 +88,43 @@ const updateInformationProfile = async (req) => {
 }
 
 
-//LAY RA DANH SACH BAN BE 
-const getListFriends = async (req) => {
+//LAY RA DANH SACH BAN BE PUBLIC
+const getListFriendsPublic = async (req) => {
     //Cach cu req.body.
     // return await ProfileModel.findOne({ _id: req.params.profileId }).select('userId friends').populate('friends', '-friends -createdAt -updatedAt -__v').lean()
     const profileFriendId = req.params?.profileFriendId
     const { authorization } = req.headers;
     const clientId = req.headers[HEADER.X_CLIENT_ID]
-
     const decodeToken = await decodeTokens(clientId, authorization);
-    console.log(decodeToken);
+
+    if (profileFriendId) {
+        console.log("GET LIST PROFILE FRIEND");
+        return await ProfileModel
+            .findOne({ _id: profileFriendId })
+            .select('friends')
+            .populate('friends', '-friends -createdAt -updatedAt -__v')
+            .lean()
+    }
+    else {
+        return await ProfileModel
+            .findOne({ _id: decodeToken.profileId })
+            .select('friends')
+            .populate('friends', '-friends -createdAt -updatedAt -__v')
+            .lean()
+    }
+
+}
+
+
+//LAY RA DANH SACH BAN BE PRIVATE
+const getListFriendsPrivate = async (req) => {
+    //Cach cu req.body.
+    // return await ProfileModel.findOne({ _id: req.params.profileId }).select('userId friends').populate('friends', '-friends -createdAt -updatedAt -__v').lean()
+    const profileFriendId = req.params?.profileFriendId
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
+
     if (profileFriendId) {
         console.log("GET LIST PROFILE FRIEND");
         return await ProfileModel
@@ -112,6 +152,10 @@ const findProfileByUserId = async (userId) => {
     return await ProfileModel.findOne({ userId: userId }).lean()
 }
 
+const findProfileById = async (profileId) => {
+    return await ProfileModel.findOne({ _id: profileId }).lean()
+}
+
 const findProfileByRegex = async (stringFind) => {
     if (stringFind?.name) {
         const regexName = new RegExp(stringFind.name, 'i')
@@ -124,11 +168,13 @@ const findProfileByRegex = async (stringFind) => {
 }
 
 module.exports = {
+    findProfileById,
     findByPhoneNumber,
     findProfileByUserId,
     getInformationProfile,
     updateInformationProfile,
     findProfileByRegex,
-    getListFriends,
-
+    getListFriendsPublic,
+    getListFriendsPrivate,
+    
 }

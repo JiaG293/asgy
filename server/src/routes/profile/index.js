@@ -2,23 +2,27 @@ const express = require('express');
 const router = express.Router();
 const catchAsync = require('../../middlewares/catchAsync.middleware');
 const { authentication } = require('../../auth/authUtils');
-const { getInformationProfile, updateInformationProfile, getListFriends, sendFriendRequest, acceptFriendRequest } = require('../../controllers/profile.controller');
-
-
-//Luon luon su dung router duoi authentication
-// router.route('/test').get(catchAsync(test))
+const { getInformationProfile, updateInformationProfile, getListFriendsPrivate, getListFriendsPublic, sendFriendRequest, acceptFriendRequest } = require('../../controllers/profile.controller');
+const { uploadAvatar } = require('../../services/s3.service')
 
 
 
-router.use(authentication)
-router.route('/personal-information').post(catchAsync(getInformationProfile));
-router.route('/update-info').patch(catchAsync(updateInformationProfile));
-
+//PUBLIC
 //get list friends ban be
-router.route('/friends/:profileFriendId').get(catchAsync(getListFriends));
-//get list friends auth ban than
-router.route('/friends').get(catchAsync(getListFriends));
+router.route('/friends/:profileFriendId').get(catchAsync(getListFriendsPublic));
 
+
+
+//PRIVATE
+router.use(authentication)
+//get information profile
+router.route('/').get(catchAsync(getInformationProfile));
+
+//Update profile information
+router.route('/update').put(uploadAvatar.single('avatar'), catchAsync(updateInformationProfile));
+
+//get list friends private auth
+router.route('/friends').get(catchAsync(getListFriendsPrivate));
 
 router.route('/send-request').post(catchAsync(sendFriendRequest));
 router.route('/accept-request').post(catchAsync(acceptFriendRequest));

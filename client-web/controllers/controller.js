@@ -42,6 +42,13 @@ const redirectControllers = {
             res.status(502).json(err); 
         }
     },
+    s3: async(req, res)=>{
+        try {
+            res.sendFile(path.join(process.cwd() +'/html/upload.html'))
+        } catch (err) {
+            res.status(502).json(err); 
+        }
+    },
 }
 
 module.exports = redirectControllers;

@@ -1,0 +1,111 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Avatar</title>
+</head>
+
+<body>
+   lang>Upload Avatar</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="fullName">Full Name:</label>
+        <input type="text" id="fullName" name="fullName" value="Trần Thời Asgy"><br>
+        <label for="gender">Gender:</label>
+        <input type="text" id="gender" name="gender" value="Nam"><br>
+        <label for="info">Info:</label>
+        <input type="text" id="info" name="info" value="Biscusti"><br>
+        <label for="birthday">Birthday:</label>
+        <input type="text" id="birthday" name="birthday" value="2002-01-01"><br>
+        <label for="phoneNumber">Phone Number:</label>
+        <input type="text" id="phoneNumber" name="phoneNumber" value="0123456789"><br>
+        <input type="file" id="avatar" name="avatar" multiple>
+        <button id="btnUpload" type="submit">Upload</button>
+    </form>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const avatarFile = document.getElementById('avatar').files[0];
+            formData.append('avatar', avatarFile);
+            /*formData.append('fullName', document.getElementById('fullName').value);
+            formData.append('gender', document.getElementById('gender').value);
+            formData.append('info', document.getElementById('info').value);
+            formData.append('phoneNumber', document.getElementById('phoneNumber').value);*/
+
+            console.log('File name:', avatarFile.name);
+            console.log('File type:', avatarFile.type);
+            console.log('File size (in bytes):', avatarFile.size);
+            console.log("formData.avatar", formData.get('avatar'));;
+
+            const response = await fetch('http://localhost:5000/api/v1/profile/upload', {
+                method: 'PUT',
+                body: JSON.stringify(formData),
+                headers: {
+                    'x-client-id': '66040ddf0c8c35b5503ba5db',
+                    'authorization': 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IjY2MDQwZGRmMGM4YzM1YjU1MDNiYTVkYiIsInVzZXJJZCI6IjY1ZjQwMWI3ZWMwN2U5ZWE2YzJiNDU3ZCIsInByb2ZpbGVJZCI6IjY1ZjQwMWI3ZWMwN2U5ZWE2YzJiNDU3ZSIsImlhdCI6MTcxMTU0MTcyNywiZXhwIjoxNzEyMTQ2NTI3fQ.i68OpHcTQqyVHT9mzAgO84uJZ-jPwD-uo5615Q_nie-QgHpxOjSoj-zHdFwB6EL9xhiANLvX2ZbhWp1ItG4Ckks1UeZoa0shAPVkvfQ39MXTqjsTxml9KmPJqYhuWR5zGexKg9cNdoZg-74F523cgpIyPbhYA20qjx32rV30G376FfTF2aw7CFG-F3ueEW58qD5fnnF1A71ihe-zjgc1fUpP81PBJw7D4XRLHGA6_eXYvgCUp59Y25kVNVP4o_GOWwIuNeLEhre76aeaFFpJHhWsw0l2HL-YfFhSr9v_6t9vK_qK-XiMCmGefkrz5ZhApk7IYhgdD9jOM3teMNXrFHI4X6CxsnGzP3B0TEHec-Oy2v4FaXmmorDy1Ym53qvE5GZmMvYZsVbphx3YRDlQZyLEUkoHXzQsI2SWz-xS9GeD1X0vUcRNeQrIX-OIMTWphed8WKR9mWRLfpcl1P8uvCMG44MwTA-rNoKy9UB2NU0NrKwnt3A8x8m1ktdP9xB2nAx-y_zTWjP9nvFFbU4O0N2Ro4SR8nRRpYMLWPNLO8Bgu1nr8XOHnHLYLz7OagK9VkUytTlvVrRRoFsbcNi448Cix_af5dVaYsiDuWacL055JSNeKRnv_VXdQ7UKDj1xmYfLj7_VzoPozfU5Bh9HQKvYRSQlJzX6TAGHYOGTF6Q',
+                }
+            });
+
+
+            if (response.ok) {
+
+                const responseData = await response.json();
+                console.log('Upload successful:', responseData);
+            }
+        });
+
+    </script>
+</body>
+
+</html> -->
+
+<html>
+
+<body>
+    <form id='uploadForm' e="multipart/form-data">
+        <input type="file" name="avatar" id="avatar" multiple />
+        <button type='submit'>Upload</button>
+    </form>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const avatarFile = document.getElementById('avatar').files[0];
+            formData.append('avatar', avatarFile);
+
+
+            for (var pair of formData.entries()) {
+                console.log(pair[0] + ', ' + pair[1]);
+            }
+            console.log('File name:', avatarFile.name);
+            console.log('File type:', avatarFile.type);
+            console.log('File size (in bytes):', avatarFile.size);
+
+            console.log("formData.avatar", formData.get('avatar'));;
+
+            const response = await fetch('http://localhost:5000/api/v1/profile/upload', {
+                method: 'post',
+                body: formData,
+                headers: {
+                    'x-client-id': '66040ddf0c8c35b5503ba5db',
+                    'authorization': 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IjY2MDQwZGRmMGM4YzM1YjU1MDNiYTVkYiIsInVzZXJJZCI6IjY1ZjQwMWI3ZWMwN2U5ZWE2YzJiNDU3ZCIsInByb2ZpbGVJZCI6IjY1ZjQwMWI3ZWMwN2U5ZWE2YzJiNDU3ZSIsImlhdCI6MTcxMTU0MTcyNywiZXhwIjoxNzEyMTQ2NTI3fQ.i68OpHcTQqyVHT9mzAgO84uJZ-jPwD-uo5615Q_nie-QgHpxOjSoj-zHdFwB6EL9xhiANLvX2ZbhWp1ItG4Ckks1UeZoa0shAPVkvfQ39MXTqjsTxml9KmPJqYhuWR5zGexKg9cNdoZg-74F523cgpIyPbhYA20qjx32rV30G376FfTF2aw7CFG-F3ueEW58qD5fnnF1A71ihe-zjgc1fUpP81PBJw7D4XRLHGA6_eXYvgCUp59Y25kVNVP4o_GOWwIuNeLEhre76aeaFFpJHhWsw0l2HL-YfFhSr9v_6t9vK_qK-XiMCmGefkrz5ZhApk7IYhgdD9jOM3teMNXrFHI4X6CxsnGzP3B0TEHec-Oy2v4FaXmmorDy1Ym53qvE5GZmMvYZsVbphx3YRDlQZyLEUkoHXzQsI2SWz-xS9GeD1X0vUcRNeQrIX-OIMTWphed8WKR9mWRLfpcl1P8uvCMG44MwTA-rNoKy9UB2NU0NrKwnt3A8x8m1ktdP9xB2nAx-y_zTWjP9nvFFbU4O0N2Ro4SR8nRRpYMLWPNLO8Bgu1nr8XOHnHLYLz7OagK9VkUytTlvVrRRoFsbcNi448Cix_af5dVaYsiDuWacL055JSNeKRnv_VXdQ7UKDj1xmYfLj7_VzoPozfU5Bh9HQKvYRSQlJzX6TAGHYOGTF6Q',
+                }
+            });
+
+
+            if (response.ok) {
+
+                const responseData = await response.json();
+                console.log('Upload successful:', responseData);
+            }
+        });
+
+    </script>
+</body>
+
+</html>

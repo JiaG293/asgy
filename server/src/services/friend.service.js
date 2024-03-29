@@ -4,9 +4,14 @@ const { BadRequestError, ConflictRequestError } = require('../utils/responses/er
 const mongoose = require('mongoose');
 
 //GUI YEU CAU KET BAN
-const sendFriendRequest = async ({ profileIdSend, profileIdReceive }) => {
+const sendFriendRequest = async (req) => {
+
+    const { authorization } = await headers;
+    const clientId = await headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
+
     //1. Kiem tra yeu cau ton tai hay chua 
-    const requestExists = await FriendModel.findOne({ profileId: profileIdSend, 'profileFriend.profileFriendId': profileIdReceive });
+    const requestExists = await FriendModel.findOne({ profileId: decodeToken.profileId, 'profileFriend.profileFriendId': profileIdReceive });
 
     if (requestExists) {
         throw new ConflictRequestError('Request make friend is exists')

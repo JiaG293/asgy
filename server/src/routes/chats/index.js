@@ -5,20 +5,7 @@ const { authentication } = require('../../auth/authUtils');
 const { message } = require('../../controllers/socket.controller');
 const { createSingleChat, createChannelChat, findChannel, sendMessage, getListChannels } = require('../../controllers/chat.controller');
 
-const path = require('path');
 
-
-
-router.route('/chat-demo').get((req, res, next) => {
-    res.sendFile(path.join(__dirname + '/index4.html'))
-});
-
-router.route('/chat').get((req, res, next) => {
-    res.sendFile(path.join(__dirname + '/index5.html'))
-});
-router.route('/home').get((req, res, next) => {
-    res.sendFile(path.join(__dirname + '/home.html'))
-});
 
 //Luon luon su dung router duoi authentication
 router.use(authentication)

@@ -1,5 +1,5 @@
 const { findFriendByNameRegex } = require('../services/friend.service');
-const { getInformationProfile, updateInformationProfile, findProfileByRegex, getListFriends } = require('../services/profile.service');
+const { getInformationProfile, updateInformationProfile, findProfileByRegex, getListFriendsPublic, getListFriendsPrivate } = require('../services/profile.service');
 const { CREATED, SuccessResponse } = require('../utils/responses/success.response');
 const { sendFriendRequest, acceptFriendRequest } = require('../services/friend.service');
 
@@ -27,21 +27,28 @@ class ProfileController {
     sendFriendRequest = async (req, res, next) => {
         new SuccessResponse({
             message: 'Request friend success',
-            metadata: await sendFriendRequest(req.body)
+            metadata: await sendFriendRequest(req)
         }).send(res)
     }
 
     acceptFriendRequest = async (req, res, next) => {
         new SuccessResponse({
             message: 'Accepted friend request',
-            metadata: await acceptFriendRequest(req.body)
+            metadata: await acceptFriendRequest(req)
         }).send(res)
     }
 
-    getListFriends = async (req, res, next) => {
+    getListFriendsPublic = async (req, res, next) => {
         new SuccessResponse({
-            message: 'List friends',
-            metadata: await getListFriends(req)
+            message: 'List friends public',
+            metadata: await getListFriendsPublic(req)
+        }).send(res)
+    }
+
+    getListFriendsPrivate = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'List friends private',
+            metadata: await getListFriendsPrivate(req)
         }).send(res)
     }
 
