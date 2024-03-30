@@ -11,13 +11,30 @@ const HEADER = {
     X_CLIENT_ID: 'x-client-id',
 }
 
+//find profile all database
+const findProfilePublic = async (req) => {
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID];
+    const decodeToken = await decodeTokens(clientId, authorization);
+
+    const { stringFind } = req.params;
+
+
+    const listSearch = await findProfileByRegexString(stringFind);
+    /* if (!listSearch) {
+        throw new BadRequestError('User for profile not found');
+    } */
+    return listSearch
+}
+
+
 //LAY THONG TIN PROFILE
 const getInformationProfile = async (headers) => {
-
-
     const { authorization } = await headers;
     const clientId = await headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
+
+    //find profile by _id profile
     const infoProfile = await findProfileById(decodeToken.profileId);
     if (!infoProfile) {
         throw new BadRequestError('User for profile not found');
@@ -165,7 +182,60 @@ const findProfileByRegex = async (stringFind) => {
         const regexPhoneNumber = new RegExp(stringFind.phoneNumber, 'i')
         return await ProfileModel.find({ phoneNumber: { $regex: regexPhoneNumber } })
     }
+
 }
+
+const findProfileByRegexString = async (stringFind) => {
+    const regexString = new RegExp(stringFind, 'i')
+    console.log(regexString);
+    return await ProfileModel.aggregate([
+        {
+            $project: {
+                updatedAt: 0,
+                createdAt: 0,
+                listChannels: 0,
+                friends: 0,
+            }
+        },
+        {
+            $lookup: {
+                from: 'Users',  // tu collection muon join
+                localField: 'userId',  // key trong this.collection
+                foreignField: '_id',  // key trong collection muon join
+                as: 'user_details'  // key ket qua join
+            }
+        },
+        {
+            $addFields:
+            {
+                user_details:
+                {
+                    $arrayElemAt: ["$user_details", 0]
+                }
+            }
+        },
+        {
+            $match:
+            {
+                $or: [
+                    { 'user_details.username': { $regex: regexString } },
+                    { phoneNumber: { $regex: regexString } }
+                ]
+            }
+        },
+        {
+            $project: {
+                'user_details.password': 0,
+                'user_details.email': 0,
+                'user_details.updatedAt': 0,
+                'user_details.createdAt': 0,
+                'user_details._id': 0,
+            }
+        }
+    ])
+}
+
+
 
 module.exports = {
     findProfileById,
@@ -176,5 +246,7 @@ module.exports = {
     findProfileByRegex,
     getListFriendsPublic,
     getListFriendsPrivate,
-    
+    findProfilePublic,
+    findProfileByRegexString
+
 }

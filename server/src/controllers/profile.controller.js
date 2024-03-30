@@ -1,5 +1,5 @@
 const { findFriendByNameRegex } = require('../services/friend.service');
-const { getInformationProfile, updateInformationProfile, findProfileByRegex, getListFriendsPublic, getListFriendsPrivate } = require('../services/profile.service');
+const { getInformationProfile, updateInformationProfile, findProfileByRegex, getListFriendsPublic, getListFriendsPrivate, findProfilePublic } = require('../services/profile.service');
 const { CREATED, SuccessResponse } = require('../utils/responses/success.response');
 const { sendFriendRequest, acceptFriendRequest } = require('../services/friend.service');
 
@@ -8,6 +8,13 @@ const HEADER = {
     AUTHORIZATION: 'authorization',
 }
 class ProfileController {
+
+    findProfilePublic = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Find profile success',
+            metadata: await findProfilePublic(req)
+        }).send(res)
+    }
 
 
     getInformationProfile = async (req, res, next) => {
