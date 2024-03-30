@@ -1,30 +1,34 @@
-// ListMess.js
+// ListMess.jsx
 
 import React from 'react';
 import "../homeStyle/ListMess.scss";
 import { CiSearch as SearchIcon } from "react-icons/ci";
 
-function ListMess({ onSelected }) {
+function ListMess({ onSelectMessage }) {
+  const messages = [
+    { id: 1, name: "Nhi Nhi", content: "hello" },
+    { id: 2, name: "BaBy", content: "hi bạn" }
+  ];
+
+  const handleSelectMessage = (message) => {
+    onSelectMessage(message);
+  };
+
   return (
     <div className="listmess-chat-panel">
       <div className="listmess-search-bar">
         <input type="text" placeholder="Tìm kiếm..." className="listmess-search-bar-input" />
         <SearchIcon className="listmess-search-icon" />
       </div>
-      <div className="listmess-chat-item">
-        <div className="listmess-avatar"></div>
-        <div className="listmess-content">
-          <div className="listmess-name">Nhi Nhi</div>
-          <div className="listmess-message">hello</div>
+      {messages.map((message) => (
+        <div key={message.id} className="listmess-chat-item" onClick={() => handleSelectMessage(message)}>
+          <div className="listmess-avatar"></div>
+          <div className="listmess-content">
+            <div className="listmess-name">{message.name}</div>
+            <div className="listmess-message">{message.content}</div>
+          </div>
         </div>
-      </div>
-      <div className="listmess-chat-item">
-        <div className="listmess-avatar"></div>
-        <div className="listmess-content">
-          <div className="listmess-name">BaBy</div>
-          <div className="listmess-message">hi ban</div>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }

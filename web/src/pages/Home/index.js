@@ -1,3 +1,5 @@
+// Home.jsx
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -20,6 +22,7 @@ function Home() {
   const [getUser, setUser] = useState({});
   const [selectedMenuItem, setSelectedMenuItem] = useState("messages"); // chứa trạng thái menu đang chọn
   const [currentComponent, setCurrentComponent] = useState(null); // chứa component render ra màn hình
+  const [selectedMessage, setSelectedMessage] = useState(""); // tin nhắn được chọn
 
   // Load dữ liệu người dùng
   const fetchData = async () => {
@@ -74,8 +77,8 @@ function Home() {
       case "messages":
         setCurrentComponent(
           <>
-            <ListMess />
-            <Conversation />
+            <ListMess onSelectMessage={setSelectedMessage} />
+            <Conversation message={selectedMessage} />
             <Detail />
           </>
         );
@@ -115,7 +118,7 @@ function Home() {
       default:
         break;
     }
-  }, [selectedMenuItem]);
+  }, [selectedMenuItem, selectedMessage]);
 
   return (
     <div className="home-container">
