@@ -344,14 +344,36 @@ class AccessService {
 
     }
 
-    //Logout service
-    static test = async (data) => {
+    //
+    static limit = async (data) => {
 
         const delKey = await KeyTokenService.checkTokenByUserId(data.client);
         if (delKey.length() === 3) {
             throw new ConflictRequestError("Limit 3 login devices!!!")
         }
         return delKey;
+    }
+
+    //check prompt signup exists
+    static checkPromptSignUp = async (body) => {
+        const { username, email, phoneNumber } = body;
+        console.log("email", email);
+        if (username !== undefined) {
+            const user = await UserModel.findOne({ username: username }).lean()
+            return user ? { status: true } : { status: false }
+        }
+
+        if (email !== undefined) {
+            const user = await UserModel.findOne({ email: email }).lean()
+            return user ? { status: true } : { status: false }
+        }
+
+        if (phoneNumber !== undefined) {
+            const user = await ProfileModel.findOne({ phoneNumber: phoneNumber }).lean()
+            return user ? { status: true } : { status: false }
+        }
+
+        throw new BadRequestError("Please enter field check prompt")
     }
 }
 

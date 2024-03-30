@@ -16,6 +16,8 @@ router.route('/user/:username').get(isAuthenticated, getUserInfo)
 router.route("/password/update").patch(isAuthenticated, updatePassword);
 router.route("/search").get(searchUser); */
 
+
+//PUBLIC
 //test data
 router.route('/reset-password/:token').post(catchAsync(AccessController.resetPassword)) //Lay token tu email link email
 router.route('/forgot-password').post(catchAsync(AccessController.forgotPassword)) //Nhan vao id nguoi dung (email sdt)
@@ -23,7 +25,9 @@ router.route('/forgot-password').post(catchAsync(AccessController.forgotPassword
 router.route('/signup').post(catchAsync(AccessController.signupUser));
 router.route('/login').post(catchAsync(AccessController.loginUser));
 
+router.route('/check').get(catchAsync(AccessController.checkPromptSignUp))
 
+//PRIVATE
 //Luon luon su dung router duoi authentication
 router.use(authentication)
 router.route('/logout').post(catchAsync(AccessController.logoutUser));

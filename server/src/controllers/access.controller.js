@@ -57,11 +57,11 @@ class AccessController {
 
     }
 
-    //TEST
-    test = async (req, res, next) => {
+    //check username, email, phoneNumber xem co trung khong
+    checkPromptSignUp = async (req, res, next) => {
         new SuccessResponse({
-            message: 'testing',
-            metadata: await AccessService.test(req.body)
+            message: 'Check success',
+            metadata: await AccessService.checkPromptSignUp(req.body)
         }).send(res)
     }
 
