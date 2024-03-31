@@ -60,15 +60,23 @@ app.use(express.urlencoded({
     extended: true
 }))
 
-//Testing
-app.use('/', express.static('public'));
-
 
 //config CSP socket io 
-app.use((req, res, next) => {
+/* app.use((req, res, next) => {
     res.setHeader('Content-Security-Policy', "script-src 'self' https://unpkg.com/socket.io-client@4.7.4/dist/socket.io.min.js 'unsafe-inline'");
     next();
-});
+}); */
+
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://www.google-analytics.com", "https://unpkg.com"],
+            imgSrc: ["'self'", "'unsafe-inline'", "https://www.google-analytics.com", "https://asgy.s3.ap-southeast-1.amazonaws.com", "https://i.imgur.com"],
+        },
+    })
+);
+//Testing
+app.use('/', express.static('public'));
 
 //routes
 app.use('/', require('./routes/'))

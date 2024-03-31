@@ -1,8 +1,9 @@
 const { Server } = require("socket.io");
 const uuid = require("uuid");
-const { sendMessage } = require("./chat.service");
+const { sendMessage, loadMessagesHistory } = require("./chat.service");
 const MessageModel = require("../models/message.model");
 const { message } = require("../controllers/socket.controller");
+const { findProfileById } = require("./profile.service");
 require("dotenv").config();
 
 const { URL_CLIENT_WEB } = process.env;
@@ -93,26 +94,25 @@ io.on("connection", (socket) => {
         try {
             const senderChannelsId = _userOnlines.get(senderId); // danh sach cac kenh cua nguoi dung
             if (senderChannelsId) {
-                // socket.to(receiverId).emit("loadChat");
                 senderChannelsId.map(async (channel) => {
-                    // socket.to(channel).emit("loadMessage", { messages });
+
                     const messages = await MessageModel.find({
-                        $or: [
-                            { senderId: senderId },
-                            { receiverId: channel }
-                        ]
+                        receiverId: channel
                     })
                         .sort({ createdAt: -1 })
-                        .limit(50)
-
-                    messages.map(async (message) => {
-                        await socket.emit("getMessage", {
-                            senderId: message.senderId,
-                            messageContent: message.messageContent,
-                            receiverId: message.receiverId,
-                            typeContent: message.typeContent,
-                            _id: message._id,
-                        });
+                        .limit(10)
+                        .populate({
+                            path: 'senderId', // ten field join
+                            select: 'avatar fullName' //cac truong duoc chon de lay ra 
+                        })
+                        .lean()
+                    console.log("messages list ", {
+                        _id: channel,
+                        messages
+                    });
+                    socket.emit('getListMessages', {
+                        _id: channel,
+                        messages
                     })
                 })
 
@@ -123,45 +123,59 @@ io.on("connection", (socket) => {
     });
 
     socket.on("sendMessage", async (data) => {
-        const { senderId, receiverId, typeContent, messageContent, _id } = data;
+        const { senderId, receiverId, typeContent, messageContent } = data;
         try {
+            //Lay ra channel cua user dang online
             const listChannel = _userOnlines.get(senderId);
+
+            //Kiem tra channel co hop le hay khong
             const check = listChannel.find(channel => channel == receiverId)
             if (check != undefined) {
                 try {
-                    await sendMessage({
+                    //Luu tin nhan vao database
+                    const newMessage = await sendMessage({
                         senderId,
                         messageContent,
                         receiverId,
                         typeContent,
-                        _id,
                     })
+                    console.log("tin nhan duoc luu vao database", newMessage);
+                    // gui tin nhan ve lai cho client de render
+                    await socket.to(receiverId).emit("getMessage", newMessage);
+                    await socket.emit("getMessage", newMessage);
+
                 } catch (error) {
+                    //Tra ra thong bao neu tin nhan khong thanh cong
                     socket.to(receiverId).emit("errorSendMessage")
                 }
 
-                await socket.to(receiverId).emit("getMessage", {
-                    senderId,
-                    messageContent,
-                    receiverId,
-                    typeContent,
-                    _id,
-                });
-                await socket.emit("getMessage", {
-                    senderId,
-                    messageContent,
-                    receiverId,
-                    typeContent,
-                    _id,
-                });
-
             } else {
-                console.error("Error sending message:")
+                socket.to(receiverId).emit("errorSendMessage")
             }
         } catch (error) {
-            console.error("Error sending message:", error);
+            socket.to(receiverId).emit("errorSendMessage")
         }
     });
+
+
+    socket.on("loadMessagesHistory", async (data) => {
+        //sender id = id nguoi dang nhap => cu the o day la profileId 
+        //messages = array 50 tin nhan moi nhat tu database
+        // receiver id = danh sach id cua channel
+        const { senderId, oldMessageId, receiverId } = data;
+        try {
+            const senderChannelsId = _userOnlines.get(senderId); // danh sach cac kenh cua nguoi dung
+            const listMessages = await loadMessagesHistory(data)
+            console.log("list tin nhan history", listMessages[0].messages);
+
+            // await socket.to(receiverId).emit('getMessagesHistory', listMessages[0].messages)
+            await socket.emit('getMessagesHistory', listMessages[0].messages)
+
+        } catch (error) {
+            console.error("Error loading message:", error);
+        }
+    });
+
 
     socket.on("disconnect", () => {
         console.log("A user " + socket.id + " disconnected!");

@@ -3,6 +3,8 @@ const MessageModel = require("../models/message.model");
 const ChannelModel = require("../models/channel.model");
 const { UnauthorizeError, BadRequestError } = require("../utils/responses/error.response");
 const socketService = require("./socket1.service");
+const mongoose = require("mongoose");
+const { findProfileById } = require("./profile.service");
 
 const accessChat = async (chat) => {
     const { userId } = await chat;
@@ -74,23 +76,28 @@ const sendMessageOrigin = async ({ fromId, toId, typeMessage, messageContent, st
 
 const sendMessage = async ({ senderId, receiverId, typeContent, messageContent }) => {
 
-    const newMessage = await MessageModel.create({
+    const profile = await findProfileById(senderId)
+    if (!profile) {
+        throw new BadRequestError('Could not found profile')
+    }
+
+    const saveNewMessage = await MessageModel.create({
         senderId,
         receiverId,
         typeContent,
         messageContent,
-    });
+    })
+
+    const newMessage = saveNewMessage.populate({
+        path: 'senderId', // ten field join
+        select: 'avatar fullName' //cac truong duoc chon de lay ra 
+    })
 
     if (!newMessage) {
         throw new BadRequestError('Send message failed')
     }
 
-    // const room = await ChannelModel.findOne({ owner: fromId, _id: fromId }).select('_id')
-
-    // _io.to(toId).emit('chat message', newMessage);
-
-    return newMessage;
-
+    return newMessage
 }
 
 const receiveMessage = async ({ fromId, toId, typeMessage, messageContent, status }) => {
@@ -116,9 +123,76 @@ const receiveMessage = async ({ fromId, toId, typeMessage, messageContent, statu
 
 }
 
+const loadMessagesHistory = async ({ senderId, oldMessageId, receiverId }) => {
+    //Cach nay khong dung group
+
+    /*  return await MessageModel.aggregate([
+         {
+             $group: {
+                 _id: mongoose.Types.ObjectId(receiverId), // channel can duoc nhom de lay tin nhan
+                 messages: { $push: "$$ROOT" }
+             }
+         },
+         {
+             $project: {
+                 messages: {
+                     $filter: {
+                         input: "$messages",
+                         as: "message",
+                         cond: { $lt: ["$$message._id", mongoose.Types.ObjectId(oldMessageId)] } //tin nhan cu nhat trong cuoc hoi thoai da co tren client
+                     }
+                 }
+             }
+         },
+         { $limit: 3 }
+     ]) */
+
+    return await MessageModel.aggregate([
+        {
+            $group: {
+                _id: mongoose.Types.ObjectId(receiverId),
+                messages: { $push: "$$ROOT" }
+            }
+        },
+        {
+            $project: {
+                messages: {
+                    $filter: {
+                        input: "$messages",
+                        as: "message",
+                        cond: { $lt: ["$$message._id", mongoose.Types.ObjectId(oldMessageId)] }
+                    }
+                }
+            }
+        },
+        {
+            $project: {
+                messages: {
+                    $slice: [
+                        {
+                            $map: {
+                                input: "$messages",
+                                as: "message",
+                                in: {
+                                    _id: "$$message._id",
+                                    messageContent: "$$message.messageContent"
+                                }
+                            }
+                        },
+                        3
+                    ]
+                }
+            }
+        }
+    ])
+}
+
+
 
 module.exports = {
     accessChat,
     sendMessage,
+    loadMessagesHistory,
+
 
 }

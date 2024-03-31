@@ -269,6 +269,26 @@
             background-color: lightblue;
             /* Màu nền khi phần tử được chọn */
         }
+
+        .delete-message {
+            background-color: #ff0000;
+            /* Màu nền đỏ */
+            color: #ffffff;
+            /* Màu chữ trắng */
+            border: none;
+            /* Loại bỏ viền */
+            padding: 5px 10px;
+            /* Kích thước lề nội dung */
+            cursor: pointer;
+            /* Biến con trỏ thành hình bàn tay khi di chuột */
+            border-radius: 5px;
+            /* Bo tròn góc */
+        }
+
+        .delete-message:hover {
+            background-color: #cc0000;
+            /* Màu nền đỏ đậm khi di chuột */
+        }
     </style>
     <script src="https://unpkg.com/socket.io-client@4.7.4/dist/socket.io.min.js"></script>
 </head>
@@ -363,10 +383,12 @@
 </body>
 <script>
     const socket = io();
+    var storageListMessage = []
 
 
 
     loginUser()
+    getListMessage()
     getMessage()
 
     function loginUser() {
@@ -430,40 +452,117 @@
 
 
 
+
+
+
     //Lang nghe su kien chon group de chat
 
     //kiem tra so phong room hien co
     function getStatusServer() {
         console.log("status cua danh sach phong trong server");
         socket.emit('test')
+
+
     }
+    //get hisstory message
+    socket.on('getMessagesHistory', (data) => {
+        console.log("tin nhan cu la", data);
+    })
+
+
+    document.getElementById(`chat`).addEventListener('scroll', async () => {
+        if (document.getElementById(`chat`).scrollTop === 0) {
+            // Đã scroll đến đỉnh, gọi hàm load dữ liệu tiếp ở đây
+            const channelId = await document.querySelector('.group.selected').id.split('-')[0]  // lay ra channel dang duoc focus vao
+            const listMessages = await storageListMessage.find(elem => elem._id == channelId)
+            console.log("tin nhan cu nhat scroll", listMessages.messages.reverse()[0]);
+
+            console.log("channelId", channelId);
+            socket.emit('loadMessagesHistory', { senderId: sessionStorage.getItem('userId'), oldMessageId: listMessages.messages[0]._id, receiverId: channelId })
+        }
+    });
+
+
+    function getListMessage() {
+        socket.on('getListMessages', (data) => {
+
+            storageListMessage.push(data) // dua data moi vao trong mang luu tru tin nhan 
+            console.log("tin nhan duoc sap theo thu tu", data);
+            data.messages.map(message => {
+                const { senderId, messageContent, receiverId, createdAt, updatedAt } = message;
+
+
+                const messageSenderElement = `<li class="message sender-message">
+                    <div class="message-avatar">
+                        <img id="message-avatar-img" src="${senderId.avatar}">
+                    </div>
+                    <div class="message-content">
+                        <p>${messageContent}</p>
+                        <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
+                    </div>
+                    <button class="delete-message">Xóa</button>
+                </li>`
+                const messageReceiverElement = `<li class="message receiver-message">
+                    <div class="message-avatar">
+                        <img id="message-avatar-img" src="${senderId.avatar}">
+                    </div>
+                    <div class="message-content">
+                        <p>${messageContent}</p>
+                        <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
+                    </div>
+                    <button class="delete-message">Xóa</button>
+                </li>`
+
+
+                if (senderId._id === sessionStorage.getItem('userId')) {
+                    document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
+                    document.getElementById(`${data._id}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
+                } else {
+                    document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
+                    document.getElementById(`${data._id}-chat`).insertAdjacentHTML('beforeend', messageReceiverElement);
+
+                }
+            })
+        })
+    }
+
+
+
 
 
     // Xử lý các tin nhắn đến
 
     function getMessage() {
         socket.on("getMessage", (data) => {
-            const { senderId, messageContent, receiverId } = data;
+            const { senderId, messageContent, receiverId, createdAt, updatedAt } = data;
             console.log("data get message: ", data);
             const messageSenderElement = `<li class="message sender-message">
                 <div class="message-avatar">
-                    <img id="message-avatar-img" src="https://i.imgur.com/fL8RNta.png">
+                    <img id="message-avatar-img" src="${senderId.avatar}">
                 </div>
                 <div class="message-content">
                     <p>${messageContent}</p>
-                    <div class="message-info">${senderId} - Date/Time</div>
+                    <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                 </div>
+                <button class="delete-message">Xóa</button>
             </li>`
             const messageReceiverElement = `<li class="message receiver-message">
                 <div class="message-avatar">
-                    <img id="message-avatar-img" src="https://i.imgur.com/fL8RNta.png">
+                    <img id="message-avatar-img" src="${senderId.avatar}">
                 </div>
                 <div class="message-content">
                     <p>${messageContent}</p>
-                    <div class="message-info">${senderId} - Date/Time</div>
+                    <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                 </div>
+                <button class="delete-message">Xóa</button>
             </li>`
-            if (senderId === sessionStorage.getItem('userId')) {
+
+            console.log("tin nhan duoc gui la ", data);
+            const foundElementIndex = storageListMessage.findIndex(elem => elem._id === data.receiverId);
+            if (foundElementIndex !== -1) {
+                storageListMessage[foundElementIndex].messages.push(data);
+            }
+            if (senderId._id === sessionStorage.getItem('userId')) {
                 document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
                 document.getElementById(`${receiverId}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
             } else {
@@ -496,7 +595,7 @@
         const receiverId = document.querySelector('.group.selected').id.split('-')[0] //"65f421456957be1099c49d5f"; // Thay thế bằng ID thực sự của người nhận
         const typeContent = "text"; // Loại nội dung tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
         const _id = "1214"; // ID của tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
-        socket.emit("sendMessage", { senderId, receiverId, typeContent, messageContent, _id });
+        socket.emit("sendMessage", { senderId, receiverId, typeContent, messageContent });
         messageInput.value = ""; // Xóa nội dung trong ô nhập sau khi gửi tin nhắn
     }
 
