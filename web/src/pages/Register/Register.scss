@@ -34,6 +34,7 @@ body {
 .register-input-box {
   position: relative;
   margin-bottom: 20px;
+  
 }
 
 .register-input {
@@ -45,6 +46,9 @@ body {
   font-size: 16px;
   box-sizing: border-box;
   padding-left: 30px;
+  &:focus {
+    border-color: #3cd9b6;
+  }
 }
 
 .register-icon {

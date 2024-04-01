@@ -52,6 +52,11 @@ h2 {
   outline: none;
   padding-left: 30px;
   padding-right: 30px;
+
+  &:focus {
+    border-color: #3cd9b6;
+  }
+
 }
 
 .login-icon {

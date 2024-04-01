@@ -94,7 +94,7 @@ function Login() {
         </div>
         {/* Quên mật khẩu */}
         <div className="login-forgot-password">
-          <a href="">Quên mật khẩu</a>
+          <Link to="/forgot-password">Quên mật khẩu</Link>
         </div>
         {/* Button đăng nhập */}
         <div className="login-button-box">

@@ -54,8 +54,8 @@ function UpdateModal({ user, setShowUpdateModal }) {
       const clientID = decodedToken.clientId;
       
 
-      const response = await axios.patch(
-        "http://localhost:5000/api/v1/profile/update-info",
+      const response = await axios.put(
+        "http://localhost:5000/api/v1/profile/update",
         userData,
         {
           headers: {

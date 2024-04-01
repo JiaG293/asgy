@@ -29,17 +29,30 @@ const useRegister = () => {
     repassword: "",
   };
 
-
   const usePasswordVisibility = () => {
-    setVisible(!visible)
+    setVisible(!visible);
   };
+
   const usePasswordVisibility2 = () => {
-    setVisible2(!visible2)
+    setVisible2(!visible2);
   };
 
   const [warningMessages, setWarningMessages] = useState(initialWarningState);
 
-  // Hàm kiểm tra hợp lệ
+  // Hàm xóa các giá trị trong form
+  const clearForm = () => {
+    setFullname("");
+    setPhonenumber("");
+    setUsername("");
+    setEmail("");
+    setBirthdate("");
+    setGender("");
+    setPassword("");
+    setRepassword("");
+    setIsAgree(false);
+  };
+
+  // Hàm kiểm tra hợp lệ của dữ liệu nhập vào
   const validateInput = () => {
     const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
     const currentDate = new Date();
@@ -48,7 +61,8 @@ const useRegister = () => {
       currentDate.getMonth(),
       currentDate.getDate()
     );
-    const fullNameRegex = /^[^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]*[A-Z][^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]*([a-zA-Z\s]*[A-Z][^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]*)*$/;
+    const fullNameRegex =
+      /^[^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]*[A-Z][^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]*([a-zA-Z\s]*[A-Z][^\d!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]*)*$/;
     const usernameRegex = /^[a-zA-Z0-9_.]+$/;
 
     // Kiểm tra và cập nhật warningMessages
@@ -113,25 +127,28 @@ const useRegister = () => {
         return;
       }
       // Tiếp tục đăng ký nếu thông tin hợp lệ
-      await axios.post("http://localhost:5000/api/v1/users/signup", {
-        email: getEmail,
-        username: getUsername,
-        password: getPassword,
-        fullName: getFullname,
-        gender: getGender,
-        birthday: getBirthdate,
-        phoneNumber: getPhonenumber
-      }).then((res)=>{
-        // console.log(res.message);
-        toast.success("Đăng ký thành công")
+      const response = await axios.post(
+        "http://localhost:5000/api/v1/users/signup",
+        {
+          email: getEmail,
+          username: getUsername,
+          password: getPassword,
+          fullName: getFullname,
+          gender: getGender,
+          birthday: getBirthdate,
+          phoneNumber: getPhonenumber,
+        }
+      );
+      if (response.status === 201) {
+        toast.success("Đăng ký thành công");
         setTimeout(() => {
           navigate("/login");
-        }, 5000)
-      }).catch((error)=>{      toast.error(error.response.data.error.message);
-      console.log(error.response.data.error.message);
-      })
-      
+        }, 1500);
+        clearForm();
+      }
     } catch (error) {
+      toast.error(error.response.data.error.message);
+      console.error("Error registering user:", error);
     }
   };
 
@@ -168,7 +185,8 @@ const useRegister = () => {
     setVisible,
     usePasswordVisibility2,
     visible2,
-    setVisible2
+    setVisible2,
+    clearForm,
   };
 };
 
