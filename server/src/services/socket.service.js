@@ -54,7 +54,10 @@ io.on("connection", (socket) => {
     })
 
 
+    //Xu li tin nhan
 
+
+    //THEM USER VAO MAP CLIENT HIEN CO TREN SERVER DE QUAN LI
     socket.on("addUser", async (data) => {
         try {
             await addUserSocket(data, socket);
@@ -63,56 +66,45 @@ io.on("connection", (socket) => {
         }
     });
 
-    /* socket.on("addChannel", async (data) => {
-        const { senderId, channels } = data;
+
+    //CHUA DUNG DEN
+    socket.on("loadChannels", async (userId) => {
         try {
-            await channels.map((channel) => {
-                return addUserSocket(channel, socket);
-            })
-        } catch (error) {
-            console.error("Error adding channel:", error);
-        }
-    });
- */
-    socket.on("loadChat", async (userId) => {
-        try {
-            socket.emit("loadChat");
+            socket.emit("loadChannels");
             const channelId = _userOnlines.get(userId);
             if (channelId) {
-                socket.to(channelId).emit("loadChat");
+                socket.to(channelId).emit("loadChannels");
             }
         } catch (error) {
             console.error("Error loading chat:", error);
         }
     });
 
-    socket.on("loadMessage", async (data) => {
+
+    //TAI TIN NHAN TU DATABASE KHI CLIENT KET NOI DEN
+    socket.on("loadMessages", async (data) => {
         //sender id = id nguoi dang nhap => cu the o day la profileId 
         //messages = array 50 tin nhan moi nhat tu database
         // receiver id = danh sach id cua channel
         const { senderId } = data;
         try {
-            const senderChannelsId = _userOnlines.get(senderId); // danh sach cac kenh cua nguoi dung
+            const senderChannelsId = _userOnlines.get(senderId); // Lay duoc danh sach cac kenh hien co cua user nay
             if (senderChannelsId) {
                 senderChannelsId.map(async (channel) => {
 
                     const messages = await MessageModel.find({
                         receiverId: channel
                     })
-                        .sort({ createdAt: -1 })
-                        .limit(10)
+                        .sort({ createdAt: -1 }) //sap xep thu tu tin moi nhat xep truoc 
+                        .limit(50)
                         .populate({
                             path: 'senderId', // ten field join
                             select: 'avatar fullName' //cac truong duoc chon de lay ra 
                         })
                         .lean()
-                    console.log("messages list ", {
+                    socket.emit('getMessages', {
                         _id: channel,
-                        messages
-                    });
-                    socket.emit('getListMessages', {
-                        _id: channel,
-                        messages
+                        messages: [...messages.reverse()] //dao nguoc thu tu tin cu nhat xep dau tien
                     })
                 })
 
@@ -130,7 +122,7 @@ io.on("connection", (socket) => {
 
             //Kiem tra channel co hop le hay khong
             const check = listChannel.find(channel => channel == receiverId)
-            if (check != undefined) {
+            if (check !== undefined) {
                 try {
                     //Luu tin nhan vao database
                     const newMessage = await sendMessage({
@@ -141,39 +133,49 @@ io.on("connection", (socket) => {
                     })
                     console.log("tin nhan duoc luu vao database", newMessage);
                     // gui tin nhan ve lai cho client de render
-                    await socket.to(receiverId).emit("getMessage", newMessage);
-                    await socket.emit("getMessage", newMessage);
+
+                    await io.to(receiverId).emit("getMessage", newMessage);
+
+                    /* await socket.to(receiverId).emit("getMessage", newMessage);
+                    await socket.emit("getMessage", newMessage); */
 
                 } catch (error) {
                     //Tra ra thong bao neu tin nhan khong thanh cong
-                    socket.to(receiverId).emit("errorSendMessage")
+                    socket.emit("errorSendMessage")
                 }
 
             } else {
-                socket.to(receiverId).emit("errorSendMessage")
+                socket.emit("errorSendMessage")
             }
         } catch (error) {
-            socket.to(receiverId).emit("errorSendMessage")
+            socket.emit("errorSendMessage")
         }
     });
 
 
     socket.on("loadMessagesHistory", async (data) => {
         //sender id = id nguoi dang nhap => cu the o day la profileId 
-        //messages = array 50 tin nhan moi nhat tu database
+        //oldMessageId = id tin nhan cu nhat o client hien co
         // receiver id = danh sach id cua channel
         const { senderId, oldMessageId, receiverId } = data;
         try {
-            const senderChannelsId = _userOnlines.get(senderId); // danh sach cac kenh cua nguoi dung
-            const listMessages = await loadMessagesHistory(data)
-            console.log("list tin nhan history", listMessages[0].messages);
+            const senderChannelsId = _userOnlines.get(senderId); // Lay duoc danh sach cac kenh hien co cua user nay
+            if (senderChannelsId) {
+                const listMessages = await loadMessagesHistory(data)
+                // await socket.to(receiverId).emit('getMessagesHistory', listMessages[0].messages)
 
-            // await socket.to(receiverId).emit('getMessagesHistory', listMessages[0].messages)
-            await socket.emit('getMessagesHistory', listMessages[0].messages)
+                if (listMessages[0].messages.length == 0) {
+                    socket.emit('lastMessage', { info: 'No more older messages' })
+                } else {
 
+                    socket.emit('getMessagesHistory', listMessages[0])
+                }
+
+            }
         } catch (error) {
             console.error("Error loading message:", error);
         }
+
     });
 
 

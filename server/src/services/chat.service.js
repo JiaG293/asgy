@@ -126,65 +126,133 @@ const receiveMessage = async ({ fromId, toId, typeMessage, messageContent, statu
 const loadMessagesHistory = async ({ senderId, oldMessageId, receiverId }) => {
     //Cach nay khong dung group
 
-    /*  return await MessageModel.aggregate([
-         {
-             $group: {
-                 _id: mongoose.Types.ObjectId(receiverId), // channel can duoc nhom de lay tin nhan
-                 messages: { $push: "$$ROOT" }
-             }
-         },
-         {
-             $project: {
-                 messages: {
-                     $filter: {
-                         input: "$messages",
-                         as: "message",
-                         cond: { $lt: ["$$message._id", mongoose.Types.ObjectId(oldMessageId)] } //tin nhan cu nhat trong cuoc hoi thoai da co tren client
-                     }
-                 }
-             }
-         },
-         { $limit: 3 }
-     ]) */
+
+    /* const message = await MessageModel.findById(oldMessageId).lean();
+    console.log("message", message); */
+
+    /* V1 Chua populate */
+    /* const listMessagesHistory = await MessageModel.aggregate([
+        // 1. Loc tin nhan theo receiverId va _id Messsage
+        {
+            $match: {
+                $and: [
+                    { receiverId: mongoose.Types.ObjectId(receiverId) },
+                    { _id: mongoose.Types.ObjectId(oldMessageId) }
+                ]
+            }
+        },
+        // 2. so sanh createdAt cua tin nhan hien tai so voi cac tin trong b1
+        {
+            $lookup: {
+                from: "Messages",
+                let: { currentCreatedAt: "$createdAt" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$receiverId", mongoose.Types.ObjectId(receiverId)] },
+                                    { $lt: ["$createdAt", "$$currentCreatedAt"] }
+                                ]
+                            }
+                        }
+                    },
+                    { $sort: { createdAt: -1 } }, //Sap xep theo thu tu moi nhat - cu nhat de lay ra cac tin gan voi tin nhan cu nhat o client
+                    { $limit: 2 }, // lay ra 2 tin gan nhat 
+                    { $sort: { createdAt: 1 } } //sap xep chung lai theo thu tu cu nhat => moi nhat
+                ],
+                as: "messagesBefore"
+            }
+        },
+        // 3. dinh dang lai cau truc tra ve
+        {
+            $project: {
+                _id: "$receiverId",
+                messages: "$messagesBefore"
+            }
+        }
+    ]) */
 
     return await MessageModel.aggregate([
+        // 1. Loc tin nhan theo receiverId va _id Messsage
         {
-            $group: {
-                _id: mongoose.Types.ObjectId(receiverId),
-                messages: { $push: "$$ROOT" }
+            $match: {
+                $and: [
+                    { receiverId: mongoose.Types.ObjectId(receiverId) },
+                    { _id: mongoose.Types.ObjectId(oldMessageId) }
+                ]
             }
         },
+
+        // 2. so sanh createdAt cua tin nhan hien tai so voi cac tin trong b1
         {
-            $project: {
-                messages: {
-                    $filter: {
-                        input: "$messages",
-                        as: "message",
-                        cond: { $lt: ["$$message._id", mongoose.Types.ObjectId(oldMessageId)] }
-                    }
-                }
-            }
-        },
-        {
-            $project: {
-                messages: {
-                    $slice: [
-                        {
-                            $map: {
-                                input: "$messages",
-                                as: "message",
-                                in: {
-                                    _id: "$$message._id",
-                                    messageContent: "$$message.messageContent"
-                                }
+            $lookup: {
+                from: "Messages",
+                let: { currentCreatedAt: "$createdAt" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$receiverId", mongoose.Types.ObjectId(receiverId)] },
+                                    { $lt: ["$createdAt", "$$currentCreatedAt"] }
+                                ]
                             }
-                        },
-                        3
-                    ]
-                }
+                        }
+                    },
+                    { $sort: { createdAt: -1 } }, //Sap xep theo thu tu moi nhat - cu nhat de lay ra cac tin gan voi tin nhan cu nhat o client
+                    { $limit: 50 }, // lay ra 2 tin gan nhat 
+                    { $sort: { createdAt: 1 } }, //sap xep chung lai theo thu tu cu nhat => moi nhat
+                    // populate de lay thong tin ca nhan tu collection profiles
+                    {
+                        $lookup: {
+                            from: "Profiles",
+                            localField: "senderId",
+                            foreignField: "_id",
+                            as: "senderInfo"
+                        }
+                    },
+                    // unwind senderinfo ra de thay the 
+                    { $unwind: "$senderInfo" },
+                    //thay the truong senderInfo bang senderId
+                    {
+                        $addFields: {
+                            senderId: "$senderInfo"
+                        }
+                    },
+                    // xoa truong senderInfo di
+                    { $unset: "senderInfo" },
+                    // cho ra cac truong bao gom cac thong tin cua
+                    {
+                        $project: {
+                            senderId: { avatar: 1, fullName: 1, _id: 1 },
+                            receiverId: 1,
+                            typeContent: 1,
+                            messageContent: 1,
+                            isDeleted: 1,
+                            createdAt: 1,
+                            updatedAt: 1,
+                            __v: 1
+                        }
+                    }
+                ],
+                as: "messagesBefore"
+            }
+        },
+
+        // dinh dang lai thong tin cac truong de tra ve du lieu
+        {
+            $project: {
+                _id: "$receiverId",
+                messages: "$messagesBefore"
             }
         }
     ])
+
+
+
+
+
 }
 
 

@@ -35,7 +35,7 @@ const getInformationProfile = async (headers) => {
     const decodeToken = await decodeTokens(clientId, authorization);
 
     //find profile by _id profile
-    const infoProfile = await findProfileById(decodeToken.profileId);
+    const infoProfile = await ProfileModel.findOne({_id: decodeToken.profileId}).select('-createdAt -updatedAt -listChannels')
     if (!infoProfile) {
         throw new BadRequestError('User for profile not found');
     }

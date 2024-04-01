@@ -76,7 +76,9 @@ app.use(
     })
 );
 //Testing
-app.use('/', express.static('public'));
+app.use('/', express.static('public/css'));
+app.use('/', express.static('public/js'));
+app.use('/', express.static('public/html'));
 
 //routes
 app.use('/', require('./routes/'))

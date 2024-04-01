@@ -6,7 +6,7 @@ const DOCUMENT_NAME = 'Chat'
 const chatSchema = new mongoose.Schema(
     {
         senderId: {
-            type: mongoose.Schema.Types.ObjectId, ref: 'User',
+            type: mongoose.Schema.Types.ObjectId, ref: 'Profile',
             required: true,
         },
         receiverId: {

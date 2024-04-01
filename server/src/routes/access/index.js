@@ -27,11 +27,13 @@ router.route('/login').post(catchAsync(AccessController.loginUser));
 
 router.route('/check').get(catchAsync(AccessController.checkPromptSignUp))
 
+
 //PRIVATE
 //Luon luon su dung router duoi authentication
 router.use(authentication)
 router.route('/logout').post(catchAsync(AccessController.logoutUser));
 router.route('/handleRefreshToken').post(catchAsync(AccessController.handleRefreshToken));
+router.route('/details').get(catchAsync(AccessController.getInformationDetails))
 
 
 

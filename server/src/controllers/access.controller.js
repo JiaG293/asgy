@@ -65,6 +65,14 @@ class AccessController {
         }).send(res)
     }
 
+    //lay thong tin chi tiet tai khoan bao mat nguoi dung
+    getInformationDetails = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Details information users',
+            metadata: await AccessService.getInformationDetails(req.headers)
+        }).send(res)
+    }
+
 }
 
 

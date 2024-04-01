@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <link rel="stylesheet" href="http://localhost:5000/chat.css">
+    <script src="https://unpkg.com/socket.io-client@4.7.4/dist/socket.io.min.js"></script>
+
+</head>
+
+<body>
+
+    <ul id="sidebar">
+        <h2>Groups</h2>
+        <!-- TEMPLATE -->
+        <!-- <li class="group" id="thay vao day">
+            <div class="group-icon prevent-click-event">
+                <img id="group-icon-img" src="https://i.imgur.com/fL8RNta.png">
+            </div>
+            <div class="group-content prevent-click-event">
+                <div class="group-name prevent-click-event">Group 1</div>
+                <div class="group-last-message prevent-click-event">Last Message</div>
+            </div>
+        </li> -->
+    </ul>
+    <div id="chat">
+        <div id="group-info" class="group-info">
+            <div class="group-icon">
+                <img id="group-icon-img" src="https://i.imgur.com/fL8RNta.png">
+            </div>
+            <div>
+                <div id="group-info-name" class="group-info-name">
+                    Group Name
+                </div>
+                <div id="group-info-members" class="group-info-members">
+                    10 Members
+                </div>
+            </div>
+
+        </div>
+        <ul id="chat-list">
+            <!-- TEMPLATE -->
+            <!-- <li>
+                <ul id="" class="message-list hidden" id-channel-chats="test">
+                    <li class="message sender-message">
+                        <div class="message-avatar">
+                            <img id="message-avatar-img" src="https://i.imgur.com/fL8RNta.png">
+                        </div>
+                        <div class="message-content">
+                            <p>Sender's message goes here</p>
+                            <div class="message-info">Sender Name - Date/Time</div>
+                        </div>
+                    </li>
+                    <li class="message receiver-message">
+                        <div class="message-avatar">
+                            <img id="message-avatar-img" src="https://i.imgur.com/fL8RNta.png">
+                        </div>
+                        <div class="message-content">
+                            <p>Receiver's message goes here</p>
+                            <div class="message-info">Receiver Name - Date/Time</div>
+                        </div>
+                    </li>
+                </ul>
+            </li> -->
+        </ul>
+        <div class="chat-input">
+            <button id="button-login" onclick="loginUser()">Login User</button>
+            <button id="button-status" onclick="getStatusServer()">Status server</button>
+            <textarea id="message-input" placeholder="Type your message here..."></textarea>
+            <button id="button-send" onclick="sendMessage()">Send message</button>
+        </div>
+    </div>
+
+    <div id="member-list">
+        <h2>Members Online</h2>
+        <ul>
+            <li class="member">
+                <div class="member-avatar">
+                    <img id="member-avatar-img" src="https://i.imgur.com/fL8RNta.png">
+                </div>
+                <div class="member-content">
+                    <div class="member-name">Member 1</div>
+                    <div class="member-status offline">Offline</div>
+                </div>
+            </li>
+            <li class="member">
+                <div class="member-avatar">
+                    <img id="member-avatar-img" src="https://i.imgur.com/fL8RNta.png">
+                </div>
+                <div class="member-content">
+                    <div class="member-name">Member 2</div>
+                    <div class="member-status online">Online</div>
+                </div>
+            </li>
+            <!-- Add more members as needed -->
+        </ul>
+    </div>
+</body>
+<script src="http://localhost:5000/chat.js"></script>
+
+</html>

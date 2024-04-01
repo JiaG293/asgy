@@ -10,7 +10,7 @@ const { createSingleChat, createChannelChat, findChannel, sendMessage, getListCh
 //Luon luon su dung router duoi authentication
 router.use(authentication)
 router.route('/send-message').post(catchAsync(sendMessage));
-router.route('/list-channels').get(catchAsync(getListChannels));
+router.route('/channels').get(catchAsync(getListChannels));
 router.route('/findChannel').post(catchAsync(findChannel));
 
 router.route('/create-channel-chat').post(catchAsync(createChannelChat));

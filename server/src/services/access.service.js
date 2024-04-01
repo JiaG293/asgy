@@ -5,7 +5,7 @@ const KeyTokenModel = require('../models/keyToken.model');
 const bcrypt = require('bcryptjs'); //const bcrypt = require('bcrypt'); //THAY DOI THANH CAI NAY SAU KHI DEPLOYMENT DO BCRYPT PERFOMANCE HON
 const crypto = require('crypto');
 const { sendEmail } = require('../utils/sendEmail.util');
-const { createTokenPair, verifyJWT } = require('../auth/authUtils');
+const { createTokenPair, verifyJWT, decodeTokens } = require('../auth/authUtils');
 const KeyTokenService = require('../services/keyToken.service');
 const { BadRequestError, ConflictRequestError, UnauthorizeError, ForbiddenError } = require('../utils/responses/error.response');
 const { getInfoData } = require('../utils/getInfoModel.util');
@@ -24,6 +24,24 @@ const HEADER = {
 }
 
 class AccessService {
+
+    //get information details
+    static getInformationDetails = async (headers) => {
+        const { authorization } = headers;
+        const clientId = headers[HEADER.X_CLIENT_ID];
+        const decodeToken = await decodeTokens(clientId, authorization);
+
+        const userDetails = await ProfileModel.findOne({ _id: decodeToken.profileId }).populate({
+            path: 'userId',
+            select: '+resetPasswordToken',
+        }).select('+resetPasswordToken').lean()
+
+        if (!userDetails) {
+            throw new BadRequestError('User not found')
+        }
+
+        return userDetails;
+    }
 
     // Forgot Password
     static forgotPassword = async (req) => {

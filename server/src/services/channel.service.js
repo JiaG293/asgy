@@ -18,7 +18,7 @@ const getListChannels = async (headers) => {
     const { authorization } = await headers;
     const clientId = await headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
-    const listChannels = await ProfileModel.find({ _id: decodeToken.profileId }).lean();
+    const listChannels = await ProfileModel.findOne({ _id: decodeToken.profileId }).select('listChannels').populate('listChannels').lean();
     if (!listChannels) {
         throw new BadRequestError('User not existed');
     }
