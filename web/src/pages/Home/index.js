@@ -38,13 +38,12 @@ function Home() {
       const decodedToken = jwt_decode(refreshToken);
       const clientID = decodedToken.clientId;
       const headers = {
-        "X-Client-Id": clientID,
-        Authorization: refreshToken,
+        "x-client-id": clientID,
+        "authorization": refreshToken,
       };
       // Gửi yêu cầu lấy thông tin người dùng sử dụng refreshToken
-      const response = await axios.post(
-        "http://localhost:5000/api/v1/profile/personal-information",
-        { userId: decodedToken.userId },
+      const response = await axios.get(
+        "http://localhost:5000/api/v1/profile",
         { headers }
       );
       console.log(response.data.metadata);

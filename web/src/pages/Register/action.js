@@ -13,6 +13,9 @@ const useRegister = () => {
   const [getPassword, setPassword] = useState("");
   const [getRepassword, setRepassword] = useState("");
   const [isAgree, setIsAgree] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [visible2, setVisible2] = useState(false);
+
   const navigate = useNavigate();
 
   const initialWarningState = {
@@ -25,6 +28,15 @@ const useRegister = () => {
     password: "",
     repassword: "",
   };
+
+
+  const usePasswordVisibility = () => {
+    setVisible(!visible)
+  };
+  const usePasswordVisibility2 = () => {
+    setVisible2(!visible2)
+  };
+
   const [warningMessages, setWarningMessages] = useState(initialWarningState);
 
   // Hàm kiểm tra hợp lệ
@@ -151,6 +163,12 @@ const useRegister = () => {
     warningMessages,
     handleAgreeChange,
     handleRegister,
+    usePasswordVisibility,
+    visible,
+    setVisible,
+    usePasswordVisibility2,
+    visible2,
+    setVisible2
   };
 };
 

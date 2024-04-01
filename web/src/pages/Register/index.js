@@ -5,6 +5,8 @@ import { MdEmail as EmailIcon } from "react-icons/md";
 import { FaCalendarAlt as DateIcon } from "react-icons/fa";
 import { FaPhone as PhoneIcon } from "react-icons/fa";
 import { ToastContainer } from "react-toastify";
+import { IoEyeSharp as ShowPasswordIcon } from "react-icons/io5";
+import { IoEyeOffSharp as HidePasswordIcon } from "react-icons/io5";
 import "react-toastify/dist/ReactToastify.css";
 import "./Register.scss";
 import useRegister from "./action";
@@ -33,6 +35,10 @@ function Register() {
     warningMessages,
     handleAgreeChange,
     handleRegister,
+    usePasswordVisibility,
+    visible,
+    visible2,
+    usePasswordVisibility2,
   } = useRegister();
 
   //render
@@ -129,11 +135,10 @@ function Register() {
                 setBirthdate(e.target.value);
               }}
             />
-            <DateIcon className="register-icon"></DateIcon>{" "}
+            <DateIcon className="register-icon"></DateIcon>
             <p className="register-warning-text">{warningMessages.birthdate}</p>
           </div>
         </div>
-
         {/* Số điện thoại */}
         <div className="register-input-box">
           <input
@@ -162,11 +167,10 @@ function Register() {
           <EmailIcon className="register-icon"></EmailIcon>
           <p className="register-warning-text">{warningMessages.email}</p>
         </div>
-
         {/* Mật khẩu */}
         <div className="register-input-box">
           <input
-            type="password"
+            type={visible ? "text" : "password"}
             className="register-input"
             placeholder="Mật khẩu"
             value={getPassword}
@@ -174,13 +178,24 @@ function Register() {
               setPassword(e.target.value);
             }}
           />
-          <PasswordIcon className="register-icon"></PasswordIcon>{" "}
+          <PasswordIcon className="register-icon"></PasswordIcon>
+          {visible ? (
+            <ShowPasswordIcon
+              className="login-icon-right"
+              onClick={usePasswordVisibility}
+            ></ShowPasswordIcon>
+          ) : (
+            <HidePasswordIcon
+              className="login-icon-right"
+              onClick={usePasswordVisibility}
+            ></HidePasswordIcon>
+          )}
           <p className="register-warning-text">{warningMessages.password}</p>
         </div>
-        {/* Mật khẩu nhập lại*/}
+        {/* Mật khẩu nhập lại */}
         <div className="register-input-box">
           <input
-            type="password"
+            type={visible2 ? "text" : "password"}
             className="register-input"
             placeholder="Nhập lại mật khẩu"
             value={getRepassword}
@@ -189,6 +204,17 @@ function Register() {
             }}
           />
           <PasswordIcon className="register-icon"></PasswordIcon>{" "}
+          {visible2 ? (
+            <ShowPasswordIcon
+              className="login-icon-right"
+              onClick={usePasswordVisibility2}
+            ></ShowPasswordIcon>
+          ) : (
+            <HidePasswordIcon
+              className="login-icon-right"
+              onClick={usePasswordVisibility2}
+            ></HidePasswordIcon>
+          )}
           <p className="register-warning-text">{warningMessages.repassword}</p>
         </div>
         {/* Chính sách */}
