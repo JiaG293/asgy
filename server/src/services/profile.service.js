@@ -68,11 +68,13 @@ const updateInformationProfile = async (req) => {
     session.startTransaction();
 
     try {
-
+        
         const update = {};
+        const user = await findProfileByUserId(decodeToken.userId)
         if (fullName !== undefined) update.fullName = fullName;
-        if (req.file.location !== undefined) {
-            const user = await findProfileByUserId(decodeToken.userId)
+        console.log(req.file);
+
+        if (req?.file?.location !== undefined) {
             await deleteFileS3(user.avatar)
             update.avatar = await req.file.location;
         }
@@ -95,7 +97,7 @@ const updateInformationProfile = async (req) => {
         await session.commitTransaction();
         session.endSession();
 
-        return profileUpdate;
+        return update;
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
