@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { publicRoutes, privateRoutes } from "./routes";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ function App() {
           return <Route key={index} path={route.path} element={<Page />} />;
         })}
       </Routes>
+      <ToastContainer/>
     </div>
   );
 }

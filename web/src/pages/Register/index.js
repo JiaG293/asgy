@@ -249,7 +249,6 @@ function Register() {
           </span>
         </div>
       </form>
-      <ToastContainer /> {/* Thêm ToastContainer vào cuối component */}
     </div>
   );
 }

@@ -7,7 +7,6 @@ import "../Login/Login.scss";
 import { usePasswordVisibility } from "./action";
 import { useState } from "react";
 import axios from "axios";
-import jwt_decode from "jwt-decode";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from 'js-cookie';
@@ -37,7 +36,6 @@ function Login() {
       if (response.status === 200) {
         const refreshToken = response.data.metadata.tokens.refreshToken;
         Cookies.set('refreshToken', refreshToken); 
-        // const payloadDecoded = jwt_decode(refreshToken);
         navigate('/home');
       } else {
         toast.error("Đăng nhập thất bại");
@@ -52,7 +50,7 @@ function Login() {
   //render
   return (
     <div className="login-container">
-      <form className="login-form" action="">
+      <form className="login-form">
         <h1>Asgy</h1>
         <h2>
           {`Nơi những dòng tin nhắn giản đơn`}
@@ -109,8 +107,6 @@ function Login() {
           </p>
         </div>
       </form>
-      <ToastContainer /> {/* Thêm ToastContainer vào cuối component */}
-
     </div>
   );
 }
