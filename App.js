@@ -1,20 +1,27 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import FlashScreen from './src/pages/FlashScreen';
+import SearchA from './src/components/Search';
+import Chat from './src/pages/Chat';
+import Test from './src/pages/Test';
 
-export default function App() {
+export default function Search() {
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+      {/* <FlashScreen/> */}
+      {/* <SearchA/> */}
+      {/* <Chat/> */}
+      <Test/>
+
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
+    width: '100%',
+    height: '100%',
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
