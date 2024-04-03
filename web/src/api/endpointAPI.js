@@ -10,22 +10,22 @@ const baseURL = `${protocol}://${IP_Address}:${server_PORT}/api/${version}`;
 
 const endpointAPI = {
   // Access
-  signup: `${baseURL}/users/signup`,
-  login: `${baseURL}/users/login`,
-  logout: `${baseURL}/users/logout`,
-  forgotPassword: `${baseURL}/users/forgot-password`,
+  signup: `${baseURL}/users/signup/`,
+  login: `${baseURL}/users/login/`,
+  logout: `${baseURL}/users/logout/`,
+  forgotPassword: `${baseURL}/users/forgot-password/`,
   resetPassword: `${baseURL}/users/reset-password/${tokenEmail}`,
   // Profile
-  getInfoProfile: `${baseURL}/profile`,
-  updateProfile: `${baseURL}/profile/update`,
-  getListFriendPrivate: `${baseURL}/profile/friends`,
-  sendFriendRequest: `${baseURL}/profile/send-request`,
-  acceptFriendRequest: `${baseURL}/profile/accept-request`,
+  getInfoProfile: `${baseURL}/profile/`,
+  updateProfile: `${baseURL}/profile/update/`,
+  getListFriendPrivate: `${baseURL}/profile/friends/`,
+  sendFriendRequest: `${baseURL}/profile/send-request/`,
+  acceptFriendRequest: `${baseURL}/profile/accept-request/`,
   // Chats
-  createSingleChat: `${baseURL}/chats/create-single-chat`,
-  createChannelChat: `${baseURL}/chats/create-channel-chat`,
-  findChannel: `${baseURL}/chats/findChannel`,
-  getListChannels: `${baseURL}/chats/channels`,
+  createSingleChat: `${baseURL}/chats/create-single-chat/`,
+  createChannelChat: `${baseURL}/chats/create-channel-chat/`,
+  findChannel: `${baseURL}/chats/findChannel/`,
+  getListChannels: `${baseURL}/chats/channels/`,
 };
 
 export default endpointAPI;

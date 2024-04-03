@@ -1,17 +1,14 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { BiSolidUserRectangle as UserIcon } from "react-icons/bi";
 import { IoMdLock as PasswordIcon } from "react-icons/io";
 import { MdEmail as EmailIcon } from "react-icons/md";
 import { FaCalendarAlt as DateIcon } from "react-icons/fa";
 import { FaPhone as PhoneIcon } from "react-icons/fa";
-import { ToastContainer } from "react-toastify";
 import { IoEyeSharp as ShowPasswordIcon } from "react-icons/io5";
 import { IoEyeOffSharp as HidePasswordIcon } from "react-icons/io5";
 import "react-toastify/dist/ReactToastify.css";
 import "./Register.scss";
-import useRegister from "./action";
-
-// giao diện register
+import useRegister from "./useRegister";
 function Register() {
   const {
     getUsername,
@@ -31,7 +28,6 @@ function Register() {
     getRepassword,
     setRepassword,
     isAgree,
-    setIsAgree,
     warningMessages,
     handleAgreeChange,
     handleRegister,
@@ -40,8 +36,6 @@ function Register() {
     visible2,
     usePasswordVisibility2,
   } = useRegister();
-
-  //render
   return (
     <div className="register-container">
       <form className="register-form" action="">

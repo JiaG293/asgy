@@ -13,8 +13,18 @@ export const login = async (usernameOrEmail, password) => {
   }
 };
 
+export const register = async (payload) => {
+  try {
+    const response = await axios.post(endpointAPI.signup, payload);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const callAPI = {
-  login
+  login,
+  register,
 };
 
 export default callAPI;

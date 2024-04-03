@@ -6,37 +6,21 @@ import { Link, useNavigate } from "react-router-dom";
 import "../Login/Login.scss";
 import { useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
-import callAPI from "api/callAPI";
-import actions from "./actions.js";
-import statusCode from "global/statusCode";
-import { useDispatch } from "react-redux";
+import useLogin from "./useLogin";
 
-// giao diện login
+// Giao diện login
 function Login() {
-  const { visible, togglePasswordVisibility } = actions.usePasswordVisibility();
+  const { visible, togglePasswordVisibility, handleLogin } = useLogin();
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
-  const handleLogin = async () => {
-    setLoading(true);
-    try {
-      const response = await callAPI.login(usernameOrEmail, password);
-      if (response.status === statusCode.OK) {
-        actions.handleLoginSuccess(response, navigate, dispatch);
-      } else {
-        actions.handleLoginFailure();
-      }
-    } catch (error) {
-      actions.handleLoginError(error);
-    } finally {
-      setLoading(false);
-    }
+  const handleLoginClick = () => {
+    handleLogin(usernameOrEmail, password, setLoading, navigate);
   };
 
-  //render
+  // Render
   return (
     <div className="login-container">
       <form className="login-form">
@@ -85,7 +69,7 @@ function Login() {
         </div>
         {/* Button đăng nhập */}
         <div className="login-button-box">
-          <button type="button" onClick={handleLogin} disabled={loading}>
+          <button type="button" onClick={handleLoginClick} disabled={loading}>
             {loading ? "Đang đăng nhập ..." : "Đăng nhập"}
           </button>
         </div>
