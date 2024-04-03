@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
-import { setProfile, setUser } from "../../redux/action";
+import { setProfile, setUser } from "../redux/action";
 import callAPI from "api/callAPI";
 import statusCode from "utils/statusCode";
 import { useDispatch } from "react-redux";
@@ -20,6 +20,7 @@ const useLogin = () => {
     const { refreshToken, profile, user } = res.metadata.tokens;
     dispatch(setProfile(profile));
     dispatch(setUser(user));
+    localStorage.setItem('isAuthenticated', 'true');
     Cookies.set("refreshToken", refreshToken);
     toast.success("Đăng nhập thành công");
     navigate("/home");
@@ -27,13 +28,13 @@ const useLogin = () => {
 
   // Đăng nhập thất bại
   const handleLoginFailure = () => {
-    toast.error("Mật khẩu hoặc tài khoản không chính xác");
+    toast.error("Tài khoản hoặc mật khẩu không chính xác");
   };
 
   // Xử lý lỗi khi đăng nhập
   const handleLoginError = (error) => {
     console.log(error);
-    toast.error("Tài khoản mật khẩu không chính xác");
+    toast.error("Tài khoản hoặc mật khẩu không chính xác");
   };
 
   // Xử lý đăng nhập

@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "../Login/Login.scss";
 import { useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
-import useLogin from "./useLogin";
+import useLogin from "../../auth/useLogin";
 
 // Giao diện login
 function Login() {

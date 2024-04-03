@@ -12,7 +12,7 @@ import Contacts from "../../layouts/home/Contacts";
 import ListFriend from "../../layouts/home/ListFriend";
 import ListGroup from "../../layouts/home/ListGroup";
 import ListRequest from "../../layouts/home/ListRequest";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setProfile } from "../../redux/action";
 
 function Home() {

@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 
 function InfoPopup({ setShowUpdateModal, formatDate }) {
   const profile = useSelector(state => state.profile);
-  const user = useSelector(state => state.user)
+  // const user = useSelector(state => state.user)
   return (
     <div className="info-popup-container">
       <div className="info-popup-content">

@@ -11,7 +11,7 @@ export const setUser = (user) => ({
   payload: user,
 });
 
-export const setAuthenticated = (isAuthenticated) => ({
-  type: SET_AUTHENTICATED,
-  payload: isAuthenticated,
-});
+// export const setAuthenticated = (isAuthenticated) => ({
+//   type: SET_AUTHENTICATED,
+//   payload: isAuthenticated,
+// });

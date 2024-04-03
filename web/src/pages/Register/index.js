@@ -9,7 +9,7 @@ import { IoEyeSharp as ShowPasswordIcon } from "react-icons/io5";
 import { IoEyeOffSharp as HidePasswordIcon } from "react-icons/io5";
 import "react-toastify/dist/ReactToastify.css";
 import "./Register.scss";
-import useRegister from "./useRegister"; // Import hook
+import useRegister from "auth/useRegister";
 
 function Register() {
   const {

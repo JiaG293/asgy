@@ -1,37 +1,36 @@
 import React, { useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { publicRoutes, privateRoutes } from "./routes";
 import { ToastContainer } from "react-toastify";
-import { Provider } from 'react-redux';
-import store from './redux/store';
-import 'react-toastify/dist/ReactToastify.css';
-import 'components/CustomToastify.scss'
+import { publicRoutes, privateRoutes } from "./routes";
+import "react-toastify/dist/ReactToastify.css";
+import "components/CustomToastify.scss";
+import Cookies from "js-cookie";
+
 function App() {
   const navigate = useNavigate();
-
-  // Kiểm tra nếu đường dẫn không hợp lệ chuyển về trang login
-  //useEffect(() => {
-    const currentPath = window.location.pathname;
-    if (!publicRoutes.some(route => route.path === currentPath) &&
-        !privateRoutes.some(route => route.path === currentPath)) {
-      navigate("/home");
+  //tạm thời chứ không bảo mật
+  const isAuthenticated = localStorage.getItem("isAuthenticated");
+  console.log(isAuthenticated);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
     }
-  // }, [navigate]);
+  }, [isAuthenticated, navigate]);
 
   return (
-    <Provider store={store}>
-
     <div className="App">
       <Routes>
-        {publicRoutes.map((route, index) => {
-          const Page = route.component;
-          return <Route key={index} path={route.path} element={<Page />} />;
-        })}
+        {publicRoutes.map((route, index) => (
+          <Route key={index} path={route.path} element={<route.component />} />
+        ))}
 
-        {privateRoutes.map((route, index) => {
-          const Page = route.component;
-          return <Route key={index} path={route.path} element={<Page />} />;
-        })}
+        {privateRoutes.map((route, index) => (
+          <Route
+            key={index}
+            path={route.path}
+            element={isAuthenticated ? <route.component /> : null}
+          />
+        ))}
       </Routes>
       <ToastContainer
         position="top-right"
@@ -41,7 +40,6 @@ function App() {
         pauseOnHover={true}
       />
     </div>
-    </Provider>
   );
 }
 
