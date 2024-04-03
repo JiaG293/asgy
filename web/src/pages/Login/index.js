@@ -2,13 +2,14 @@ import { BiSolidUserRectangle as UserIcon } from "react-icons/bi";
 import { IoMdLock as PasswordIcon } from "react-icons/io";
 import { IoEyeSharp as ShowPasswordIcon } from "react-icons/io5";
 import { IoEyeOffSharp as HidePasswordIcon } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../Login/Login.scss";
 import { useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import callAPI from "api/callAPI";
 import actions from "./actions.js";
 import statusCode from "global/statusCode";
+import { useDispatch } from "react-redux";
 
 // giao diện login
 function Login() {
@@ -16,13 +17,15 @@ function Login() {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await callAPI.login_API(usernameOrEmail, password);
+      const response = await callAPI.login(usernameOrEmail, password);
       if (response.status === statusCode.OK) {
-        actions.handleLoginSuccess(response);
+        actions.handleLoginSuccess(response, navigate, dispatch);
       } else {
         actions.handleLoginFailure();
       }

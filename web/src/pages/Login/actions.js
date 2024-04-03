@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { setProfile, setUser } from "../../redux/action";
 
-//hiển thị mật khẩus
+//hiển thị mật khẩu
 export const usePasswordVisibility = () => {
   const [visible, setVisible] = useState(false);
   const togglePasswordVisibility = () => setVisible(!visible);
@@ -11,7 +11,7 @@ export const usePasswordVisibility = () => {
 };
 
 //Đăng nhập thành công
-export const handleLoginSuccess = (res, dispatch, navigate) => {
+export const handleLoginSuccess = (res, navigate, dispatch) => {
   const { refreshToken, profile, user } = res.metadata.tokens;
   dispatch(setProfile(profile));
   dispatch(setUser(user));

@@ -1,7 +1,7 @@
 import axios from "axios";
 import endpointAPI from "./endpointAPI";
 
-export const login_API = async (usernameOrEmail, password) => {
+export const login = async (usernameOrEmail, password) => {
   try {
     const response = await axios.post(endpointAPI.login, {
       userID: usernameOrEmail,
@@ -14,7 +14,7 @@ export const login_API = async (usernameOrEmail, password) => {
 };
 
 const callAPI = {
-  login_API
+  login
 };
 
 export default callAPI;
