@@ -13,8 +13,11 @@ import UpdateModal from "./UpdateModal";
 import LogoutModal from "./LogoutModal";
 import InfoPopup from "./InfoPopup";
 import SettingsPopup from "./SettingsPopup";
+import { useSelector } from "react-redux";
 
-function Menu({ user, onSelectMenuItem}) {
+function Menu({ onSelectMenuItem }) {
+  const profile = useSelector((state) => state.profile);
+
   const [showFormInfo, setShowFormInfo] = useState(false);
   const [showFormSettings, setShowFormSettings] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -72,7 +75,7 @@ function Menu({ user, onSelectMenuItem}) {
     <div className="menu-container">
       <div className="menu-avatar-container">
         <img
-          src={user.avatar}
+          src={profile?.avatar ?? "placeholder_image_url"}
           className="menu-avatar"
           onClick={handleAvatarClick}
           alt="Avatar"
@@ -101,7 +104,6 @@ function Menu({ user, onSelectMenuItem}) {
       {/* Info form */}
       {showFormInfo && (
         <InfoPopup
-          user={user}
           formatDate={formatDate}
           setShowUpdateModal={setShowUpdateModal}
         />
@@ -122,7 +124,7 @@ function Menu({ user, onSelectMenuItem}) {
 
       {/* form update */}
       {showUpdateModal && (
-        <UpdateModal user={user} setShowUpdateModal={setShowUpdateModal} />
+        <UpdateModal setShowUpdateModal={setShowUpdateModal} />
       )}
     </div>
   );

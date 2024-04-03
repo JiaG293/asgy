@@ -7,9 +7,11 @@ import "../Login/Login.scss";
 import { usePasswordVisibility } from "./action";
 import { useState } from "react";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
+import { setProfile, setUser, setAuthenticated } from "../../redux/action";
+import { useSelector, useDispatch } from "react-redux";
 
 // giao diện login
 function Login() {
@@ -19,12 +21,11 @@ function Login() {
   const [getPassword, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-
+  // const setAuthenticated = useSelector((state) => state.isAuthenticated);
+  const dispatch = useDispatch();
   const handleLogin = async () => {
     try {
       setLoading(true);
-  
       const response = await axios.post(
         "http://localhost:5000/api/v1/users/login",
         {
@@ -35,17 +36,27 @@ function Login() {
   
       if (response.status === 200) {
         const refreshToken = response.data.metadata.tokens.refreshToken;
-        Cookies.set('refreshToken', refreshToken); 
-        navigate('/home');
+  
+        const profile = response.data.metadata.profile;
+        console.log(profile);
+        const user = response.data.metadata.user;
+  
+        dispatch(setProfile(profile));
+        dispatch(setUser(user));
+        // dispatch(setAuthenticated(true))
+  
+        Cookies.set("refreshToken", refreshToken);
+        navigate("/home");
       } else {
         toast.error("Đăng nhập thất bại");
       }
     } catch (error) {
+      console.log(error);
       toast.error("Đăng nhập thất bại");
     } finally {
       setLoading(false);
     }
-  };  
+  };
 
   //render
   return (

@@ -3,11 +3,17 @@ import "../homeStyle/UpdateModal.scss";
 import axios from "axios";
 import Cookies from "js-cookie";
 import jwtDecode from "jwt-decode";
+import { useDispatch, useSelector } from "react-redux";
+import { setProfile } from "../../redux/action";
 
-function UpdateModal({ user, setShowUpdateModal }) {
-  const [fullName, setFullName] = useState(user.fullName);
-  const [gender, setGender] = useState(user.gender);
-  const [dob, setDob] = useState(new Date(user.birthday));
+function UpdateModal({setShowUpdateModal }) {
+
+  const dispatch = useDispatch();
+  const profile = useSelector(state => state.profile);
+
+  const [fullName, setFullName] = useState(profile.fullName);
+  const [gender, setGender] = useState(profile.gender);
+  const [dob, setDob] = useState(new Date(profile.birthday));
 
   const handleDayChange = (e) => {
     const newDay = parseInt(e.target.value);
@@ -32,21 +38,25 @@ function UpdateModal({ user, setShowUpdateModal }) {
 
   const handleSave = async () => {
     try {
-      const userData = {
+      const profileData = {
         fullName: fullName,
         gender: gender,
-        birthday: dob.toISOString().split("T")[0], // Chuyển đổi ngày sinh về định dạng 'YYYY-MM-DD'
+        birthday: dob.toISOString().split("T")[0], 
       };
-      await handleUpdateProfile(userData);
-      setShowUpdateModal(false);
-      window.location.reload();
-
+      const response = await handleUpdateProfile(profileData);
+      if (response.status === 200) {
+        dispatch(setProfile(profileData)); // Cập nhật state trong Redux
+        setShowUpdateModal(false);
+        console.log('Update thành công');
+      } else {
+        console.error("Lỗi khi cập nhật thông tin cá nhân");
+      }
     } catch (error) {
-      console.error("Error updating user profile:", error);
+      console.error("Lỗi khi cập nhật thông tin cá nhân:", error);
     }
   };
 
-  const handleUpdateProfile = async (userData) => {
+  const handleUpdateProfile = async (profileData) => {
     try {
       const refreshToken = Cookies.get("refreshToken");
       const decodedToken = jwtDecode(refreshToken);
@@ -56,7 +66,7 @@ function UpdateModal({ user, setShowUpdateModal }) {
 
       const response = await axios.put(
         "http://localhost:5000/api/v1/profile/update",
-        userData,
+        profileData,
         {
           headers: {
             "X-Client-Id": clientID,
@@ -66,7 +76,7 @@ function UpdateModal({ user, setShowUpdateModal }) {
       );
       return response;
     } catch (error) {
-      console.error("Error updating user profile:", error.response);
+      console.error("Error updating profile profile:", error.response);
       throw error;
     }
   };
