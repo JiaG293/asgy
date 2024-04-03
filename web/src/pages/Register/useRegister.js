@@ -3,110 +3,141 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import callAPI from "api/callAPI";
 import statusCode from "utils/statusCode";
-import validateInput from "utils/inputValidation";
+import useValidate from "utils/useValidate";
 
 const useRegister = () => {
-  const [getUsername, setUsername] = useState("");
-  const [getEmail, setEmail] = useState("");
-  const [getFullname, setFullname] = useState("");
-  const [getPhonenumber, setPhonenumber] = useState("");
-  const [getGender, setGender] = useState("Nam");
-  const [getBirthdate, setBirthdate] = useState("");
-  const [getPassword, setPassword] = useState("");
-  const [getRepassword, setRepassword] = useState("");
-  const [isAgree, setIsAgree] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const [visible2, setVisible2] = useState(false);
-
-  const navigate = useNavigate();
-
-  //đặt các trạng thái ràng buộc nhập dữ liệu
-  const [warningMessages, setWarningMessages] = useState(initialWarningState);
-  const initialWarningState = {
-    email: "",
+  const [formData, setFormData] = useState({
     username: "",
-    fullname: "",
-    phone: "",
-    gender: "",
+    email: "",
+    fullName: "",
+    phoneNumber: "",
+    gender: "Nam",
     birthdate: "",
     password: "",
     repassword: "",
+    isAgree: false,
+  });
+
+  const [visible, setVisible] = useState(false);
+  const [visible2, setVisible2] = useState(false);
+  const [warningMessages, setWarningMessages] = useState({
+    username: "",
+    email: "",
+    fullName: "",
+    phoneNumber: "",
+    password: "",
+    repassword: "",
+    birthdate: "",
+  });
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  //hàm hiển thị mật khẩu
-  const usePasswordVisibility = () => {
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    const errors = {
+      username:
+        name === "username"
+          ? useValidate.validateUsername(value)
+          : warningMessages.username,
+      email:
+        name === "email"
+          ? useValidate.validateEmail(value)
+          : warningMessages.email,
+      fullName:
+        name === "fullName"
+          ? useValidate.validateFullname(value)
+          : warningMessages.fullName,
+      phoneNumber:
+        name === "phoneNumber"
+          ? useValidate.validatePhone(value)
+          : warningMessages.phoneNumber,
+      password:
+        name === "password"
+          ? useValidate.validatePassword(value)
+          : warningMessages.password,
+      repassword:
+        name === "repassword"
+          ? useValidate.validateRepassword(formData.password, value)
+          : warningMessages.repassword,
+      birthdate:
+        name === "birthdate"
+          ? useValidate.validateBirthdate(value)
+          : warningMessages.birthdate,
+    };
+    setWarningMessages(errors);
+  };
+
+  const handleCheckboxChange = (e) => {
+    setFormData({ ...formData, isAgree: e.target.checked });
+  };
+
+  const handlePasswordVisibility = () => {
     setVisible(!visible);
   };
 
-  //hàm hiển thị nhập lại mật khẩu
-  const usePasswordVisibility2 = () => {
+  const handlePasswordVisibility2 = () => {
     setVisible2(!visible2);
   };
 
-  // Hàm xóa các giá trị trong form
   const clearForm = () => {
-    setFullname("");
-    setPhonenumber("");
-    setUsername("");
-    setEmail("");
-    setBirthdate("");
-    setGender("");
-    setPassword("");
-    setRepassword("");
-    setIsAgree(false);
+    setFormData({
+      username: "",
+      email: "",
+      fullName: "",
+      phoneNumber: "",
+      gender: "Nam",
+      birthdate: "",
+      password: "",
+      repassword: "",
+      isAgree: false,
+    });
+    setWarningMessages({
+      username: "",
+      email: "",
+      fullName: "",
+      phoneNumber: "",
+      password: "",
+      repassword: "",
+      birthdate: "",
+    });
   };
 
-  // Hàm xử lý đăng ký
-  const handleRegister = async () => {
+  const errors = {
+    username: useValidate.validateUsername(formData.username),
+    email: useValidate.validateEmail(formData.email),
+    fullName: useValidate.validateFullname(formData.fullName),
+    phoneNumber: useValidate.validatePhone(formData.phoneNumber),
+    password: useValidate.validatePassword(formData.password),
+    repassword: useValidate.validateRepassword(
+      formData.password,
+      formData.repassword
+    ),
+    birthdate: useValidate.validateBirthdate(formData.birthdate),
+  };
+
+  const handleSubmit = async () => {
     try {
-      // Kiểm tra hợp lệ dữ liệu nhập vào và nhận các cảnh báo nếu có
-      const { isValid, warningMessages } = validateInput({
-        getUsername,
-        getEmail,
-        getFullname,
-        getPhonenumber,
-        getPassword,
-        getRepassword,
-        getBirthdate,
-      });
-      // Cập nhật state cảnh báo
-      setWarningMessages(warningMessages);
-      // Nếu dữ liệu không hợp lệ, dừng xử lý
-      if (!isValid) {
+      setWarningMessages(errors);
+      if (Object.values(errors).some((error) => error !== "")) {
+        toast.error("Vui lòng kiểm tra lại thông tin");
         return;
       }
-      // Tiến hành đăng ký người dùng
-      await registerUser();
+      const response = await callAPI.register(formData);
+      if (response.status === statusCode.CREATED) {
+        handleSuccess();
+      } else {
+        handleFailure();
+      }
     } catch (error) {
-      // Xử lý lỗi nếu có
-      handleRegisterFailure(error);
+      handleFailure(error);
     }
   };
 
-  // Hàm thực hiện đăng ký người dùng
-  const registerUser = async () => {
-    // Tạo payload từ dữ liệu nhập vào
-    const payload = {
-      email: getEmail,
-      username: getUsername,
-      password: getPassword,
-      fullName: getFullname,
-      gender: getGender,
-      birthday: getBirthdate,
-      phoneNumber: getPhonenumber,
-    };
-    // Gọi API để đăng ký người dùng
-    const response = await callAPI.register(payload);
-    // Xử lý kết quả trả về từ API
-    if (response.status === statusCode.CREATED) {
-      handleRegisterSuccess();
-    } else {
-      handleRegisterFailure();
-    }
-  };
-
-  //hàm đăng ký thành công
-  const handleRegisterSuccess = () => {
+  const handleSuccess = () => {
     toast.success("Đăng ký thành công");
     clearForm();
     setTimeout(() => {
@@ -114,47 +145,33 @@ const useRegister = () => {
     }, 1000);
   };
 
-  //hàm đăng ký thất bại
-  const handleRegisterFailure = (error) => {
-    toast.error(error.response.data.error.message);
+  const handleFailure = (error) => {
+    const errorMessage = error?.response?.data?.error?.message.startsWith(
+      "E11000 duplicate key error collection: asgy.Profiles index: phoneNumber_1"
+    )
+      ? "Số điện thoại đã được sử dụng"
+      : error?.response?.data?.error?.message.includes(
+          "Username already exists"
+        )
+      ? "Tên tài khoản đã được sử dụng"
+      : error?.response?.data?.error?.message === "Email already exists"
+      ? "Email đã được sử dụng"
+      : "Có lỗi xảy ra";
+    toast.error(errorMessage);
     console.error("Error registering user:", error);
   };
 
-  // Hàm kiểm tra đồng ý điều khoản
-  const handleAgreeChange = () => {
-    setIsAgree(!isAgree);
-    console.log("Checkbox checked:", !isAgree);
-  };
-
   return {
-    getUsername,
-    setUsername,
-    getEmail,
-    setEmail,
-    getFullname,
-    setFullname,
-    getPhonenumber,
-    setPhonenumber,
-    getGender,
-    setGender,
-    getBirthdate,
-    setBirthdate,
-    getPassword,
-    setPassword,
-    getRepassword,
-    setRepassword,
-    isAgree,
-    setIsAgree,
-    warningMessages,
-    handleAgreeChange,
-    handleRegister,
-    usePasswordVisibility,
+    formData,
+    handleChange,
+    handleBlur,
+    handleCheckboxChange,
+    handleSubmit,
+    handlePasswordVisibility,
+    handlePasswordVisibility2,
     visible,
-    setVisible,
-    usePasswordVisibility2,
     visible2,
-    setVisible2,
-    clearForm,
+    warningMessages,
   };
 };
 

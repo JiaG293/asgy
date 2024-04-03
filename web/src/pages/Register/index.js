@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { BiSolidUserRectangle as UserIcon } from "react-icons/bi";
 import { IoMdLock as PasswordIcon } from "react-icons/io";
@@ -8,34 +9,34 @@ import { IoEyeSharp as ShowPasswordIcon } from "react-icons/io5";
 import { IoEyeOffSharp as HidePasswordIcon } from "react-icons/io5";
 import "react-toastify/dist/ReactToastify.css";
 import "./Register.scss";
-import useRegister from "./useRegister";
+import useRegister from "./useRegister"; // Import hook
+
 function Register() {
   const {
-    getUsername,
-    setUsername,
-    getEmail,
-    setEmail,
-    getFullname,
-    setFullname,
-    getPhonenumber,
-    setPhonenumber,
-    getGender,
-    setGender,
-    getBirthdate,
-    setBirthdate,
-    getPassword,
-    setPassword,
-    getRepassword,
-    setRepassword,
-    isAgree,
-    warningMessages,
-    handleAgreeChange,
-    handleRegister,
-    usePasswordVisibility,
+    formData,
+    handleChange,
+    handleBlur,
+    handleCheckboxChange,
+    handleSubmit,
+    handlePasswordVisibility,
+    handlePasswordVisibility2,
     visible,
     visible2,
-    usePasswordVisibility2,
+    warningMessages,
   } = useRegister();
+
+  const {
+    username,
+    fullName,
+    gender,
+    birthdate,
+    phoneNumber,
+    email,
+    password,
+    repassword,
+    isAgree,
+  } = formData;
+
   return (
     <div className="register-container">
       <form className="register-form" action="">
@@ -49,10 +50,10 @@ function Register() {
             type="text"
             className="register-input"
             placeholder="Tên tài khoản"
-            value={getUsername}
-            onChange={(e) => {
-              setUsername(e.target.value);
-            }}
+            name="username"
+            value={username}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
           <UserIcon className="register-icon"></UserIcon>
           <p className="register-warning-text">{warningMessages.username}</p>
@@ -63,13 +64,13 @@ function Register() {
             type="text"
             className="register-input"
             placeholder="Họ và tên"
-            value={getFullname}
-            onChange={(e) => {
-              setFullname(e.target.value);
-            }}
+            name="fullName"
+            value={fullName}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
           <UserIcon className="register-icon"></UserIcon>{" "}
-          <p className="register-warning-text">{warningMessages.fullname}</p>
+          <p className="register-warning-text">{warningMessages.fullName}</p>
         </div>
         {/* Giới tính */}
         <div
@@ -83,11 +84,9 @@ function Register() {
             <input
               type="radio"
               name="gender"
-              value={"Nam"}
-              checked={getGender === "Nam"}
-              onChange={(e) => {
-                setGender(e.target.value);
-              }}
+              value="Nam"
+              checked={gender === "Nam"}
+              onChange={handleChange}
             />
             <p>Nam</p>
           </div>
@@ -95,11 +94,9 @@ function Register() {
             <input
               type="radio"
               name="gender"
-              value={"Nữ"}
-              checked={getGender === "Nữ"}
-              onChange={(e) => {
-                setGender(e.target.value);
-              }}
+              value="Nữ"
+              checked={gender === "Nữ"}
+              onChange={handleChange}
             />
             <p>Nữ</p>
           </div>
@@ -107,11 +104,9 @@ function Register() {
             <input
               type="radio"
               name="gender"
-              value={"Bí mật"}
-              checked={getGender === "Bí mật"}
-              onChange={(e) => {
-                setGender(e.target.value);
-              }}
+              value="Bí mật"
+              checked={gender === "Bí mật"}
+              onChange={handleChange}
             />
             <p>Bí mật</p>
           </div>
@@ -124,10 +119,10 @@ function Register() {
               type="date"
               className="register-input"
               placeholder="Ngày sinh"
-              value={getBirthdate}
-              onChange={(e) => {
-                setBirthdate(e.target.value);
-              }}
+              name="birthdate"
+              value={birthdate}
+              onChange={handleChange}
+              onBlur={handleBlur}
             />
             <DateIcon className="register-icon"></DateIcon>
             <p className="register-warning-text">{warningMessages.birthdate}</p>
@@ -139,13 +134,13 @@ function Register() {
             type="text"
             className="register-input"
             placeholder="Số điện thoại"
-            value={getPhonenumber}
-            onChange={(e) => {
-              setPhonenumber(e.target.value);
-            }}
+            name="phoneNumber"
+            value={phoneNumber}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
           <PhoneIcon className="register-icon"></PhoneIcon>{" "}
-          <p className="register-warning-text">{warningMessages.phone}</p>
+          <p className="register-warning-text">{warningMessages.phoneNumber}</p>
         </div>
         {/* Email*/}
         <div className="register-input-box">
@@ -153,10 +148,10 @@ function Register() {
             type="text"
             className="register-input"
             placeholder="Email"
-            value={getEmail}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
+            name="email"
+            value={email}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
           <EmailIcon className="register-icon"></EmailIcon>
           <p className="register-warning-text">{warningMessages.email}</p>
@@ -167,21 +162,21 @@ function Register() {
             type={visible ? "text" : "password"}
             className="register-input"
             placeholder="Mật khẩu"
-            value={getPassword}
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
+            name="password"
+            value={password}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
           <PasswordIcon className="register-icon"></PasswordIcon>
           {visible ? (
             <ShowPasswordIcon
               className="login-icon-right"
-              onClick={usePasswordVisibility}
+              onClick={handlePasswordVisibility}
             ></ShowPasswordIcon>
           ) : (
             <HidePasswordIcon
               className="login-icon-right"
-              onClick={usePasswordVisibility}
+              onClick={handlePasswordVisibility}
             ></HidePasswordIcon>
           )}
           <p className="register-warning-text">{warningMessages.password}</p>
@@ -192,21 +187,21 @@ function Register() {
             type={visible2 ? "text" : "password"}
             className="register-input"
             placeholder="Nhập lại mật khẩu"
-            value={getRepassword}
-            onChange={(e) => {
-              setRepassword(e.target.value);
-            }}
+            name="repassword"
+            value={repassword}
+            onChange={handleChange}
+            onBlur={handleBlur}
           />
           <PasswordIcon className="register-icon"></PasswordIcon>{" "}
           {visible2 ? (
             <ShowPasswordIcon
               className="login-icon-right"
-              onClick={usePasswordVisibility2}
+              onClick={handlePasswordVisibility2}
             ></ShowPasswordIcon>
           ) : (
             <HidePasswordIcon
               className="login-icon-right"
-              onClick={usePasswordVisibility2}
+              onClick={handlePasswordVisibility2}
             ></HidePasswordIcon>
           )}
           <p className="register-warning-text">{warningMessages.repassword}</p>
@@ -217,18 +212,18 @@ function Register() {
             type="checkbox"
             className="register-checkbox"
             checked={isAgree}
-            onChange={handleAgreeChange}
+            onChange={handleCheckboxChange}
           />
           <span>
-            Tôi đã đồng ý với <a href="">Điều khoản</a>,{" "}
-            <a href="">Chính sách quyền riêng tư</a> và{" "}
-            <a href="">Chính sách Cookies</a>
+            Tôi đã đồng ý với <Link to="/">Điều khoản</Link>,{" "}
+            <Link to="/">Chính sách quyền riêng tư</Link> và{" "}
+            <Link to="/">Chính sách Cookies</Link>
           </span>
         </div>
         {/* Button đăng ký */}
         <button
           type="button"
-          onClick={handleRegister}
+          onClick={handleSubmit}
           disabled={!isAgree}
           className={`register-btn ${
             isAgree ? "register-btn-enabled" : "register-btn-disabled"
