@@ -40,7 +40,7 @@ function Register() {
   return (
     <div className="register-container">
       <form className="register-form" action="">
-        <h1 style={{ color: "#3cd9b6", fontWeight: 500, textAlign: "center" }}>
+        <h1 style={{ color: "#232323", fontWeight: 500, textAlign: "center" }}>
           Đăng ký tài khoản
         </h1>
         <br />
@@ -215,9 +215,9 @@ function Register() {
             onChange={handleCheckboxChange}
           />
           <span>
-            Tôi đã đồng ý với <Link to="/">Điều khoản</Link>,{" "}
-            <Link to="/">Chính sách quyền riêng tư</Link> và{" "}
-            <Link to="/">Chính sách Cookies</Link>
+            Tôi đã đồng ý với <Link to="">Điều khoản</Link>,{" "}
+            <Link to="">Chính sách quyền riêng tư</Link> và{" "}
+            <Link to="">Chính sách Cookies</Link>
           </span>
         </div>
         {/* Button đăng ký */}

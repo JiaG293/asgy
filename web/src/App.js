@@ -4,7 +4,8 @@ import { publicRoutes, privateRoutes } from "./routes";
 import { ToastContainer } from "react-toastify";
 import { Provider } from 'react-redux';
 import store from './redux/store';
-
+import 'react-toastify/dist/ReactToastify.css';
+import 'components/CustomToastify.scss'
 function App() {
   const navigate = useNavigate();
 
@@ -32,7 +33,13 @@ function App() {
           return <Route key={index} path={route.path} element={<Page />} />;
         })}
       </Routes>
-      <ToastContainer/>
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={true}
+        limit={2}
+        pauseOnHover={true}
+      />
     </div>
     </Provider>
   );

@@ -21,6 +21,7 @@ const useLogin = () => {
     dispatch(setProfile(profile));
     dispatch(setUser(user));
     Cookies.set("refreshToken", refreshToken);
+    toast.success("Đăng nhập thành công");
     navigate("/home");
   };
 
@@ -32,7 +33,7 @@ const useLogin = () => {
   // Xử lý lỗi khi đăng nhập
   const handleLoginError = (error) => {
     console.log(error);
-    toast.error("Có lỗi xảy ra");
+    toast.error("Tài khoản mật khẩu không chính xác");
   };
 
   // Xử lý đăng nhập
