@@ -8,7 +8,7 @@ export default function SearchA() {
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-        <Ionicons name="ios-search" size={20} color="#000" />
+        <Ionicons name="search" size={20} color="#000" />
         <TextInput
           style={styles.searchInput}
           placeholder="Tìm kiếm ..."
