@@ -18,8 +18,8 @@ const messageSchema = new mongoose.Schema(
         },
         typeContent: {
             type: String,
-            enum: ['text', 'link', 'file', 'image', 'video', 'audio', 'document', 'extension'],
-            required: [true, 'Room type must be one of text | link | file | image | video | audio | document | extension']
+            enum: ['text', 'link', 'file', 'image', 'video', 'audio', 'document', 'extension', 'revoke'],
+            required: [true, 'Room type must be one of text | link | file | image | video | audio | document | extension | revoke']
         },
         messageContent: {
             type: String,

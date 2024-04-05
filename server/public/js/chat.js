@@ -5,7 +5,7 @@ const socket = io(/* {
         "x-client-id": sessionStorage.getItem('clientId'),
         "authorization": sessionStorage.getItem('accessToken')
     }
-} */); 
+} */);
 var storageListMessage = []
 
 
@@ -73,21 +73,95 @@ listItemGroup.forEach((item, index) => {
 });
 
 
+//XU LI XOA TIN NHAN
+socket.on('messageDeleted', (data) => {
+    if (data.status == true) {
+        const channelIndex = storageListMessage.findIndex((channel) => channel._id == data.receiverId)
+        console.log("channel index:", channelIndex);
+        const messageIndex = storageListMessage[channelIndex].messages.findIndex((msg) => msg._id == data._id)
+        console.log("message Index:", messageIndex);
+        if (messageIndex !== -1) {
+            storageListMessage[channelIndex].messages.splice(messageIndex, 1);
+            console.log("Deleted message id:", data._id);
+        } else {
+            console.log("Not found message id:", data._id);
+        }
+
+        document.getElementById(data._id).remove()
+    } else {
+        console.log("error deleted msg");
+    }
+})
+
+const handleDeleteMsg = (id) => {
+    console.log("id tin nhan:", id);
+
+    const timeoutId = setTimeout(() => {
+        socket.emit('deleteMessage', { messageId: id })
+
+    }, 1);//chinh thoi gian sau bao nhieu milis se xoa
+
+    document.getElementById(`cancelButton_${id}`).addEventListener('click', function () {
+        clearTimeout(timeoutId);
+        console.log('Cancel delete message');
+    });
+
+}
 
 
+
+
+//XU LI THU HOI TIN NHAN
+socket.on('messageRevoked', (data) => {
+    if (data.status == true) {
+        const channelIndex = storageListMessage.findIndex((channel) => channel._id == data.receiverId)
+        console.log("channel index:", channelIndex);
+        const messageIndex = storageListMessage[channelIndex].messages.findIndex((msg) => msg._id == data._id)
+        console.log("message Index:", messageIndex);
+        if (messageIndex !== -1) {
+            storageListMessage[channelIndex].messages[messageIndex].messageContent = data.messageContent
+            storageListMessage[channelIndex].messages[messageIndex].typeContent = data.typeContent
+            storageListMessage[channelIndex].messages[messageIndex].updatedAt = data.updatedAt
+            console.log("Revoked message id:", data._id);
+        } else {
+            console.log("Not found message id:", data._id);
+        }
+        const msg = storageListMessage[channelIndex].messages[messageIndex] //gan bien tu list danh tin nhan local
+        const { _id, senderId, messageContent, updatedAt } = msg // spread msg tu trong local ra
+        const parentElement = document.getElementById(data._id); //khai bao de lay cac thanh phan con
+        parentElement.querySelector('.message-content p').textContent = `${messageContent}`
+        parentElement.querySelector('.message-info').textContent = `${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}`
+    } else {
+        console.log("error revoked msg");
+    }
+})
+
+const handleRevokeMsg = (id) => {
+    console.log("id tin nhan:", id);
+
+    //Nho kiem tra loai typeContent truoc khi thu hoi
+
+    const timeoutId = setTimeout(() => {
+        socket.emit('revokeMessage', { messageId: id })
+
+    }, 1); //chinh thoi gian sau bao nhieu milis se thu hoi
+
+    document.getElementById(`cancelButton_${id}`).addEventListener('click', function () {
+        clearTimeout(timeoutId);
+        console.log('Cancel revoke message');
+    });
+
+}
 
 
 
 //Lang nghe su kien chon group de chat
-
 //kiem tra so phong room hien co
 function getStatusServer() {
     console.log("status cua danh sach phong trong server");
-    // socket.emit('test')
+    socket.emit('test')
     // socket.emit('loadMessages', { senderId: sessionStorage.getItem('userId') })
     console.log("tin nhan trong storage la ", storageListMessage);
-
-
 }
 //TIN NHAN CU DUOC GUI O DAY
 socket.on('getMessagesHistory', (data) => {
@@ -106,7 +180,7 @@ socket.on('getMessagesHistory', (data) => {
     data.messages.map(message => {
         const { senderId, messageContent, receiverId, createdAt, updatedAt } = message;
 
-        const messageSenderElement = `<li class="message sender-message">
+        const messageSenderElement = `<li class="message sender-message" id="${_id}">
                     <div class="message-avatar">
                         <img id="message-avatar-img" src="${senderId.avatar}">
                     </div>
@@ -114,9 +188,11 @@ socket.on('getMessagesHistory', (data) => {
                         <p>${messageContent}</p>
                         <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                     </div>
-                    <button class="delete-message">Xóa</button>
+                    <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
+                    <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
+                    <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
                 </li>`
-        const messageReceiverElement = `<li class="message receiver-message">
+        const messageReceiverElement = `<li class="message receiver-message" id="${_id}">
                     <div class="message-avatar">
                         <img id="message-avatar-img" src="${senderId.avatar}">
                     </div>
@@ -124,7 +200,9 @@ socket.on('getMessagesHistory', (data) => {
                         <p>${messageContent}</p>
                         <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                     </div>
-                    <button class="delete-message">Xóa</button>
+                    <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
+                     <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
+                     <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
                 </li>`
 
 
@@ -159,9 +237,9 @@ function getListMessage() {
         console.log("tin nhan duoc sap theo thu tu", data);
 
         data.messages.map(message => {
-            const { senderId, messageContent, receiverId, createdAt, updatedAt } = message;
+            const { senderId, messageContent, receiverId, createdAt, updatedAt, _id } = message;
 
-            const messageSenderElement = `<li class="message sender-message">
+            const messageSenderElement = `<li class="message sender-message" id="${_id}">
                     <div class="message-avatar">
                         <img id="message-avatar-img" src="${senderId.avatar}">
                     </div>
@@ -169,9 +247,11 @@ function getListMessage() {
                         <p>${messageContent}</p>
                         <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                     </div>
-                    <button class="delete-message">Xóa</button>
+                    <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
+                     <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
+                     <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
                 </li>`
-            const messageReceiverElement = `<li class="message receiver-message">
+            const messageReceiverElement = `<li class="message receiver-message" id="${_id}">
                     <div class="message-avatar">
                         <img id="message-avatar-img" src="${senderId.avatar}">
                     </div>
@@ -179,7 +259,9 @@ function getListMessage() {
                         <p>${messageContent}</p>
                         <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                     </div>
-                    <button class="delete-message">Xóa</button>
+                    <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
+                     <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
+                     <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
                 </li>`
 
 
@@ -203,9 +285,9 @@ function getListMessage() {
 
 function getMessage() {
     socket.on("getMessage", (data) => {
-        const { senderId, messageContent, receiverId, createdAt, updatedAt } = data;
+        const { senderId, messageContent, receiverId, createdAt, updatedAt, _id } = data;
         console.log("data get message: ", data);
-        const messageSenderElement = `<li class="message sender-message">
+        const messageSenderElement = `<li class="message sender-message" id="${_id}">
                 <div class="message-avatar">
                     <img id="message-avatar-img" src="${senderId.avatar}">
                 </div>
@@ -213,9 +295,11 @@ function getMessage() {
                     <p>${messageContent}</p>
                     <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                 </div>
-                <button class="delete-message">Xóa</button>
+                <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
+                 <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
+                 <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
             </li>`
-        const messageReceiverElement = `<li class="message receiver-message">
+        const messageReceiverElement = `<li class="message receiver-message" id="${_id}">
                 <div class="message-avatar">
                     <img id="message-avatar-img" src="${senderId.avatar}">
                 </div>
@@ -223,7 +307,9 @@ function getMessage() {
                     <p>${messageContent}</p>
                     <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                 </div>
-                <button class="delete-message">Xóa</button>
+                <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
+                 <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
+                 <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
             </li>`
 
         console.log("tin nhan duoc gui la ", data);
@@ -263,7 +349,7 @@ function sendMessage() {
     const senderId = sessionStorage.getItem('userId'); // Thay thế bằng ID thực sự của người gửi
     const receiverId = document.querySelector('.group.selected').id.split('-')[0] //"65f421456957be1099c49d5f"; // Thay thế bằng ID thực sự của người nhận
     const typeContent = "text"; // Loại nội dung tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
-    const _id = "1214"; // ID của tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
+    // const _id = "1214"; // ID của tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
     socket.emit("sendMessage", { senderId, receiverId, typeContent, messageContent });
     messageInput.value = ""; // Xóa nội dung trong ô nhập sau khi gửi tin nhắn
 }

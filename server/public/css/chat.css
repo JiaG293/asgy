@@ -281,3 +281,22 @@ body {
     background-color: #cc0000;
     /* Màu nền đỏ đậm khi di chuột */
 }
+.cancel-message {
+    background-color: #ff0000;
+    /* Màu nền đỏ */
+    color: #ffffff;
+    /* Màu chữ trắng */
+    border: none;
+    /* Loại bỏ viền */
+    padding: 5px 10px;
+    /* Kích thước lề nội dung */
+    cursor: pointer;
+    /* Biến con trỏ thành hình bàn tay khi di chuột */
+    border-radius: 5px;
+    /* Bo tròn góc */
+}
+
+.cancel-message:hover {
+    background-color: #cc0000;
+    /* Màu nền đỏ đậm khi di chuột */
+}

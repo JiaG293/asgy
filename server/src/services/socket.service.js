@@ -1,6 +1,6 @@
 const { Server } = require("socket.io");
 const uuid = require("uuid");
-const { sendMessage, loadMessagesHistory } = require("./chat.service");
+const { sendMessage, loadMessagesHistory, deleteMessageById, revokeMessageById } = require("./chat.service");
 const MessageModel = require("../models/message.model");
 const { message } = require("../controllers/socket.controller");
 const { findProfileById } = require("./profile.service");
@@ -115,6 +115,8 @@ io.on("connection", (socket) => {
         }
     });
 
+
+    //GUI 1 TIN NHAN
     socket.on("sendMessage", async (data) => {
         const { senderId, receiverId, typeContent, messageContent } = data;
         try {
@@ -137,8 +139,8 @@ io.on("connection", (socket) => {
 
                     await io.to(receiverId).emit("getMessage", newMessage);
 
-                    /* await socket.to(receiverId).emit("getMessage", newMessage);
-                    await socket.emit("getMessage", newMessage); */
+                    // await socket.to(receiverId).emit("getMessage", newMessage);
+                    // await socket.emit("getMessage", newMessage);
 
                 } catch (error) {
                     //Tra ra thong bao neu tin nhan khong thanh cong
@@ -154,6 +156,7 @@ io.on("connection", (socket) => {
     });
 
 
+    //TAI LICH SU TIN NHAN
     socket.on("loadMessagesHistory", async (data) => {
         //sender id = id nguoi dang nhap => cu the o day la profileId 
         //oldMessageId = id tin nhan cu nhat o client hien co
@@ -179,7 +182,48 @@ io.on("connection", (socket) => {
 
     });
 
+    //XOA TIN NHAN 
+    socket.on("deleteMessage", async (data) => {
+        try {
+            const deleteMessage = await deleteMessageById(data.messageId);
 
+            if (deleteMessage) {
+                console.log("delete mess id:", deleteMessage, "\n receiver: ", deleteMessage.receiverId);
+                io.to(String(deleteMessage.receiverId)).emit("messageDeleted", { ...deleteMessage, status: true });
+            } else {
+                console.log("error: delete message is not exist");
+                socket.emit("errorDeleteMessage")
+            }
+
+
+        } catch (error) {
+            console.error("Error loading message:", error);
+        }
+
+    })
+
+    //THU HOI TIN NHAN
+    socket.on("revokeMessage", async (data) => {
+        try {
+            const revokeMessage = await revokeMessageById(data.messageId);
+
+            if (revokeMessage) {
+                console.log("revoke mess id", revokeMessage, "\n receiver: ", revokeMessage.receiverId);
+                io.to(String(revokeMessage.receiverId)).emit("messageRevoked", { ...revokeMessage, status: true });
+            } else {
+                console.log("error: revoke message is not exist");
+                socket.emit("errorRevokeMessage")
+            }
+
+
+        } catch (error) {
+            console.error("Error loading message:", error);
+        }
+
+    })
+
+
+    //NGAT KET NOI 
     socket.on("disconnect", () => {
         console.log("A user " + socket.id + " disconnected!");
         socket.emit("getUsers", _userOnlines);

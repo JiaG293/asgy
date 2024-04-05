@@ -49,20 +49,6 @@ const updateInformationProfile = async (req) => {
     const clientId = req.headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
 
-
-    //KHONG DUNG TRANSACTION
-    /* const filter = { userId: userId }
-    const update = {
-        userId, fullName, avatar, gender, info, birthday, phoneNumber
-    }
-    const options = { upsert: false, new: true }
-
-    const profileUpdate = await ProfileModel.findOneAndUpdate(filter, update, options)
-
-    await FriendModel.updateMany({ profileFriendId: userId },{ $set: { 'profileFriend.$': update } },, options);
-
-    return profileUpdate; */
-
     //AP DUNG TRANSACTION
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -171,7 +157,7 @@ const sendFriendRequest = async (req) => {
     const { profileIdReceive } = req.body
 
     //1. Kiem tra trung nhau 
-    if( decodeToken.profileId === profileIdReceive){
+    if (decodeToken.profileId === profileIdReceive) {
         throw new ConflictRequestError("Do not request to yourself")
     }
 

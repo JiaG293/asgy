@@ -5,6 +5,7 @@ const { UnauthorizeError, BadRequestError } = require("../utils/responses/error.
 const socketService = require("./socket1.service");
 const mongoose = require("mongoose");
 const { findProfileById } = require("./profile.service");
+const { removeTokenById } = require("./keyToken.service");
 
 const accessChat = async (chat) => {
     const { userId } = await chat;
@@ -248,19 +249,34 @@ const loadMessagesHistory = async ({ senderId, oldMessageId, receiverId }) => {
             }
         }
     ])
-
-
-
-
-
 }
 
+const deleteMessageById = async (messageId) => {
+    const deleteMessage = await MessageModel.findOneAndDelete({ _id: messageId }).lean()
+    return deleteMessage
+}
+
+const revokeMessageById = async (messageId) => {
+    const revokeMessage = await MessageModel.findOneAndUpdate(
+        { _id: messageId, },
+        {
+            $set: {
+                messageContent: "Tin nhắn đã được thu hồi",
+                typeContent: "revoke"
+            }
+        },
+        { new: true, }).lean()
+    return revokeMessage
+}
 
 
 module.exports = {
     accessChat,
     sendMessage,
     loadMessagesHistory,
+    deleteMessageById,
+    removeTokenById,
+    revokeMessageById,
 
 
 }
