@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { setChannel } from "../../redux/action";
 import statusCode from "utils/statusCode";
 import { IOaddChannel, IOaddUser, IOsendMessage } from "socket/socket";
-import io from "socket.io-client";
 
 function ListMess({ onSelectMessage }) {
   const dispatch = useDispatch();
@@ -53,7 +52,7 @@ function ListMess({ onSelectMessage }) {
     const clientId = decodedToken.clientId;
     const channelId = channel._id;
     const members = channel.members;
-  
+
     for (const member of members) {
       const receiverId =
         member.profileId !== profileId ? member.profileId : null;
@@ -62,19 +61,16 @@ function ListMess({ onSelectMessage }) {
         await IOaddChannel(profileId, refreshToken, clientId, channelId);
       }
     }
-
-    IOsendMessage(profileId,channelId,"text","hiiii")
-    console.log(profileId,channelId,"text","hiii");
-
+    IOsendMessage(profileId, channelId, "text", "hiiii");
   };
-  
 
   useEffect(() => {
     getListChannels();
     if (profileId != undefined && profileId != null) {
-      IOaddUser(profileId, channelList);
+      const channelIds = channelList.map((channel) => channel._id);
+      IOaddUser(profileId, channelIds);
     }
-  }, [profileId]);
+  }, []);
 
   return (
     <div className="listmess-chat-panel">
