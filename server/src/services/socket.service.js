@@ -11,6 +11,7 @@ const { URL_CLIENT_WEB } = process.env;
 let io = new Server({
     cors: {
         origin: URL_CLIENT_WEB,
+        allowedHeaders: ["x-client-id"],
         credentials: true,
     },
 });

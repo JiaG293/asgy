@@ -1,7 +1,8 @@
 const { findFriendByNameRegex } = require('../services/friend.service');
 const { getInformationProfile, updateInformationProfile, findProfileByRegex, getListFriendsPublic, getListFriendsPrivate, findProfilePublic } = require('../services/profile.service');
 const { CREATED, SuccessResponse } = require('../utils/responses/success.response');
-const { sendFriendRequest, acceptFriendRequest } = require('../services/friend.service');
+// const { sendFriendRequest, acceptFriendRequest } = require('../services/friend.service');
+const { sendFriendRequest, acceptFriendRequest } = require('../services/profile.service');
 
 const HEADER = {
     API_KEY: 'x-api-key',

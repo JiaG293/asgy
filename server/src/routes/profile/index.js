@@ -31,4 +31,5 @@ router.route('/send-request').post(catchAsync(sendFriendRequest));
 router.route('/accept-request').post(catchAsync(acceptFriendRequest));
 
 
+
 module.exports = router;

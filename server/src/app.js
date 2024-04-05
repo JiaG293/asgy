@@ -17,11 +17,11 @@ require('./dbs/init.mongodb')
 
 //CORS 
 const cors = require("cors");
-app.use(cors({
+app.use(cors(/* {
     origin: [`http://localhost:` + PORT, 'http://localhost:8085', 'http://localhost:5000'],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
-}))
+} */))
 
 
 //SOCKET.IO

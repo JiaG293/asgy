@@ -2,13 +2,22 @@ const ProfileModel = require('../models/profile.model')
 const FriendModel = require('../models/friend.model');
 const { BadRequestError, ConflictRequestError } = require('../utils/responses/error.response');
 const mongoose = require('mongoose');
+const { decodeTokens } = require('../auth/authUtils');
+
+const HEADER = {
+    API_KEY: 'x-api-key',
+    AUTHORIZATION: 'authorization',
+    X_CLIENT_ID: 'x-client-id',
+}
 
 //GUI YEU CAU KET BAN
 const sendFriendRequest = async (req) => {
 
-    const { authorization } = await headers;
-    const clientId = await headers[HEADER.X_CLIENT_ID]
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
+
+    const { profileIdSend, profileIdReceive } = req.body
 
     //1. Kiem tra yeu cau ton tai hay chua 
     const requestExists = await FriendModel.findOne({ profileId: decodeToken.profileId, 'profileFriend.profileFriendId': profileIdReceive });
@@ -43,7 +52,11 @@ const sendFriendRequest = async (req) => {
 }
 
 //CHAP NHAN KET BAN
-const acceptFriendRequest = async ({ profileIdReceive, profileIdSend }) => {
+const acceptFriendRequest = async (req) => {
+    //temp
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
 
     //KHONG DUNG TRANSACTION
 
@@ -73,8 +86,10 @@ const acceptFriendRequest = async ({ profileIdReceive, profileIdSend }) => {
     //4. Them phan thong bao 
     return true */
 
+    const { profileIdReceive, profileIdSend } = req.body
 
     //DUNG TRANSACTION
+    console.log("profileID send ", profileIdSend, "\n profileID receive ", profileIdReceive);
 
     //1. Lay ra yeu cau ket ban
     const friendRequest = await FriendModel.findOne({ profileId: profileIdSend, 'profileFriend.profileFriendId': profileIdReceive })
@@ -96,14 +111,27 @@ const acceptFriendRequest = async ({ profileIdReceive, profileIdSend }) => {
         //2. Tao quan he ban be giua 2 nguoi dung 
         await ProfileModel.findOneAndUpdate(
             { _id: profileIdSend },
-            { $addToSet: { friends: profileIdReceive } },  //Dua du lieu moi vao trong mang va khong bi trung lap
+            {
+                $addToSet: {
+                    friends: {
+                        profileId: profileIdReceive,
+                        friendDated: Date.now()
+                    }
+                }
+            },  //Dua du lieu moi vao trong mang va khong bi trung lap
             { new: true }
         ).session(session);
 
-
         await ProfileModel.findOneAndUpdate(
             { _id: profileIdReceive },
-            { $addToSet: { friends: profileIdSend } },  //Dua du lieu moi vao trong mang va khong bi trung lap
+            {
+                $addToSet: {
+                    friends: {
+                        profileId: profileIdSend,
+                        friendDated: Date.now()
+                    }
+                }
+            },  //Dua du lieu moi vao trong mang va khong bi trung lap
             { new: true }
         ).session(session);
 
@@ -120,7 +148,6 @@ const acceptFriendRequest = async ({ profileIdReceive, profileIdSend }) => {
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
-        console.error(error);
         throw new BadRequestError('Error accepting friend request');
     }
 

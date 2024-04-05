@@ -46,9 +46,10 @@ const profileSchema = new mongoose.Schema({
     ],
     friends: [
         {
-            profileId: {
+            profileIdFriend: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Profile',
+                require: true,
             },
             friendDated: {
                 type: Date,
@@ -56,7 +57,34 @@ const profileSchema = new mongoose.Schema({
             isBlocked: {
                 type: Boolean,
                 default: false,
-            }
+            },
+            _id: false,
+        }
+    ],
+    friendsRequest: [
+        {
+            profileIdRequest: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Profile',
+                required: true,
+            },
+            RequestDated: {
+                type: Date,
+            },
+            _id: false,
+        }
+    ],
+    listBlocked: [
+        {
+            profileIdBlock: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Profile',
+                require: true,
+            },
+            blockDated: {
+                type: Date
+            },
+            _id: false,
         }
     ]
 

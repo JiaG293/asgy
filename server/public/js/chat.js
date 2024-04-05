@@ -1,4 +1,11 @@
-const socket = io();
+//Dung headers khi xac thuc thong tin
+const socket = io(/* {
+    withCredentials: true,
+    extraHeaders: {
+        "x-client-id": sessionStorage.getItem('clientId'),
+        "authorization": sessionStorage.getItem('accessToken')
+    }
+} */); 
 var storageListMessage = []
 
 

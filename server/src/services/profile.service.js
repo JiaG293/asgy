@@ -1,6 +1,6 @@
 const ProfileModel = require('../models/profile.model')
 const FriendModel = require('../models/friend.model');
-const { BadRequestError } = require('../utils/responses/error.response');
+const { BadRequestError, ConflictRequestError } = require('../utils/responses/error.response');
 const mongoose = require('mongoose');
 const { decodeTokens } = require('../auth/authUtils');
 const { deleteFileS3 } = require('./s3.service');
@@ -35,7 +35,7 @@ const getInformationProfile = async (headers) => {
     const decodeToken = await decodeTokens(clientId, authorization);
 
     //find profile by _id profile
-    const infoProfile = await ProfileModel.findOne({_id: decodeToken.profileId}).select('-createdAt -updatedAt -listChannels')
+    const infoProfile = await ProfileModel.findOne({ _id: decodeToken.profileId }).select('-createdAt -updatedAt -listChannels')
     if (!infoProfile) {
         throw new BadRequestError('User for profile not found');
     }
@@ -68,11 +68,10 @@ const updateInformationProfile = async (req) => {
     session.startTransaction();
 
     try {
-        
+
         const update = {};
         const user = await findProfileByUserId(decodeToken.userId)
         if (fullName !== undefined) update.fullName = fullName;
-        console.log(req.file);
 
         if (req?.file?.location !== undefined) {
             await deleteFileS3(user.avatar)
@@ -163,6 +162,148 @@ const getListFriendsPrivate = async (req) => {
 }
 
 
+//GUI YEU CAU KET BAN
+const sendFriendRequest = async (req) => {
+
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
+    const { profileIdReceive } = req.body
+
+    //1. Kiem tra trung nhau 
+    if( decodeToken.profileId === profileIdReceive){
+        throw new ConflictRequestError("Do not request to yourself")
+    }
+
+    //2. Kiem tra yeu cau ket ban co ton tai hay khong
+    const requestExists = await ProfileModel.findOne({ _id: decodeToken.profileId, friendsRequest: { $elemMatch: { profileIdRequest: profileIdReceive } } }).lean()
+
+    if (requestExists) {
+        throw new ConflictRequestError('Request make friend is exists')
+    }
+
+    //3. kiem tra profile id muon ket ban co ton tai khong
+    const getDataProfile = await ProfileModel.findOne({ _id: profileIdReceive }).select('-_id birthday gender fullName info avatar').lean()
+
+    if (!getDataProfile) {
+        throw new BadRequestError("Not found profile request")
+    }
+    // 3. Tao yeu cau ket ban neu chua ton tai
+    const newFriendRequest = await ProfileModel.findOneAndUpdate(
+        {
+            _id: profileIdReceive,
+            'friendsRequest.profileIdRequest': { $ne: decodeToken.profileId }
+        },
+        {
+            $addToSet: {
+                friendsRequest: {
+                    profileIdRequest: decodeToken.profileId,
+                    RequestDated: new Date()
+                }
+            }
+        },
+        { new: true }
+    )
+
+    if (!newFriendRequest) {
+        throw new ConflictRequestError("Friend request exists")
+    }
+
+    //5. Them phan tao thong bao 
+
+
+    return newFriendRequest
+}
+
+//CHAP NHAN KET BAN
+const acceptFriendRequest = async (req) => {
+    //temp
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
+
+    const { profileIdSend } = req.body
+
+    //DUNG TRANSACTION
+    console.log("profileID send ", profileIdSend);
+
+    //1. Lay ra yeu cau ket ban
+    const friendRequest = await ProfileModel.findOne({
+        _id: decodeToken.profileId,
+        'friendsRequest': { $elemMatch: { profileIdRequest: profileIdSend } }
+    })
+
+    if (!friendRequest) {
+        throw new BadRequestError('Friend request not found');
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        const datedNow = Date.now();
+
+        console.log("1. xoa yeu cau ket ban o hang doi");
+        //xoa yeu cau ket ban o hang doi
+        await ProfileModel.findOneAndUpdate(
+            { _id: decodeToken.profileId },
+            {
+                $pull: {
+                    friendsRequest: {
+                        profileIdRequest: profileIdSend
+                    }
+                }
+            },
+            { new: true }
+        ).session(session);
+
+        console.log("2. them friend danh cho nguoi chap nhan ket ban");
+        //them friend danh cho nguoi chap nhan ket ban
+        await ProfileModel.findOneAndUpdate(
+            { _id: decodeToken.profileId },
+            {
+                $addToSet: {
+                    friends: {
+                        profileIdFriend: profileIdSend,
+                        friendDated: datedNow
+                    }
+                }
+            },  //Dua du lieu moi vao trong mang va khong bi trung lap
+            { new: true }
+        ).session(session);
+
+        console.log("3. them friend danh cho nguoi gui ket ban");
+        //them friend danh cho nguoi gui ket ban
+        await ProfileModel.findOneAndUpdate(
+            { _id: profileIdSend },
+            {
+                $addToSet: {
+                    friends: {
+                        profileIdFriend: decodeToken.profileId,
+                        friendDated: datedNow
+                    }
+                }
+            },
+            { new: true }
+        ).session(session);
+
+        // Commit transaction nếu không có lỗi xảy ra
+        await session.commitTransaction();
+        session.endSession();
+
+        //4. Them phan thong bao 
+
+        return true;
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        throw new BadRequestError('Error accepting friend request');
+    }
+
+}
+
+
+
 const findByPhoneNumber = async ({ phoneNumber }) => {
     return await ProfileModel.findOne({ phoneNumber: phoneNumber }).lean()
 }
@@ -249,6 +390,11 @@ module.exports = {
     getListFriendsPublic,
     getListFriendsPrivate,
     findProfilePublic,
-    findProfileByRegexString
+    findProfileByRegexString,
+
+
+    //test
+    sendFriendRequest,
+    acceptFriendRequest,
 
 }
