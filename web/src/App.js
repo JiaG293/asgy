@@ -4,7 +4,6 @@ import { ToastContainer } from "react-toastify";
 import { publicRoutes, privateRoutes } from "./routes";
 import "react-toastify/dist/ReactToastify.css";
 import "components/CustomToastify.scss";
-import Cookies from "js-cookie";
 
 function App() {
   const navigate = useNavigate();
@@ -14,6 +13,9 @@ function App() {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
+    }
+    else{
+      navigate("/home");
     }
   }, [isAuthenticated, navigate]);
 

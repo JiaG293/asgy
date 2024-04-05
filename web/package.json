@@ -10,6 +10,7 @@
     "axios": "^1.6.7",
     "clsx": "^2.1.0",
     "customize-cra": "^1.0.0",
+    "esm": "^3.2.25",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^3.1.2",
     "nodemon": "^3.1.0",
@@ -36,7 +37,7 @@
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
-    "socket":"nodemon src/socket/socket.js"
+    "socket": "nodemon src/socket/socket.js"
   },
   "eslintConfig": {
     "extends": [
