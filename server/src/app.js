@@ -32,13 +32,18 @@ socketService.io.attach(server); */
 //middleware for client
 app.use(helmet()) //che dau cong nghe su dung phia back end x-powered-by
 
+
+
+// Neu khong ton tai duong dan se tao ra thu muc 
+const logDirectory = path.join(__dirname, '/log');
+if (!fs.existsSync(logDirectory)) {
+    fs.mkdirSync(logDirectory);
+}
 const accessLogStream = fs.createWriteStream(
-    path.join(
-        __dirname,
-        '/log/access.log'
-    ),
+    path.join(logDirectory, 'access.log'),
     { flags: 'a' }
-)
+);
+
 
 
 app.use(morgan(
