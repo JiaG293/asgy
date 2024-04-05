@@ -1,9 +1,7 @@
 const { Server } = require("socket.io");
-const uuid = require("uuid");
 const { sendMessage, loadMessagesHistory, deleteMessageById, revokeMessageById } = require("./chat.service");
 const MessageModel = require("../models/message.model");
-const { message } = require("../controllers/socket.controller");
-const { findProfileById } = require("./profile.service");
+const { authentication } = require("../auth/authUtils");
 require("dotenv").config();
 
 const { URL_CLIENT_WEB } = process.env;
@@ -12,6 +10,7 @@ let io = new Server({
     cors: {
         origin: URL_CLIENT_WEB,
         allowedHeaders: ["x-client-id"],
+        allowedHeaders: ["authorization"],
         credentials: true,
     },
 });
@@ -37,7 +36,6 @@ const addUserSocket = async (data, socket) => {
         })
     }
 };
-
 
 io.on("connection", (socket) => {
     global._io = socket;
@@ -194,12 +192,9 @@ io.on("connection", (socket) => {
                 console.log("error: delete message is not exist");
                 socket.emit("errorDeleteMessage")
             }
-
-
         } catch (error) {
             console.error("Error loading message:", error);
         }
-
     })
 
     //THU HOI TIN NHAN

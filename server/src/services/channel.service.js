@@ -18,11 +18,33 @@ const getListChannels = async (headers) => {
     const { authorization } = await headers;
     const clientId = await headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
-    const listChannels = await ProfileModel.findOne({ _id: decodeToken.profileId }).select('listChannels').populate('listChannels').lean();
+    const listChannels = await ProfileModel.findOne({ _id: decodeToken.profileId }).select('listChannels').populate('listChannels').lean()
+
     if (!listChannels) {
-        throw new BadRequestError('User not existed');
+        throw new BadRequestError('Profile not existed');
     }
     return listChannels
+}
+
+const getDetailsChannel = async (req) => {
+
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
+
+    const { channelId } = req.body;
+    const channel = await ChannelModel.findOne({ _id: channelId }).populate({
+        path: 'members.profileId',
+        select: '_id fullName avatar '
+    }).populate({
+        path: 'owner',
+        select: '_id fullName avatar '
+    }).lean()
+
+    if (!channel) {
+        throw new BadRequestError('Channel not existed');
+    }
+    return channel
 }
 
 const checkChannelSingleExists = async ({ members, typeChannel }) => {
@@ -41,11 +63,11 @@ const checkChannelSingleExists = async ({ members, typeChannel }) => {
 const createSingleChat = async (req) => {
     const { receiverId, typeChannel, name } = await req.body
     const authorization = await req.headers[HEADER.AUTHORIZATION]
-    const xClientId = await req.headers[HEADER.X_CLIENT_ID]
+    const cliendId = await req.headers[HEADER.X_CLIENT_ID]
     if (!authorization) {
         throw new BadRequestError('Invalid authorization header')
     }
-    const { clientId, userId, profileId } = await decodeTokens(xClientId, authorization)
+    const { profileId } = await decodeTokens(cliendId, authorization)
     const members = await [profileId, receiverId]
 
     //1. kiem tra loai channel de tao
@@ -54,7 +76,7 @@ const createSingleChat = async (req) => {
      200 la private | 102 la public group | 202 la private group
      999 la cloud luu tru ca nhan | 998 dich vu bot, khach hang, tin nhan tu dong  
      */
-    if (Number(typeChannel) != 101 && Number(typeChannel) != 201) {
+    if (Number(typeChannel) != 101 && Number(typeChannel) != 102) {
         throw new BadRequestError("Invalid type channel 101 public 1-1 | 102 private 1-1")
     }
 
@@ -63,14 +85,19 @@ const createSingleChat = async (req) => {
 
     //3. tao channel khi da du dieu kien
     // console.log(dataMembers);
-    const newSingleChannel = await ChannelModel.create({
-        name, members: members.map(member => {
-            return {
-                profileId: member,
-                joinedDate: Date.now()
-            }
-        }), typeChannel
-    })
+    const update = {};
+    const profileRequest = await ProfileModel.findById(receiverId).lean();
+    if (name !== undefined) update.name = profileRequest.fullName
+    const newSingleChannel = await ChannelModel.create(
+        {
+            name: update.name,
+            members: members.map(member => {
+                return {
+                    profileId: member,
+                    joinedDate: Date.now()
+                }
+            }), typeChannel
+        })
 
     await newSingleChannel.members.map(async (member) => {
         const filter = { _id: member.profileId }
@@ -82,50 +109,48 @@ const createSingleChat = async (req) => {
     return newSingleChannel;
 }
 
-const createChannelChat = async (req) => {
-    const { members, typeChannel, name } = await req.body
-    const authorization = await req.headers[HEADER.AUTHORIZATION]
-    const xClientId = await req.headers[HEADER.X_CLIENT_ID]
+const createGroupChat = async (req) => {
+    const { members, typeChannel, name } = req.body
+    const authorization = req.headers[HEADER.AUTHORIZATION]
+    const cliendId = req.headers[HEADER.X_CLIENT_ID]
     if (!authorization) {
         throw new BadRequestError('Invalid authorization header')
     }
 
-    const { clientId, userId, profileId } = await decodeTokens(xClientId, authorization)
+    const { profileId } = await decodeTokens(cliendId, authorization)
 
-    //1. check members trong danh sach tao co trung voi owner khong
-    await members.filter((member, index) => {
-        if (member == profileId) {
-            members.splice(index, 1) // xoa phan tu thu [index] trong mang khi trung 
-            console.log("Member duplicate with owner");
-        }
-    })
 
+
+
+    await members.push(profileId)
+
+
+    if (members.length > 3) {
+        throw new BadRequestError('Members must have at least 3 members')
+    }
     //2. kiem tra loai channel de tao
     /*
      100 la public | 101 la public 1-1 | 201 la private 1-1
      200 la private | 102 la public group | 202 la private group
      999 la cloud luu tru ca nhan | 998 dich vu bot, khach hang, tin nhan tu dong  
      */
-    if (Number(typeChannel) != 101 && Number(typeChannel) != 201) {
-        throw new BadRequestError("Invalid type channel 101 public 1-1 | 102 private 1-1")
+    if (Number(typeChannel) == 201 && Number(typeChannel) == 202) {
+        throw new BadRequestError("Invalid type channel 201 public 1-1 | 202 private 1-1")
     }
-
-    //3. kiem tra channel 1-1 ton tai khi da tao
-    const channelExist = await checkChannelSingleExists({ owner: profileId, members, typeChannel })
 
     //4. tao channel khi da du dieu kien
     // console.log(dataMembers);
+    const datedNow = Date.now()
 
-    const newSingleChannel = await ChannelModel.create({
+    const newGroupChat = await ChannelModel.create({
         owner: profileId, name, members: members.map(member => {
             return {
                 profileId: member,
-                joinedDate: Date.now()
+                joinedDate: datedNow
             }
         }), typeChannel
     })
-    console.log(a);
-    return a;
+    return newGroupChat;
 
 
 }
@@ -135,6 +160,7 @@ module.exports = {
     findChannelByUserId,
     checkChannelSingleExists,
     getListChannels,
-    createChannelChat,
+    createGroupChat,
+    getDetailsChannel,
 
 }

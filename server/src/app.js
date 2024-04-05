@@ -89,7 +89,7 @@ app.use('/', express.static('public/html'));
 app.use('/', require('./routes/'))
 
 
-// xu li loi ma code
+// xu li loi truy cap route invalid
 app.use((req, res, next) => {
     const error = new Error("Not found");
     error.status = 404;
