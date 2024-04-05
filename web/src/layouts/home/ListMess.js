@@ -7,25 +7,13 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { setChannel } from "../../redux/action";
 import statusCode from "utils/statusCode";
-import { IOaddUser } from "socket/socket";
+import { IOaddChannel, IOaddUser, IOsendMessage } from "socket/socket";
 import io from "socket.io-client";
 
 function ListMess({ onSelectMessage }) {
   const dispatch = useDispatch();
   const channelList = useSelector((state) => state.channelList);
   const [profileId, setProfileId] = useState(null);
-
-  useEffect(() => {
-    getListChannels();
-    const serverUrl = "http://localhost:5000";
-    const socket = io(serverUrl, {
-      withCredentials: true,
-    });
-
-    socket.on("connect", () => {
-      console.log("Connected to server");
-    });
-  }, []);
 
   const getListChannels = async () => {
     try {
@@ -34,7 +22,6 @@ function ListMess({ onSelectMessage }) {
         console.error("refreshToken không tồn tại");
         return;
       }
-
       const decodedToken = jwtDecode(refreshToken);
       const clientID = decodedToken.clientId;
       const headers = {
@@ -48,8 +35,9 @@ function ListMess({ onSelectMessage }) {
       );
 
       if (response.status === statusCode.OK) {
-        const { listChannels, _id: profileId } = response.data.metadata;
-        setProfileId(profileId);
+        const listChannels = response.data.metadata.listChannels;
+        const id = response.data.metadata._id;
+        setProfileId(id);
         dispatch(setChannel(listChannels));
       } else {
         console.error("Lỗi khi lấy thông tin người dùng");
@@ -59,11 +47,34 @@ function ListMess({ onSelectMessage }) {
     }
   };
 
-  const handleSelectConversation = (channel) => {
+  const handleSelectConversation = async (channel) => {
+    const refreshToken = Cookies.get("refreshToken");
+    const decodedToken = jwtDecode(refreshToken);
+    const clientId = decodedToken.clientId;
     const channelId = channel._id;
-    onSelectMessage(channelId);
-    IOaddUser(profileId, channelId);
+    const members = channel.members;
+  
+    for (const member of members) {
+      const receiverId =
+        member.profileId !== profileId ? member.profileId : null;
+      if (receiverId !== null) {
+        console.log(receiverId);
+        await IOaddChannel(profileId, refreshToken, clientId, channelId);
+      }
+    }
+
+    IOsendMessage(profileId,channelId,"text","hiiii")
+    console.log(profileId,channelId,"text","hiii");
+
   };
+  
+
+  useEffect(() => {
+    getListChannels();
+    if (profileId != undefined && profileId != null) {
+      IOaddUser(profileId, channelList);
+    }
+  }, [profileId]);
 
   return (
     <div className="listmess-chat-panel">

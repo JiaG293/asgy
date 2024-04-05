@@ -1,12 +1,14 @@
-const io = require('socket.io-client');
-const axios = require('axios');
+import axios from "axios";
+
+const io = require("socket.io-client");
 
 const serverUrl = "http://localhost:5000";
-const socket = io(serverUrl);
+const socket = io(serverUrl, {
+  withCredentials: true,
+});
 
 socket.on("connect", () => {
   console.log("Connected to server");
-  //run();
 });
 
 socket.on("getMessage", (data) => {
@@ -17,7 +19,12 @@ socket.on("disconnect", () => {
   console.log("Disconnected from server");
 });
 
-export const IOsendMessage = (senderId, receiverId, typeContent, messageContent) => { 
+export const IOsendMessage = (
+  senderId,
+  receiverId,// ở đây là channel Id
+  typeContent,
+  messageContent
+) => {
   socket.emit("sendMessage", {
     senderId,
     receiverId,
@@ -26,7 +33,7 @@ export const IOsendMessage = (senderId, receiverId, typeContent, messageContent)
   });
 };
 
-export const fetchData = async (refreshToken, clientID) => { 
+export const fetchData = async (refreshToken, clientID) => {
   try {
     const headers = {
       "x-client-id": clientID,
@@ -49,10 +56,14 @@ export const fetchData = async (refreshToken, clientID) => {
   }
 };
 
-export const IOaddChannel = async (senderId, refreshToken, clientID, receiverId) => {
+export const IOaddChannel = async (
+  senderId,
+  refreshToken,
+  clientID,
+  receiverId
+) => {
   try {
     const channels = await fetchData(refreshToken, clientID);
-
     if (channels && channels.length > 0) {
       channels.forEach((channel) => {
         socket.emit("addChannel", {
@@ -73,11 +84,11 @@ export const IOloadChannels = (userId) => {
   socket.emit("loadChannels", userId);
 };
 
-export const IOaddUser = (userId, channels) => { 
+export const IOaddUser = (userId, channels) => {
   socket.emit("addUser", { userId, channels });
 };
 
-// chạy npm run socket để test
+// // chạy npm run socket để test nhớ xóa
 // async function run() {
 //   const senderId = "660bff9373d47c8fb7682b9c";
 //   const clientID = "660e428cb09c0ae1561f39cc";
@@ -88,10 +99,9 @@ export const IOaddUser = (userId, channels) => {
 //   const typeContent = "text";
 //   const messageContent = "Hello from asgy";
 
-//   await addChannel(senderId, refreshToken, clientID, receiverId);
-//   addUser(senderId, channelId);
-//   sendMessage(senderId, channelId, typeContent, messageContent);
-//   loadChannels(senderId);
+//   await IOaddChannel(senderId, refreshToken, clientID, receiverId);
+//   IOaddUser(senderId, channelId);
+//   IOsendMessage(senderId, channelId, typeContent, messageContent);
+//   console.log("=================LOAD====================");
+//   IOloadChannels(senderId);
 // }
-
-

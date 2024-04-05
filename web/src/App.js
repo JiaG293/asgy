@@ -9,7 +9,6 @@ function App() {
   const navigate = useNavigate();
   //tạm thời chứ không bảo mật
   const isAuthenticated = localStorage.getItem("isAuthenticated");
-  console.log(isAuthenticated);
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
