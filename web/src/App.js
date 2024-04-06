@@ -4,11 +4,12 @@ import { ToastContainer } from "react-toastify";
 import { publicRoutes, privateRoutes } from "./routes";
 import "react-toastify/dist/ReactToastify.css";
 import "components/CustomToastify.scss";
+import Cookies from "js-cookie";
 
 function App() {
   const navigate = useNavigate();
   //tạm thời chứ không bảo mật
-  const isAuthenticated = localStorage.getItem("isAuthenticated");
+  const isAuthenticated = Cookies.get('refreshToken');
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");

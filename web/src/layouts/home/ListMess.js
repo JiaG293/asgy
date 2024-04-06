@@ -5,31 +5,29 @@ import Cookies from "js-cookie";
 import jwtDecode from "jwt-decode";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { setChannel } from "../../redux/action";
+import { setChannels, setMessages } from "../../redux/action";
 import statusCode from "utils/statusCode";
-import { IOaddChannel, IOaddUser, IOsendMessage } from "socket/socket";
+import { IOaddUser, IOgetListMessages, IOloadMessages } from "socket/socket";
+import endpointAPI from "api/endpointAPI";
 
-function ListMess({ onSelectMessage }) {
+function ListMess() {
   const dispatch = useDispatch();
   const channelList = useSelector((state) => state.channelList);
   const [profileId, setProfileId] = useState(null);
+  const refreshToken = Cookies.get("refreshToken");
+  const decodedToken = jwtDecode(refreshToken);
+  const clientID = decodedToken.clientId;
+  let messagesStorage = [];
 
   const getListChannels = async () => {
     try {
-      const refreshToken = Cookies.get("refreshToken");
-      if (!refreshToken) {
-        console.error("refreshToken không tồn tại");
-        return;
-      }
-      const decodedToken = jwtDecode(refreshToken);
-      const clientID = decodedToken.clientId;
       const headers = {
         "x-client-id": clientID,
         authorization: refreshToken,
       };
 
       const response = await axios.get(
-        "http://localhost:5000/api/v1/chats/channels",
+        endpointAPI.getListChannels,
         { headers }
       );
 
@@ -37,7 +35,7 @@ function ListMess({ onSelectMessage }) {
         const listChannels = response.data.metadata.listChannels;
         const id = response.data.metadata._id;
         setProfileId(id);
-        dispatch(setChannel(listChannels));
+        dispatch(setChannels(listChannels));
       } else {
         console.error("Lỗi khi lấy thông tin người dùng");
       }
@@ -47,21 +45,10 @@ function ListMess({ onSelectMessage }) {
   };
 
   const handleSelectConversation = async (channel) => {
-    const refreshToken = Cookies.get("refreshToken");
-    const decodedToken = jwtDecode(refreshToken);
-    const clientId = decodedToken.clientId;
     const channelId = channel._id;
-    const members = channel.members;
-
-    for (const member of members) {
-      const receiverId =
-        member.profileId !== profileId ? member.profileId : null;
-      if (receiverId !== null) {
-        console.log(receiverId);
-        await IOaddChannel(profileId, refreshToken, clientId, channelId);
-      }
-    }
-    IOsendMessage(profileId, channelId, "text", "hiiii");
+    IOloadMessages(profileId);
+    IOgetListMessages(channelId, messagesStorage);
+    dispatch(setMessages(messagesStorage));
   };
 
   useEffect(() => {
@@ -70,7 +57,7 @@ function ListMess({ onSelectMessage }) {
       const channelIds = channelList.map((channel) => channel._id);
       IOaddUser(profileId, channelIds);
     }
-  }, []);
+  }, [profileId]);
 
   return (
     <div className="listmess-chat-panel">

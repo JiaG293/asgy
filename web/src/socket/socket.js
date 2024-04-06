@@ -21,7 +21,7 @@ socket.on("disconnect", () => {
 
 export const IOsendMessage = (
   senderId,
-  receiverId,// ở đây là channel Id
+  receiverId, // ở đây là channel Id
   typeContent,
   messageContent
 ) => {
@@ -33,52 +33,53 @@ export const IOsendMessage = (
   });
 };
 
-export const fetchData = async (refreshToken, clientID) => {
-  try {
-    const headers = {
-      "x-client-id": clientID,
-      authorization: refreshToken,
-    };
-    const response = await axios.get(
-      "http://localhost:5000/api/v1/chats/channels",
-      {
-        headers,
-      }
-    );
-    if (response.status === 200) {
-      const channelList = response.data.metadata.listChannels;
-      return channelList;
-    } else {
-      console.error("Lỗi khi lấy thông tin người dùng");
-    }
-  } catch (error) {
-    console.error("Lỗi khi lấy thông tin người dùng:", error);
-  }
-};
+// export const fetchData = async (refreshToken, clientID) => {
+//   try {
+//     const headers = {
+//       "x-client-id": clientID,
+//       "authorization": refreshToken,
+//     };
+//     const response = await axios.get(
+//       "http://localhost:5000/api/v1/chats/channels",
+//       {
+//         headers,
+//       }
+//     );
+//     if (response.status === 200) {
+//       const channelList = response.data.metadata.listChannels;
+//       return channelList;
+//     } else {
+//       console.error("Lỗi khi lấy thông tin người dùng");
+//     }
+//   } catch (error) {
+//     console.error("Lỗi khi lấy thông tin người dùng:", error);
+//   }
+// };
 
-export const IOaddChannel = async (
-  senderId,
-  refreshToken,
-  clientID,
-  receiverId
-) => {
-  try {
-    const channels = await fetchData(refreshToken, clientID);
-    if (channels && channels.length > 0) {
-      channels.forEach((channel) => {
-        socket.emit("addChannel", {
-          senderId,
-          channelId: channel._id,
-          receiverId,
-        });
-      });
-    } else {
-      console.error("No channels found.");
-    }
-  } catch (error) {
-    console.error("Error adding channel:", error);
-  }
-};
+// export const IOaddChannel = async (
+//   senderId,
+//   refreshToken,
+//   clientID,
+//   receiverId,
+//   fetchData
+// ) => {
+//   try {
+//     const channels = await fetchData(refreshToken, clientID);
+//     if (channels && channels.length > 0) {
+//       channels.forEach((channel) => {
+//         socket.emit("addChannel", {
+//           senderId,
+//           channelId: channel._id,
+//           receiverId,
+//         });
+//       });
+//     } else {
+//       console.error("No channels found.");
+//     }
+//   } catch (error) {
+//     console.error("Error adding channel:", error);
+//   }
+// };
 
 export const IOloadChannels = (userId) => {
   socket.emit("loadChannels", userId);
@@ -86,6 +87,40 @@ export const IOloadChannels = (userId) => {
 
 export const IOaddUser = (userId, channels) => {
   socket.emit("addUser", { userId, channels });
+};
+
+export const IOloadMessages = (senderId) => {
+  socket.emit("loadMessages", {
+    senderId: senderId,
+  });
+};
+
+export const IOgetListMessages = (channelId, messagesStorage) => {
+  socket.off("getMessages");
+  messagesStorage.splice(0, messagesStorage.length);
+  const messageHandler = (data) => {
+    data.messages.forEach((message) => {
+      const {
+        senderId,
+        messageContent,
+        receiverId,
+        createdAt,
+        updatedAt,
+        _id,
+      } = message;
+      if (receiverId === channelId) {
+        console.log(`Message ID: ${_id}`);
+        console.log(`Sender ID: ${senderId._id}`);
+        console.log(`Receiver ID: ${receiverId}`);
+        console.log(`Message Content: ${messageContent}`);
+        console.log(`Created At: ${createdAt}`);
+        console.log(`Updated At: ${updatedAt}`);
+        console.log("-------------------");
+        messagesStorage.push(message);
+      }
+    });
+  };
+  socket.on("getMessages", messageHandler);
 };
 
 // // chạy npm run socket để test nhớ xóa

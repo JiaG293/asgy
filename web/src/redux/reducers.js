@@ -1,6 +1,12 @@
 // reducers.js
-import { combineReducers } from 'redux';
-import { SET_PROFILE, SET_USER, SET_AUTHENTICATED, SET_CHANNEL } from './actionTypes';
+import { combineReducers } from "redux";
+import {
+  SET_PROFILE,
+  SET_USER,
+  SET_AUTHENTICATED,
+  SET_CHANNELS,
+  SET_MESSAGES,
+} from "./actionTypes";
 
 const profileReducer = (state = null, action) => {
   switch (action.type) {
@@ -29,10 +35,19 @@ const userReducer = (state = null, action) => {
 //   }
 // };
 
-const channelsReducer = (state = [], action) => { // Thêm reducer cho SET_CHANNEL
+const channelsReducer = (state = [], action) => {
   switch (action.type) {
-    case SET_CHANNEL:
-      return action.payload; // Trả về payload mới cho trạng thái của kênh
+    case SET_CHANNELS:
+      return [...action.payload];
+    default:
+      return state;
+  }
+};
+
+const messagesReducer = (state = [], action) => {
+  switch (action.type) {
+    case SET_MESSAGES:
+      return [...action.payload];
     default:
       return state;
   }
@@ -41,9 +56,9 @@ const channelsReducer = (state = [], action) => { // Thêm reducer cho SET_CHANN
 const rootReducer = combineReducers({
   profile: profileReducer,
   user: userReducer,
-  // isAuthenticated: isAuthenticatedReducer, 
   channelList: channelsReducer,
+  messagesList: messagesReducer,
+  // isAuthenticated: isAuthenticatedReducer,
 });
 
 export default rootReducer;
-

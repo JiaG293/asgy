@@ -1,5 +1,5 @@
 // actions.js
-import { SET_PROFILE, SET_USER, SET_AUTHENTICATED, SET_CHANNEL } from './actionTypes';
+import { SET_PROFILE, SET_USER, SET_AUTHENTICATED, SET_CHANNELS, SET_MESSAGES } from './actionTypes';
 
 export const setProfile = (profile) => ({
   type: SET_PROFILE,
@@ -16,7 +16,12 @@ export const setUser = (user) => ({
 //   payload: isAuthenticated,
 // });
 
-export const setChannel = (channels) => ({ // Đổi tên thành channels
-  type: SET_CHANNEL,
+export const setChannels = (channels) => ({ // Đổi tên thành channels
+  type: SET_CHANNELS,
   payload: channels, // Sử dụng channels thay vì channel
+});
+
+export const setMessages = (messages) => ({ // Đổi tên thành channels
+  type: SET_MESSAGES,
+  payload: messages, // Sử dụng channels thay vì channel
 });
