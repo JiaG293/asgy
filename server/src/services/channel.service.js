@@ -18,7 +18,8 @@ const getListChannels = async (headers) => {
     const { authorization } = await headers;
     const clientId = await headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
-    const listChannels = await ProfileModel
+    //cach cu khong sua doi 
+    /* const listChannels = await ProfileModel
         .findOne({ _id: decodeToken.profileId })
         .select('listChannels')
         .populate({
@@ -33,7 +34,43 @@ const getListChannels = async (headers) => {
     if (!listChannels) {
         throw new BadRequestError('Profile not existed');
     }
-    return listChannels
+    return listChannels */
+    const profileId = decodeToken.profileId;
+    const profile = await ProfileModel
+        .findOne({ _id: profileId })
+        .select('listChannels')
+        .populate({
+            path: 'listChannels',
+            populate: {
+                path: 'members.profileId',
+                model: 'Profile',
+                select: '_id fullName avatar '
+            }
+        }).lean()
+    if (!profile) {
+        throw new BadRequestError('Profile not existed');
+    }
+
+    for (const channel of profile.listChannels) {
+        console.log("name channel neu ton tai: ", channel.name);
+        // kiem tra xem channel neu la 101 va 102 thi doi ten name Channel && NEU TRONG DAY DA CO TRUONG NAME ROI THI SE KHONG DOI TEN NUA
+        if ((channel.typeChannel === 101 || channel.typeChannel === 102) && !channel.name) {
+            let nameChannel = '';
+            for (const member of channel.members) {
+                if (member.profileId) {
+                    if (member.profileId._id.toString() !== profileId) {
+                        nameChannel = member.profileId.fullName;
+                        console.log("name channel duoc thay doi la:", nameChannel);
+                        break;
+                    }
+                }
+            }
+            //Cap nhat lai truong name
+            channel.name = nameChannel;
+        }
+    }
+
+    return profile.listChannels
 }
 
 const getDetailsChannel = async (req) => {
@@ -41,8 +78,18 @@ const getDetailsChannel = async (req) => {
     const { authorization } = req.headers;
     const clientId = req.headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
-
     const { channelId } = req.body;
+
+    //Check chat co ton tai trong danh sach hay khong 
+    const profile = await ProfileModel.findOne({
+        _id: decodeToken.profileId,
+        listChannels: { $in: channelId }
+    }).select('listChannels').lean();
+    if (!profile) {
+        throw new BadRequestError('Channel not exist in profile');
+    }
+
+
     const channel = await ChannelModel.findOne({ _id: channelId }).populate({
         path: 'members.profileId',
         select: '_id fullName avatar '
@@ -50,7 +97,6 @@ const getDetailsChannel = async (req) => {
         path: 'owner',
         select: '_id fullName avatar '
     }).lean()
-
 
     if (!channel) {
         throw new BadRequestError('Channel not existed');
