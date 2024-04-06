@@ -118,7 +118,7 @@ const checkChannelSingleExists = async ({ members, typeChannel }) => {
 }
 
 const createSingleChat = async (req) => {
-    const { receiverId, typeChannel, name } = await req.body
+    const { receiverId, typeChannel } = await req.body
     const authorization = await req.headers[HEADER.AUTHORIZATION]
     const cliendId = await req.headers[HEADER.X_CLIENT_ID]
     if (!authorization) {
@@ -142,12 +142,8 @@ const createSingleChat = async (req) => {
 
     //3. tao channel khi da du dieu kien
     // console.log(dataMembers);
-    const update = {};
-    const profileRequest = await ProfileModel.findById(receiverId).lean();
-    if (name !== undefined) update.name = profileRequest.fullName
     const newSingleChannel = await ChannelModel.create(
         {
-            name: update.name,
             members: members.map(member => {
                 return {
                     profileId: member,
@@ -175,9 +171,6 @@ const createGroupChat = async (req) => {
     }
 
     const { profileId } = await decodeTokens(cliendId, authorization)
-
-
-
 
     await members.push(profileId)
 
