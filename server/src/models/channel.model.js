@@ -49,6 +49,12 @@ const channelSchema = new mongoose.Schema(
       isFreeEdit: { type: Boolean },
     },
     requests: [{ type: mongoose.Schema.Types.ObjectId, ref: "Profile" }],
+    inviteCode: [
+      {
+        createdDate: { type: Date },
+        codeLink: { type: String, required: true, }
+      }
+    ],
 
     last_message: { type: mongoose.Schema.Types.ObjectId, ref: "Message" },
     seen_last_messages: { type: Boolean, require: true, default: false },

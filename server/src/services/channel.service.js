@@ -18,7 +18,17 @@ const getListChannels = async (headers) => {
     const { authorization } = await headers;
     const clientId = await headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
-    const listChannels = await ProfileModel.findOne({ _id: decodeToken.profileId }).select('listChannels').populate('listChannels').lean()
+    const listChannels = await ProfileModel
+        .findOne({ _id: decodeToken.profileId })
+        .select('listChannels')
+        .populate({
+            path: 'listChannels',
+            populate: {
+                path: 'members.profileId',
+                model: 'Profile',
+                select: '_id fullName avatar '
+            }
+        }).lean()
 
     if (!listChannels) {
         throw new BadRequestError('Profile not existed');
@@ -40,6 +50,7 @@ const getDetailsChannel = async (req) => {
         path: 'owner',
         select: '_id fullName avatar '
     }).lean()
+
 
     if (!channel) {
         throw new BadRequestError('Channel not existed');
