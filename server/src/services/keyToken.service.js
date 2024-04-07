@@ -1,5 +1,5 @@
 const { Types } = require("mongoose");
-const Mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const KeyTokenModel = require("../models/keyToken.model");
 
 class KeyTokenService {
@@ -8,7 +8,7 @@ class KeyTokenService {
 
     static createIdKeyToken = async () => {
         try {
-            const clientObjectId = new Mongoose.Types.ObjectId();
+            const clientObjectId = new mongoose.Types.ObjectId();
             return clientObjectId;
         }
         catch (err) {
@@ -43,16 +43,16 @@ class KeyTokenService {
     }
 
     static findTokenByUserId = async (userId) => {
-        return await KeyTokenModel.findOne({ userId: Types.ObjectId(userId) }).lean();
+        return await KeyTokenModel.findOne({ userId: mongoose.Types.ObjectId(userId) }).lean();
     }
 
     static findTokenById = async (id) => {
-        return await KeyTokenModel.findOne({ _id: Types.ObjectId(id) }).lean();
+        return await KeyTokenModel.findOne({ _id: mongoose.Types.ObjectId(id) }).lean();
     }
 
     static removeTokenById = async (id) => {
         const result = await KeyTokenModel.deleteOne({
-            _id: new Types.ObjectId(id)
+            _id: new mongoose.Types.ObjectId(id)
         })
         return result;
     }
@@ -70,7 +70,7 @@ class KeyTokenService {
     }
 
     static checkTokenByUserId = async (userId) => {
-        return await KeyTokenModel.find({ userId: Types.ObjectId(userId) }).sort({ userId: 1 }).lean();
+        return await KeyTokenModel.find({ userId: mongoose.Types.ObjectId(userId) }).sort({ userId: 1 }).lean();
     }
 
     static findTokenById = async (id) => {

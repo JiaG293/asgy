@@ -14,8 +14,8 @@
             const userDataSelect = document.getElementById("userDataSelect");
             const userData = userDataSelect.value;
             if (userData) {
-                const { userId, channels } = JSON.parse(userData);
-                const dataString = encodeURIComponent(JSON.stringify({ userId, channels }));
+                const { profileId, channels, clientId, accessToken } = JSON.parse(userData);
+                const dataString = encodeURIComponent(JSON.stringify({ profileId, channels, clientId, accessToken }));
 
                 window.location.href = "index5.html?data=" + dataString;
                 console.log(window.location.href);
@@ -36,16 +36,21 @@
         <!-- CHon user login vao  -->
         <!-- Thuc hien chat -->
         <option value="">Select User Data</option>
-        <option value='{"userId": "65f401b7ec07e9ea6c2b457e", "channels": ["65f421456957be1099c49d5f"]}, "clientId": "", "accessToken": ""'>User 1 -
-            Room 1</option>
         <option
-            value='{"userId": "65f417a034e9a9f7e2f3cf9f", "channels": ["65f421456957be1099c49d5f", "65f421456957be1099c49d5c"], "clientId": "", "accessToken": ""}'>
-            User 2 -
-            Room 2</option>
+            value='{"profileId": "65f401b7ec07e9ea6c2b457e", "channels": ["65f421456957be1099c49d5f", "6610c1e0e6d24cb4fd1dd029", "660fe4a855f404dc653362b4"], "clientId": "660a31696ca908871ab9b803", "accessToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IjY2MGEzMTY5NmNhOTA4ODcxYWI5YjgwMyIsInVzZXJJZCI6IjY1ZjQwMWI3ZWMwN2U5ZWE2YzJiNDU3ZCIsInByb2ZpbGVJZCI6IjY1ZjQwMWI3ZWMwN2U5ZWE2YzJiNDU3ZSIsImlhdCI6MTcxMTk0NDA0MSwiZXhwIjoxNzEyNTQ4ODQxfQ.Jf6O0D6OrxXw-7zfbrS6om-XXvo6V_dF9VMZmbRpxUjmfHn7ulLxdbQiM4zgWVsC3o3GSKHOM0NICt30X3gnbm3jW5-1N64lOctlc-894RWo-JoOdR09uoJXFEUq1gMpxG0jv1UKQneHIsDSYswqOKRUktM_59B3fUz5K_DgHdkEFmFzJVkQq5hWnnBtb4u6F3xeCYKDtIxpUd1d4bwyvUB9hJLxuvvYC7LliH1a1uvEDn1MWSwNHdK6SG49arVMMbRC0wxKq56PZ0WuOU5sI-4I9yNQQ6ahuSDJ04gqhrAzDOiankDjHuEKvtsm0xs5sFMZgP150FrxhZfYBpr6ZoynP5WqCu_s8C84YChw2X0fxjkTRdQYM8DiyMyt9gLeULDAn07hEaFYL453QV36tL77mXvnnDbb9BhKp7QZ56pJozLHeW4i-MzTUQlAeRPB_uMR9o2ztr8Syzj2ww_N-bN3HaNexcc3Y-6eIGWrFwt-ZkIpwDuxsh8FuVNFH8ee0tMm-DRO_mYOLTmg_Uti5VD5ZX5ydjzX_yuLTctizNvJs8BlEX4f449fqA5Is0d2y10Xude1miCMeYWkydRJ_gZG_3os7r_fsdd76_EMZEv-y3SeYf0rt15dZKZmvqnYsZEXhBTXHaOWnkGd0Gf3DKkdR4Bzhb4rmO5g4mx-sJY"}'>
+            User 1: 2b457e</option>
         <option
-            value='{"userId": "660aa562ad0cd7f7d5a2d8f2", "channels": ["65f421456957be1099c49d5f", "65f421456957be1099c49d5c" , "65f421456957be1099c49d5e"], "clientId": "", "accessToken": ""}'>
-            User 3 -
-            Room 3</option>
+            value='{"profileId": "65f417a034e9a9f7e2f3cf9f", "channels": ["65f421456957be1099c49d5f"], "clientId": "660f7ab97854596f1bbfb5fb", "accessToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IjY2MGY3YWI5Nzg1NDU5NmYxYmJmYjVmYiIsInVzZXJJZCI6IjY1ZjQxN2EwMzRlOWE5ZjdlMmYzY2Y5ZSIsInByb2ZpbGVJZCI6IjY1ZjQxN2EwMzRlOWE5ZjdlMmYzY2Y5ZiIsImlhdCI6MTcxMjI5MDQ4OSwiZXhwIjoxNzEyODk1Mjg5fQ.QtxNnqUXLFFEF6T3NceydaMuGl2RvCYuAB8g2bg28zx9FhcAnTe5q3kErFuzCDNIb9S9LP64vmNdw8qyaDabuwqqSgN5dywcaZh3tbYxALbvjmrMte6mTql3i8mWdLmhdRrWx9UZUJZVimw3Pn_sW1gDg07RHSIvdwZoqlx9LPkpp6ontZx08NjdIR5nfLyuPsk49hSsBzwz0bD70dCqburkMjH8v578e7Q8w3pbJr0-VLYvikUIX2DWZesPSOTA0UGWULAU3wO3GooOx75aT4UPnzFVCTuexRAms-OnkbtcgoVcoObIu9nciQ6fOjngrbq7Ihe5rhYUc7FRDuUfdT7Hs2v4mchVSgNW8NZMJp_t93V2DnkJeiy8NsvocqB76n0MmxnTm5a15Pt7Y4hoB-FMKbwAsdq8vTbMIqLs6cSEbtTXkuuzrzEcxlFmCAPZ-4gygdk7VvgjJoEn6Jp4Vy9TMl_xevmZT10K68xnP8KdPrW11EfEvnf1zz_I0yzv3U_nX43AFH0fFdI744fZ9c7Zx0S1mvPEELRmLoQWkxbkX2087OMMzN-lTlbR0vLMAVLtEa_M4LL3wfx5S8K2dIKdpkGkKPbaJx7ZOkIFGUl3uEDYy36qwdeNdauxkyZnkgfBpNCKq_uHRmba7J-s3YfVXhtC6X_5Psvrt3LfvJU"}'>
+            User 2: f3cf9f</option>
+        <option
+            value='{"profileId": "660aa562ad0cd7f7d5a2d8f2", "channels": ["6610c3adf25a371f54c7afcb"], "clientId": "6610c2dff25a371f54c7afb9", "accessToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IjY2MTBjMmRmZjI1YTM3MWY1NGM3YWZiOSIsInVzZXJJZCI6IjY2MGFhNTYyYWQwY2Q3ZjdkNWEyZDhmMSIsInByb2ZpbGVJZCI6IjY2MGFhNTYyYWQwY2Q3ZjdkNWEyZDhmMiIsImlhdCI6MTcxMjM3NDQ5NSwiZXhwIjoxNzEyOTc5Mjk1fQ.gGFnO1c90J7mVLxO5SVnUcgYjPjuHShDoqX2S2jusu6QlR-ESWDxJUZTk-vLXfQ403is9BkT-vh9DBaooBd6VLymNX4SRhuLCib6XrnoHy2BCKieYeHnUrrnrOGIMDO7-JLbeuOm4wL6ShQK2yVvz9o42drrJliggi0HOUNLoNwywOOBwUA5kgHOqCzMLcM_Uga7gEysTMqLUN693sY0P8CA3MUNsIHoACFGv4T-ZUHcQQMG1HbifsakuffjMc9z-0qyV-tzsR6C-5p9JkZeWEF81XArRmswl6fLq6GK92GCLzVVfOlgjrcWBlurtDotdYGyGpdV0k5pwCHmo4CnwkUhJ-UO4nAcoNiPl79jLH29wu9NBlmGrjVU9SdD7bRQJMS9hoMems3_8ypkJUpGmO0LqYv52VlAFAFBzrXo4ULxtU5vyy0rl5KUz5WP1DVRQWsCzxNaomP7JBR2YjYVtxPqra-ayf5OyBBUeu7L65RgZjtccWqc5nfj0NywvABWhGc-2sT20Y5FIWVSic-aWqm2mqbEOKOrJPXV8RK_G0I8l2L2rjof10ahSjaNmHDfs01ek2VIrnap3ht6m2WjYreCK-G02IQ7A5Sswi9Cx9GoPKGbyjGaubBf7H2d4cezlv-Lt2VnTKNw054pcvwVr16i4XMLzZyDPGLrbRrG8Rk"}'>
+            User 3: a2d8f2</option>
+        <option
+            value='{"profileId": "65f806fe141880574bb04421", "channels": ["65f421456957be1099c49d5f", "660fe4a855f404dc653362b4"], "clientId": "6610c53d72798a7304a37e5f", "accessToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IjY2MTBjNTNkNzI3OThhNzMwNGEzN2U1ZiIsInVzZXJJZCI6IjY1ZjgwNmZlMTQxODgwNTc0YmIwNDQyMCIsInByb2ZpbGVJZCI6IjY1ZjgwNmZlMTQxODgwNTc0YmIwNDQyMSIsImlhdCI6MTcxMjM3NTEwMSwiZXhwIjoxNzEyOTc5OTAxfQ.aBDqWNWXCkwr5v0zQUYC-o2vm2lzyNuycQezFPTuxvwV3SzSh99K75v72xOAh9lSjaWurUlbgzBSzK7vSSd4CqYDyaCZTJeKexljeddezOwKwH-cy43Op7Y-jlvJVpEfO-MsDAC44EMlST_MezBqwuFqPI_F_UZSLWMY4YqugKNMNioQLQXoRvxnP3X36jtOshn97Fyu0vCPWq09WxlW8W9Zoijiwtg2lNCR8xGAUJrXvh1voot7ogIWXUVYV8xQd4vwxPmLYqvjIgMz7iMFMiRoHsHh2OmmLZ--3iiBMRaMT3kdhzyVb2OvdP7ljsZkCSoFIiJEKvlqIqKuCT19nLO_47AB5UOhFdy23oeeW8AUgASdDzoKasg3l6MF38Mlr1FlK_CM5hLUsLVYsgvmFwbn7KUjMF23xS9BNYXYx2NuxtyJEhBriPJ34_XvwSu22Q0N_cFGUG-ba8bZwzD7czaQ5wTzFookJQXqLJ6ZBQh-ofjfEZmOeGm01cUTbTp4vx-VSKMNteVG4IQWn8EXtm8q3wuPs9S5LV3oHTv8I1NBD0qfpYto8eKZaFVMc23z7UvDElDajMfHa9k3MsvIEkxRvSaSVHr8UGWt7Azf8f8yb27s7wOlsAwJ3eYWCOMVykZIQlFYv7lM_9RvAyoRFfG7l2WaT3naHXteYUCSt7U"}'>
+            User 4: b04421</option>
+        <option
+            value='{"profileId": "65f806fe141880574bb04421", "channels": ["65f421456957be1099c49d5f", "660fe4a855f404dc653362b4"], "clientId": "660f7ab97854596f1bbfb5fb", "accessToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IjY2MTBjNTNkNzI3OThhNzMwNGEzN2U1ZiIsInVzZXJJZCI6IjY1ZjgwNmZlMTQxODgwNTc0YmIwNDQyMCIsInByb2ZpbGVJZCI6IjY1ZjgwNmZlMTQxODgwNTc0YmIwNDQyMSIsImlhdCI6MTcxMjM3NTEwMSwiZXhwIjoxNzEyOTc5OTAxfQ.aBDqWNWXCkwr5v0zQUYC-o2vm2lzyNuycQezFPTuxvwV3SzSh99K75v72xOAh9lSjaWurUlbgzBSzK7vSSd4CqYDyaCZTJeKexljeddezOwKwH-cy43Op7Y-jlvJVpEfO-MsDAC44EMlST_MezBqwuFqPI_F_UZSLWMY4YqugKNMNioQLQXoRvxnP3X36jtOshn97Fyu0vCPWq09WxlW8W9Zoijiwtg2lNCR8xGAUJrXvh1voot7ogIWXUVYV8xQd4vwxPmLYqvjIgMz7iMFMiRoHsHh2OmmLZ--3iiBMRaMT3kdhzyVb2OvdP7ljsZkCSoFIiJEKvlqIqKuCT19nLO_47AB5UOhFdy23oeeW8AUgASdDzoKasg3l6MF38Mlr1FlK_CM5hLUsLVYsgvmFwbn7KUjMF23xS9BNYXYx2NuxtyJEhBriPJ34_XvwSu22Q0N_cFGUG-ba8bZwzD7czaQ5wTzFookJQXqLJ6ZBQh-ofjfEZmOeGm01cUTbTp4vx-VSKMNteVG4IQWn8EXtm8q3wuPs9S5LV3oHTv8I1NBD0qfpYto8eKZaFVMc23z7UvDElDajMfHa9k3MsvIEkxRvSaSVHr8UGWt7Azf8f8yb27s7wOlsAwJ3eYWCOMVykZIQlFYv7lM_9RvAyoRFfG7l2WaT3naHXteYUCSt7U"}'>
+            User 5: user sai de test auth</option>
         <!-- Thêm các option khác tương ứng với user và room tương ứng -->
     </select>
     <button onclick="navigateToNewPageWithData()">chuyen trang</button>

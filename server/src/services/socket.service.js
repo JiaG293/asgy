@@ -1,7 +1,11 @@
 const { Server } = require("socket.io");
 const { sendMessage, loadMessagesHistory, deleteMessageById, revokeMessageById } = require("./chat.service");
 const MessageModel = require("../models/message.model");
-const { authentication } = require("../auth/authUtils");
+const { findTokenById } = require("./keyToken.service");
+const { verifyJWT } = require("../auth/authUtils");
+const { UnauthorizeError, BadRequestError } = require("../utils/responses/error.response");
+const { message } = require("../controllers/socket.controller");
+const { default: mongoose } = require("mongoose");
 require("dotenv").config();
 
 const { URL_CLIENT_WEB } = process.env;
@@ -12,7 +16,9 @@ let io = new Server({
         allowedHeaders: ["x-client-id"],
         allowedHeaders: ["authorization"],
         credentials: true,
-    },
+    }, transports: ["websocket", "polling"],
+    maxHttpBufferSize: 1e8, // 100 MB we can upload to server (By Default = 1MB)
+    pingTimeout: 60000, // increate the ping timeout
 });
 
 const socketService = {
@@ -22,34 +28,108 @@ const socketService = {
 global._userOnlines = new Map();
 global._userCall = new Map();
 
+//them user va danh sach channel vao map _userOnlines
 const addUserSocket = async (data, socket) => {
-    const { userId, channels } = data;
-    let tmp = _userOnlines.get(userId);
+    const { profileId, channels } = data;
+    let tmp = _userOnlines.get(profileId);
     if (tmp) {
         tmp.map((channel) => {
             socket.join(channel);
         })
     } else {
-        _userOnlines.set(userId, channels);
-        _userOnlines.get(userId).map((channel) => {
+        _userOnlines.set(profileId, channels);
+        _userOnlines.get(profileId).map((channel) => {
             socket.join(channel);
         })
     }
 };
 
+/* io.use(async (socket, next) => {
+    const clientId = await socket.handshake.headers['x-client-id'];
+    if (!clientId) {
+        return next(new UnauthorizeError('Invalid request'));
+    }
+
+    const keyStore = await findTokenById(clientId)
+    if (!keyStore) {
+        return next(new UnauthorizeError('Key store not found'));
+    }
+
+    const accessToken = await socket.handshake.headers['authorization'];
+    if (!accessToken) {
+        return next(new UnauthorizeError('Invalid Request'))
+    }
+
+    try {
+        const decodeUser = await verifyJWT(accessToken, keyStore.privateKey);
+        //so sanh thong tin access token mang va decode co verify hay khong boi private va public key pair voi nhau
+        console.log('client id:', clientId, '\nid decode:', decodeUser);
+
+        if (clientId !== decodeUser.clientId) {
+            return next(new UnauthorizeError('Invalid UserId'))
+        }
+        socket.keyStore = keyStore;
+        console.log("thanh cong");
+        return next();
+    } catch (error) {
+        next(error);
+    }
+}); */
+
+
+//check thong tin token truoc khi connect
+io.use(async (socket, next) => {
+    try {
+
+        //Lay headers tu client
+        const clientId = socket.handshake.headers['x-client-id'];
+        const authorization = socket.handshake.headers['authorization'];
+        if (clientId == 'undefined' || authorization == 'undefined') {
+            throw new Error('x-client-id and authorization provided')
+        }
+        const keyStore = await findTokenById(clientId);
+        if (!keyStore) {
+            throw new Error('Not found key store')
+        }
+
+        const decodeUser = await verifyJWT(authorization, keyStore.privateKey);
+        if (clientId !== decodeUser.clientId) {
+            throw new Error('Invalid UserId')
+        }
+
+        //gan thong tin da xac thuc cho auth
+        socket.auth = decodeUser;
+        return next()
+    } catch (error) {
+        //that bai tra loi ra day
+        //Tra 
+        socket.emit('errorAuthentication', { message: error.message, status: 401 });
+        return next()
+    }
+});
+
 io.on("connection", (socket) => {
+    //xem thong tin headers
+
     global._io = socket;
-    console.log("\n### Socket id connected:::", socket.id);
+    console.log(" Header xac thuc thong tin", socket.handshake.headers)
+    console.log("\n### Socket id connected:::", socket.id)
+
+    //lay thong tin middleware da xac thuc
+    console.log("socket user sau khi da xac thuc: ", socket.auth);
+    if (socket.auth === undefined) {
+        socket.disconnect(socket.id)
+    }
 
     socket.on("test", () => {
-        console.log("\n1. Socket id connected:::", socket.id);
-        console.log("\n2. List Online:::", _userOnlines);
+        console.log("\n1. Socket id connected:::", socket.id)
+        console.log("\n2. List Online:::", _userOnlines)
         // console.log("CHANNELS MAP<Room, Set<SocketId>:::", socket.adapter.rooms);
-        console.log("\n3. UserId Map<SocketId, Set<Room>>:::", socket.adapter.sids);
+        console.log("\n3. UserId Map<SocketId, Set<Room>>:::", socket.adapter.sids)
     })
 
     socket.on("userActiveRoom", (data) => {
-        console.log("CHANNELS MAP<Room, Set<SocketId>:::", socket.adapter.rooms);
+        console.log("CHANNELS MAP<Room, Set<SocketId>:::", socket.adapter.rooms)
     })
 
 
@@ -65,12 +145,26 @@ io.on("connection", (socket) => {
         }
     });
 
+    //THEM CHANNEL MOI VAO MOT PROFILEID SOCKET _userOnlines (NEU TAO CHANNEL)
+    socket.on("addChannel", async (data) => {
+        try {
+            const { profileId, channelId } = data
+            const listChannels = await _userOnlines.get(profileId)
+            if (!listChannels.includes(channelId)) {
+                await _userOnlines.get(profileId).push(channelId)
+                await socket.join(channelId)
+            }
+            console.log("List channel new then add channel: ", _userOnlines.get(profileId));
+        } catch (error) {
+            console.error("Error adding channel:::", error);
+        }
+    });
+
 
     //CHUA DUNG DEN
-    socket.on("loadChannels", async (userId) => {
+    socket.on("loadChannel", async (profileId) => {
         try {
-            socket.emit("loadChannels");
-            const channelId = _userOnlines.get(userId);
+            const channelId = _userOnlines.get(profileId);
             if (channelId) {
                 socket.to(channelId).emit("loadChannels");
             }

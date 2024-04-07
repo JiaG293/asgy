@@ -48,6 +48,7 @@ const authentication = catchAsync(async (req, res, next) => {
     }
 })
 
+
 const createTokenPair = async (payload, publicKey, privateKey) => {
 
     try {

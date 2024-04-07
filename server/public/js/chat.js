@@ -1,12 +1,23 @@
+
+setCookie()
+
 //Dung headers khi xac thuc thong tin
 const socket = io({
     withCredentials: true,
+    //Gui kem header de xac thuc thong tin
     extraHeaders: {
         "x-client-id": sessionStorage.getItem('clientId'),
-        "authorization": sessionStorage.getItem('accessToken')
+        "authorization": sessionStorage.getItem('authorization')
     }
 });
+console.log("INFO connect io:", socket);
 var storageListMessage = []
+
+//Kiem tra xem co loi authentication khong
+socket.on("errorAuthentication", (err) => {
+    // setSocketError(err?.message);
+    console.log(err);
+});
 
 
 
@@ -14,17 +25,30 @@ loginUser()
 getListMessage()
 getMessage()
 
+
+
+
+function setCookie() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var dataString = urlParams.get('data');
+    var dataPassed = JSON.parse(decodeURIComponent(dataString));
+    const { profileId, channels, accessToken, clientId } = dataPassed
+    sessionStorage.setItem('authorization', accessToken);
+    sessionStorage.setItem('clientId', clientId);
+    sessionStorage.setItem('profileId', profileId);
+    console.log("\ndata params:::", dataPassed);
+}
+
 function loginUser() {
     var urlParams = new URLSearchParams(window.location.search);
     var dataString = urlParams.get('data');
     var dataPassed = JSON.parse(decodeURIComponent(dataString));
-    const { userId, channels } = dataPassed
-    sessionStorage.setItem('userId', userId);
-    console.log("\ndata params:::", dataPassed);
-    socket.emit('addUser', { userId, channels })
+    const { profileId, channels, accessToken, clientId } = dataPassed
+    //goi lai de lay channels add vao - tren kia chi goi api de lay 
+    socket.emit('addUser', { profileId, channels })
     addGroup(channels)
     socket.emit('loadMessages', {
-        senderId: sessionStorage.getItem('userId')
+        senderId: sessionStorage.getItem('profileId')
     })
 }
 
@@ -158,10 +182,13 @@ const handleRevokeMsg = (id) => {
 //Lang nghe su kien chon group de chat
 //kiem tra so phong room hien co
 function getStatusServer() {
+
+    socket.emit('addChannel', { profileId: sessionStorage.getItem('profileId'), channelId: '65f421456957be1099c49d5g' })
     console.log("status cua danh sach phong trong server");
     socket.emit('test')
-    // socket.emit('loadMessages', { senderId: sessionStorage.getItem('userId') })
+    // socket.emit('loadMessages', { senderId: sessionStorage.getItem('profileId') })
     console.log("tin nhan trong storage la ", storageListMessage);
+
 }
 //TIN NHAN CU DUOC GUI O DAY
 socket.on('getMessagesHistory', (data) => {
@@ -206,7 +233,7 @@ socket.on('getMessagesHistory', (data) => {
                 </li>`
 
 
-        if (senderId._id === sessionStorage.getItem('userId')) {
+        if (senderId._id === sessionStorage.getItem('profileId')) {
             document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
             document.getElementById(`${data._id}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
         } else {
@@ -226,7 +253,7 @@ document.getElementById(`chat`).addEventListener('scroll', async () => {
         console.log("channelId", channelId);
         console.log("tin nhan cu nhat scroll", listMessages.messages[0]);
 
-        socket.emit('loadMessagesHistory', { senderId: sessionStorage.getItem('userId'), oldMessageId: listMessages.messages[0]._id, receiverId: channelId })
+        socket.emit('loadMessagesHistory', { senderId: sessionStorage.getItem('profileId'), oldMessageId: listMessages.messages[0]._id, receiverId: channelId })
     }
 });
 
@@ -265,7 +292,7 @@ function getListMessage() {
                 </li>`
 
 
-            if (senderId._id === sessionStorage.getItem('userId')) {
+            if (senderId._id === sessionStorage.getItem('profileId')) {
                 document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
                 document.getElementById(`${data._id}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
             } else {
@@ -317,7 +344,7 @@ function getMessage() {
         if (foundElementIndex !== -1) {
             storageListMessage[foundElementIndex].messages.push(data);
         }
-        if (senderId._id === sessionStorage.getItem('userId')) {
+        if (senderId._id === sessionStorage.getItem('profileId')) {
             document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
             document.getElementById(`${receiverId}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
         } else {
@@ -346,7 +373,7 @@ messageInput.addEventListener('keydown', async (e) => {
 
 function sendMessage() {
     const messageContent = document.getElementById("message-input").value
-    const senderId = sessionStorage.getItem('userId'); // Thay thế bằng ID thực sự của người gửi
+    const senderId = sessionStorage.getItem('profileId'); // Thay thế bằng ID thực sự của người gửi
     const receiverId = document.querySelector('.group.selected').id.split('-')[0] //"65f421456957be1099c49d5f"; // Thay thế bằng ID thực sự của người nhận
     const typeContent = "text"; // Loại nội dung tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
     // const _id = "1214"; // ID của tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)

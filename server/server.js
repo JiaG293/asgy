@@ -18,10 +18,8 @@ const io = new Server({
 
 
 const socketService = require('./src/services/socket.service');
-const { authentication } = require('./src/auth/authUtils');
 
 const server = require('http').createServer(app);
-// socketService.io.use(authentication)
 socketService.io.attach(server);
 
 
