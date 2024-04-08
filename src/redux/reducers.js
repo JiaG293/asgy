@@ -1,4 +1,3 @@
-// reducers.js
 import { combineReducers } from 'redux';
 import { SET_PROFILE, SET_USER, SET_AUTHENTICATED } from './actionTypes';
 

@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
-import Cookies from "js-cookie";
+// import { toast } from "react-toastify";
+// import Cookies from "js-cookie";
 import { setProfile, setUser } from "../redux/action";
-import callAPI from "api/callAPI";
-import statusCode from "utils/statusCode";
+import callAPI from "../api/callAPI";
+import statusCode from "../utils/statusCode";
 import { useDispatch } from "react-redux";
+
 
 const useLogin = () => {
   const dispatch = useDispatch();
@@ -20,37 +21,39 @@ const useLogin = () => {
     const { refreshToken, profile, user } = res.metadata.tokens;
     dispatch(setProfile(profile));
     dispatch(setUser(user));
-    localStorage.setItem('isAuthenticated', 'true');
+    /* localStorage.setItem('isAuthenticated', 'true');
     Cookies.set("refreshToken", refreshToken);
-    toast.success("Đăng nhập thành công");
-    navigate("/home");
+    toast.success("Đăng nhập thành công"); */
+    console.log('thanh cong');
+
+    // navigate("home");
+    // navigation.navigate("home");
   };
 
   // Đăng nhập thất bại
   const handleLoginFailure = () => {
-    toast.error("Tài khoản hoặc mật khẩu không chính xác");
+    // toast.error("Tài khoản hoặc mật khẩu không chính xác");
   };
 
   // Xử lý lỗi khi đăng nhập
-  const handleLoginError = (error) => {
+   const handleLoginError = (error) => {
     console.log(error);
-    toast.error("Tài khoản hoặc mật khẩu không chính xác");
-  };
+  }; 
 
   // Xử lý đăng nhập
-  const handleLogin = async (usernameOrEmail, password, setLoading, navigate) => {
-    setLoading(true);
+  const handleLogin = async (usernameOrEmail, password/* , setLoading  , navigate */) => {
+    // setLoading(true);
     try {
       const response = await callAPI.login(usernameOrEmail, password);
       if (response.status === statusCode.OK) {
-        handleLoginSuccess(response, navigate);
+        handleLoginSuccess(response /* , navigate */ );
       } else {
         handleLoginFailure();
       }
     } catch (error) {
-      handleLoginError(error);
+       handleLoginError(error);
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 

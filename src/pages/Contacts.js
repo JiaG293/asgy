@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { StyleSheet, Text, View, SectionList, Image, TouchableOpacity } from 'react-native';
 import SearchA from '../components/Search';
-import { FlatList } from 'react-native-web';
+import { FlatList } from 'react-native';
 
 export default function Contacts({ navigation }) {
   const { messages } = require('../data/mockChat');

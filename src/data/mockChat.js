@@ -1,7 +1,6 @@
 
 
 exports.messages = [
-    // Mặc định, mảng tin nhắn sẽ đã được sắp xếp theo thời gian
     {
         id: '1',
         sender: 'Nguyễn Văn A',
@@ -11,9 +10,9 @@ exports.messages = [
     },
     {
         id: '2',
-        sender: 'Trần Thị B',
-        time: '9:05 AM',
-        content: 'Chào bạn, bạn có khoẻ không?',
+        sender: 'Trần Thị Huệ',
+        time: '9:05 PM',
+        content: 'Anh ơi, em để ý anh lâu rồi ạ.',
         avatar: 'https://via.placeholder.com/50',
     },
     {

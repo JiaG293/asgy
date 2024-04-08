@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Chat from './Chat';
@@ -8,9 +7,9 @@ import Information from './Information';
 
 const Tab = createBottomTabNavigator();
 
-export default function Test() {
+export default function ButtonTab() {
     return (
-        <NavigationContainer>
+        
             <Tab.Navigator 
                 screenOptions={({ route }) => ({
                     tabBarIcon: ({ focused, color, size }) => {
@@ -38,6 +37,6 @@ export default function Test() {
                 <Tab.Screen name="Danh ba" component={Contacts} />
                 <Tab.Screen name="Ca nhan" component={Information} />
             </Tab.Navigator>
-        </NavigationContainer>
+        
     );
 }
