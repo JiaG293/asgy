@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friends Search</title>
+</head>
+<body>
+    <h2>Friends Search</h2>
+    <input type="text" id="searchInput" placeholder="Search friends...">
+    <ul id="friendsList"></ul>
+
+    <script>
+        document.getElementById("searchInput").addEventListener("input", function() {
+            const searchTerm = this.value.toLowerCase();
+            const friendsList = document.getElementById("friendsList");
+            
+            // Fetch data from API
+            fetch('http://localhost:5000/api/v1/profile/friends/65f401b7ec07e9ea6c2b457e')
+                .then(response => response.json())
+                .then(data => {
+                    // Clear existing list
+                    friendsList.innerHTML = '';
+
+                    // Filter friends based on search term
+                    const filteredFriends = data.metadata.friends.filter(friend => friend.name.toLowerCase().includes(searchTerm));
+
+                    // Display filtered friends
+                    filteredFriends.forEach(friend => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = friend.name;
+                        friendsList.appendChild(listItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        });
+    </script>
+</body>
+</html>

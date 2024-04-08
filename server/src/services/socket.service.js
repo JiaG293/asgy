@@ -1,11 +1,11 @@
 const { Server } = require("socket.io");
 const { sendMessage, loadMessagesHistory, deleteMessageById, revokeMessageById } = require("./chat.service");
 const MessageModel = require("../models/message.model");
+const ProfileModel = require("../models/profile.model");
+
 const { findTokenById } = require("./keyToken.service");
 const { verifyJWT } = require("../auth/authUtils");
-const { UnauthorizeError, BadRequestError } = require("../utils/responses/error.response");
-const { message } = require("../controllers/socket.controller");
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 require("dotenv").config();
 
 const { URL_CLIENT_WEB } = process.env;
@@ -13,8 +13,8 @@ const { URL_CLIENT_WEB } = process.env;
 let io = new Server({
     cors: {
         origin: URL_CLIENT_WEB,
-        allowedHeaders: ["x-client-id"],
-        allowedHeaders: ["authorization"],
+        allowedHeaders: ["x-client-id", "authorization"],
+
         credentials: true,
     }, transports: ["websocket", "polling"],
     maxHttpBufferSize: 1e8, // 100 MB we can upload to server (By Default = 1MB)
@@ -44,40 +44,7 @@ const addUserSocket = async (data, socket) => {
     }
 };
 
-/* io.use(async (socket, next) => {
-    const clientId = await socket.handshake.headers['x-client-id'];
-    if (!clientId) {
-        return next(new UnauthorizeError('Invalid request'));
-    }
-
-    const keyStore = await findTokenById(clientId)
-    if (!keyStore) {
-        return next(new UnauthorizeError('Key store not found'));
-    }
-
-    const accessToken = await socket.handshake.headers['authorization'];
-    if (!accessToken) {
-        return next(new UnauthorizeError('Invalid Request'))
-    }
-
-    try {
-        const decodeUser = await verifyJWT(accessToken, keyStore.privateKey);
-        //so sanh thong tin access token mang va decode co verify hay khong boi private va public key pair voi nhau
-        console.log('client id:', clientId, '\nid decode:', decodeUser);
-
-        if (clientId !== decodeUser.clientId) {
-            return next(new UnauthorizeError('Invalid UserId'))
-        }
-        socket.keyStore = keyStore;
-        console.log("thanh cong");
-        return next();
-    } catch (error) {
-        next(error);
-    }
-}); */
-
-
-//check thong tin token truoc khi connect
+// check thong tin token truoc khi connect
 io.use(async (socket, next) => {
     try {
 
@@ -161,17 +128,62 @@ io.on("connection", (socket) => {
     });
 
 
-    //CHUA DUNG DEN
-    socket.on("loadChannel", async (profileId) => {
+    //TAI THONG TIN CHI TIET TAT CA CHANNEL KHI DUA PROFILEID 
+    socket.on("loadListDetailsChannels", async (profileId) => {
         try {
             const channelId = _userOnlines.get(profileId);
-            if (channelId) {
-                socket.to(channelId).emit("loadChannels");
+            const profile = await ProfileModel
+                .findOne({ _id: profileId })
+                .select('listChannels')
+                .populate({
+                    path: 'listChannels',
+                    populate: {
+                        path: 'members.profileId',
+                        model: 'Profile',
+                        select: '_id fullName avatar '
+                    }
+                }).lean()
+            if (!profile) {
+                throw new Error('Profile not existed');
             }
+
+            for (const channel of profile.listChannels) {
+                console.log("name channel neu ton tai: ", channel.name);
+                // kiem tra xem channel neu la 101 va 102 thi doi ten name Channel && NEU TRONG DAY DA CO TRUONG NAME ROI THI SE KHONG DOI TEN NUA
+                let nameChannel = '';
+                if ((channel.typeChannel === 101 || channel.typeChannel === 102) && !channel.name) {
+                    for (const member of channel.members) {
+                        console.log("ten", member);
+                        if (member.profileId) {
+                            if (member.profileId._id.toString() !== profileId) {
+                                nameChannel = member.profileId.fullName;
+                                console.log("name channel duoc thay doi la:", nameChannel);
+                                break;
+                            }
+                        }
+                    }
+                    //Cap nhat lai truong name
+                    channel.name = nameChannel;
+                }
+            }
+
+            await socket.emit('getListDetailsChannels', profile.listChannels)
         } catch (error) {
-            console.error("Error loading chat:", error);
+            socket.emit("error", error);
         }
     });
+    /* 
+        //CHUA DUNG DEN
+        socket.on("loadChannel", async (profileId) => {
+            try {
+                const channelId = _userOnlines.get(profileId);
+                if (channelId) {
+                    socket.to(channelId).emit("loadChannel");
+                }
+            } catch (error) {
+                console.error("Error loading chat:", error);
+            }
+        }); */
 
 
     //TAI TIN NHAN TU DATABASE KHI CLIENT KET NOI DEN

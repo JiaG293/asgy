@@ -254,7 +254,7 @@ class AccessService {
         //tra ve thong tin tao cho body
         return {
             clientId: clientId,
-            profile: getInfoData({ fields: ['_id', 'channelId', 'friend', 'avatar', 'gender', 'birthday', 'info',], object: findProfile }),
+            profile: getInfoData({ fields: ['_id', 'channelId', 'friend', 'avatar', 'gender', 'birthday', 'info', 'listChannels'], object: findProfile }),
             user: getInfoData({ fields: ['_id', 'username', 'email',], object: findUser }),
             tokens,
         }

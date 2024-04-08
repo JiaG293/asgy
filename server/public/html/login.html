@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Add your CSS styles if necessary -->
+</head>
+
+<body>
+    <h2>Login</h2>
+    <form id="loginForm">
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="username" value="asgy2002"><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" value="12344321"><br><br>
+        <button type="button" onclick="login()">Login</button>
+    </form>
+
+    <!-- Include your JavaScript here -->
+    <script>
+        function login() {
+            // Get the username and password from the form
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            const credentials = {
+                userID: username,
+                password: password
+            };
+
+            // Assuming authentication is successful, make a fetch request to get data
+            fetch('http://localhost:5000/api/v1/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(credentials)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 200) {
+                        const profileId = data.metadata.profile._id
+                        const channels = data.metadata.profile.listChannels;
+                        const clientId = data.metadata.clientId
+                        const accessToken = data.metadata.tokens.accessToken;
+                        const dataString = encodeURIComponent(JSON.stringify({ profileId, channels, clientId, accessToken }));
+                        window.location.href = "index5.html?data=" + dataString;
+                    } else if (data.status === 401) {
+                        throw new Error('Login failed please re-input, username or password is incorrect');
+                    } else throw new Error('Server error');
+                })
+                .catch(error => {
+                    alert('There was a problem with your fetch operation:', error);
+                    // Handle errors, such as displaying an error message to the user
+                });
+        }
+    </script>
+</body>
+
+</html>

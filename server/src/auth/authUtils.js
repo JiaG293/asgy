@@ -4,7 +4,7 @@ const catchAsync = require('../middlewares/catchAsync.middleware');
 
 const { findTokenByUserId, findTokenById } = require('../services/keyToken.service');
 const { UnauthorizeError, BadRequestError, ConflictRequestError } = require('../utils/responses/error.response');
-const keyTokenModel = require('../models/keyToken.model');
+const KeyTokenModel = require('../models/keyToken.model');
 const { verify } = require('crypto');
 
 const HEADER = {

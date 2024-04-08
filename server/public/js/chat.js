@@ -2,9 +2,10 @@
 setCookie()
 
 //Dung headers khi xac thuc thong tin
-const socket = io({
+const socket = io('http://localhost:5000', {
     withCredentials: true,
     //Gui kem header de xac thuc thong tin
+
     extraHeaders: {
         "x-client-id": sessionStorage.getItem('clientId'),
         "authorization": sessionStorage.getItem('authorization')
@@ -46,35 +47,38 @@ function loginUser() {
     const { profileId, channels, accessToken, clientId } = dataPassed
     //goi lai de lay channels add vao - tren kia chi goi api de lay 
     socket.emit('addUser', { profileId, channels })
-    addGroup(channels)
+    addGroup(channels, profileId)
     socket.emit('loadMessages', {
         senderId: sessionStorage.getItem('profileId')
     })
 }
 
 //them id dinh danh group cho moi element
-function addGroup(channels) {
-    channels.map(channelId => {
-        let templateGroup = `
-            <div class="group" id="${channelId}-group">
-                <div class="group-icon prevent-click-event">
-                    <img id="group-icon-img" src="https://i.imgur.com/fL8RNta.png">
+async function addGroup(channels, profileId) {
+    await socket.emit('loadListDetailsChannels', profileId)
+    await socket.on('getListDetailsChannels', (data) => {
+        data.map(channel => {
+            let templateGroup = `
+                <div class="group" id="${channel}-group">
+                    <div class="group-icon prevent-click-event">
+                        <img id="group-icon-img" src="${channel.icon}">
+                    </div>
+                    <div class="group-content prevent-click-event">
+                        <div class="group-name prevent-click-event">${channel.name}</div>
+                        <div class="group-last-message prevent-click-event">${channel._id.slice(-10)}</div>
+                    </div>
                 </div>
-                <div class="group-content prevent-click-event">
-                    <div class="group-name prevent-click-event">${channelId}</div>
-                    <div class="group-last-message prevent-click-event">Last Message</div>
-                </div>
-            </div>
-            `
-        let templateChatGroup = `
-            <li>
-                <ul id="${channelId}-chat" class="message-list hidden" id-channel-chats="test">
-                </ul>
-            </li>
-            `
-        document.getElementById("sidebar").insertAdjacentHTML('beforeend', templateGroup);
-        document.getElementById("chat-list").insertAdjacentHTML('beforeend', templateChatGroup);
-    });
+                `
+            let templateChatGroup = `
+                <li>
+                    <ul id="${channel}-chat" class="message-list hidden" id-channel-chats="test">
+                    </ul>
+                </li>
+                `
+            document.getElementById("sidebar").insertAdjacentHTML('beforeend', templateGroup);
+            document.getElementById("chat-list").insertAdjacentHTML('beforeend', templateChatGroup);
+        });
+    })
 
 }
 const listItemGroup = document.querySelectorAll('.group');
@@ -183,13 +187,21 @@ const handleRevokeMsg = (id) => {
 //kiem tra so phong room hien co
 function getStatusServer() {
 
-    socket.emit('addChannel', { profileId: sessionStorage.getItem('profileId'), channelId: '65f421456957be1099c49d5g' })
+    // socket.emit('addChannel', { profileId: sessionStorage.getItem('profileId'), channelId: '65f421456957be1099c49d5g' })
     console.log("status cua danh sach phong trong server");
-    socket.emit('test')
+    // socket.emit('test')
     // socket.emit('loadMessages', { senderId: sessionStorage.getItem('profileId') })
-    console.log("tin nhan trong storage la ", storageListMessage);
+    // console.log("tin nhan trong storage la ", storageListMessage);
+
+
+
+
 
 }
+
+socket.on('getListDetailsChannels', (data) => {
+    console.log("data hien thi ra ", data)
+})
 //TIN NHAN CU DUOC GUI O DAY
 socket.on('getMessagesHistory', (data) => {
     console.log("tin nhan cu la ", data);

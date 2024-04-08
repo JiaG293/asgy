@@ -106,14 +106,20 @@ const getListFriendsPublic = async (req) => {
         return await ProfileModel
             .findOne({ _id: profileFriendId })
             .select('friends')
-            .populate('friends', '-friends -createdAt -updatedAt -__v')
+            .populate({
+                path: 'friends.profileIdFriend',
+                select: '_id fullName avatar phoneNumber '
+            })
             .lean()
     }
     else {
         return await ProfileModel
             .findOne({ _id: decodeToken.profileId })
             .select('friends')
-            .populate('friends', '-friends -createdAt -updatedAt -__v')
+            .populate({
+                path: 'friends.profileIdFriend',
+                select: '_id fullName avatar phoneNumber '
+            })
             .lean()
     }
 
