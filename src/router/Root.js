@@ -4,8 +4,7 @@ import FlashScreen from "../pages/FlashScreen";
 import AuthSelection from "../pages/AuthSelection";
 import Login from "../pages/Login";
 import ButtonTab from "../pages/ButtonTab";
-
-
+import ChatScreen from "../pages/ChatScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -14,13 +13,14 @@ export default function Root() {
     return (
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="home"
+          initialRouteName="login"
           screenOptions={{ headerShown: false }}
         >
           <Stack.Screen name="Splash" component={FlashScreen}></Stack.Screen>
           <Stack.Screen name="auth" component={AuthSelection}></Stack.Screen>
           <Stack.Screen name="login" component={Login}></Stack.Screen>
           <Stack.Screen name="home" component={ButtonTab}></Stack.Screen>
+          <Stack.Screen name="ChatScreen" component={ChatScreen}></Stack.Screen>
 
         </Stack.Navigator>
       </NavigationContainer>

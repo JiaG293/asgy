@@ -1,13 +1,88 @@
-import React from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import axios from 'axios';
 import { StyleSheet, View, FlatList, Text, Image, TouchableOpacity } from 'react-native';
 import SearchA from '../components/Search';
 
-const { messages } = require('../data/mockChat')
+import socketIOClient from 'socket.io-client';
+import callAPI from '../api/callAPI';
+import endpointAPI from '../api/endpointAPI';
+import { setProfile } from '../redux/action';
+import {useDispatch} from 'react-redux';
 
-export default function Chat() {
+
+export default function Chat({ navigation }) {
+    const dispatch = useDispatch();
+
+    const { messages } = require('../data/mockChat');
+    // const [messages, setMessages] = useState([]);
+
+    /* useEffect(() => {
+        const fetchMessages = async () => {
+            try {
+                const response = await axios.get('http://localhost:5000/api/v1/chats/channels');
+                setMessages(response.data); // giả sử response.data là một mảng các tin nhắn
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchMessages();
+    }, []);
+
+    useEffect(() => {
+        const socket = socketIOClient(ENDPOINT);
+        
+        socket.on('newMessage', (message) => {
+            setMessages(prevMessages => [...prevMessages, message]);
+        });
+
+        return () => socket.disconnect(); // Clean up khi component unmount
+    }, []); */
+
+
+    const fetchData = async () => {
+        try {
+          const refreshToken = localStorage.getItem("refreshToken");
+          const clientID = localStorage.getItem("clientId");
+          if (!refreshToken) {
+            console.error("refreshToken không tồn tại");
+            return;
+          }
+          const headers = {
+            "x-client-id": clientID,
+            "authorization": refreshToken,
+          };
+    
+          const response = await axios.get(endpointAPI.getInfoProfile, {
+            headers,
+          });
+    
+          if (response.status === 200) {
+            const profile = response.data.metadata;
+            dispatch(setProfile(profile));
+          } else {
+            console.error("Lỗi khi lấy thông tin người dùng");
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin người dùng:", error);
+        }
+      };
+    
+      useLayoutEffect(() => {
+        fetchData();
+      }, []);
+
+
     const renderMessageItem = ({ item }) => {
         return (
-            <TouchableOpacity style={styles.messageItem}>
+            <TouchableOpacity style={styles.messageItem}
+                onPress={() => {
+                    navigation.navigate("ChatScreen", {
+                        avatar: item.avatar,
+                        sender: item.sender,
+                        messages: item.messages,
+                    });
+                }}>
                 <Image source={{ uri: item.avatar }} style={styles.avatar} />
                 <View style={styles.messageContent}>
                     <View style={styles.messageText}>

@@ -1,14 +1,14 @@
 import { useState } from "react";
-// import { toast } from "react-toastify";
-// import Cookies from "js-cookie";
+import * as SecureStore from 'expo-secure-store';
 import { setProfile, setUser } from "../redux/action";
 import callAPI from "../api/callAPI";
 import statusCode from "../utils/statusCode";
 import { useDispatch } from "react-redux";
-
+import { useNavigation } from '@react-navigation/native';
 
 const useLogin = () => {
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
 
   // Hiển thị mật khẩu
@@ -17,43 +17,47 @@ const useLogin = () => {
   };
 
   // Đăng nhập thành công
-  const handleLoginSuccess = (res, navigate) => {
+  const handleLoginSuccess = async (res) => {
     const { refreshToken, profile, user } = res.metadata.tokens;
+    const clientId = res.metadata.clientId;
     dispatch(setProfile(profile));
     dispatch(setUser(user));
-    /* localStorage.setItem('isAuthenticated', 'true');
-    Cookies.set("refreshToken", refreshToken);
-    toast.success("Đăng nhập thành công"); */
-    console.log('thanh cong');
 
-    // navigate("home");
-    // navigation.navigate("home");
+    // dung local web
+    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('clientId',clientId)
+
+
+    // dung storage app
+    /* await SecureStore.setItemAsync('secure_token', refreshToken);
+    const a = await SecureStore.getItemAsync('secure_token');
+    console.log(a); */
+
+
+    navigation.navigate('home');
   };
 
   // Đăng nhập thất bại
   const handleLoginFailure = () => {
-    // toast.error("Tài khoản hoặc mật khẩu không chính xác");
+    // Xử lý khi đăng nhập thất bại
   };
 
   // Xử lý lỗi khi đăng nhập
-   const handleLoginError = (error) => {
+  const handleLoginError = (error) => {
     console.log(error);
-  }; 
+  };
 
   // Xử lý đăng nhập
-  const handleLogin = async (usernameOrEmail, password/* , setLoading  , navigate */) => {
-    // setLoading(true);
+  const handleLogin = async (usernameOrEmail, password) => {
     try {
       const response = await callAPI.login(usernameOrEmail, password);
       if (response.status === statusCode.OK) {
-        handleLoginSuccess(response /* , navigate */ );
+        handleLoginSuccess(response);
       } else {
         handleLoginFailure();
       }
     } catch (error) {
-       handleLoginError(error);
-    } finally {
-      // setLoading(false);
+      handleLoginError(error);
     }
   };
 

@@ -48,7 +48,7 @@ const Login = ({ navigation }) => {
           <Text style={styles.text3}>Lấy lại mật khẩu </Text>
         </Pressable>
       </View>
-      <Pressable style={styles.wrapicon} onPress={() => { handleLoginClick() ,navigation.navigate("home")}}>
+      <Pressable style={styles.wrapicon} onPress={() => { handleLoginClick()}}>
         <AntDesign name="arrowright" size={20} color="#000" />
       </Pressable>
     </View>
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   input1: {
     width: "100%",
     height: 40,
-    outlineStyle: "none",
+    // outlineStyle: "none",
     marginBottom: 8,
     borderBottomColor: "#dfdfdf",
     borderBottomWidth: 2,

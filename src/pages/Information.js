@@ -1,7 +1,12 @@
 import React from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { useSelector } from 'react-redux';
 
 export default function Profile() {
+  const profile = useSelector(state => state.profile);
+  console.log(profile);
+
+
   // Dữ liệu mẫu, thay đổi theo thông tin thực tế
   const userInfo = {
     avatar: 'https://www.facebook.com/photo/?fbid=802635638258369&set=a.105716497950290',
@@ -20,8 +25,8 @@ export default function Profile() {
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Image source={{ uri: userInfo.avatar }} style={styles.avatar} />
-          <Text style={styles.name}>{userInfo.name}</Text>
+          <Image source={ profile?.avatar } style={styles.avatar} />
+          <Text style={styles.name}>{profile?.fullName}</Text>
           <Text style={styles.phoneNumber}>{userInfo.tieuSu}</Text>
         </View>
 

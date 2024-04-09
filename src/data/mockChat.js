@@ -12,7 +12,7 @@ exports.messages = [
         id: '2',
         sender: 'Trần Thị Huệ',
         time: '9:05 PM',
-        content: 'Anh ơi, em để ý anh lâu rồi ạ.',
+        content: 'adf.',
         avatar: 'https://via.placeholder.com/50',
     },
     {
