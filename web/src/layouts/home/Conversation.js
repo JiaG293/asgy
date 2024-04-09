@@ -2,25 +2,31 @@ import React, { useEffect, useState } from "react";
 import "../homeStyle/Conversation.scss";
 import Header from "./Header";
 import { FiSend as SendIcon } from "react-icons/fi";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import socket from "socket/socket";
+import { setMessages } from "../../redux/action";
 
 function Conversation() {
   const profile = useSelector((state) => state.profile);
   const profileID = profile?._id;
   const [messageContent, setMessageContent] = useState("");
-  const messagesList = useSelector((state) => state.messagesList);
+  const currentChannel = useSelector((state) => state.currentChannel);
+  const dispatch = useDispatch();
+  const currentMessages = useSelector((state) => state.currentMessages);
 
-  const message = messagesList && messagesList.map((message) => (
+  console.log("currentMesssage là");
+  console.log(currentMessages);
+
+  const message = currentMessages.map((message) => (
     <div
-      key={message._id}
+      key={message?._id}
       className={
         message.senderId._id === profileID
           ? "conversation-item-me"
           : "conversation-item-you"
       }
     >
-      <div className="message-content">{message.messageContent}</div>
+      <div className="message-content">{message?.messageContent}</div>
     </div>
   ));
 

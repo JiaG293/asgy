@@ -6,6 +6,7 @@ import {
   SET_CHANNELS,
   SET_MESSAGES,
   SET_CURRENT_CHANNEL,
+  SET_CURRENT_MESSAGES,
 } from "./actionTypes";
 
 const profileReducer = (state = null, action) => {
@@ -47,7 +48,7 @@ const channelsReducer = (state = [], action) => {
 const messagesReducer = (state = [], action) => {
   switch (action.type) {
     case SET_MESSAGES:
-      return [...action.payload];
+      return [...state, action.payload];
     default:
       return state;
   }
@@ -62,12 +63,23 @@ const currentChannelReducer = (state = null, action) => {
   }
 };
 
+const currentMessagesReducer = (state = [], action) => {
+  switch (action.type) {
+    case SET_CURRENT_MESSAGES:
+      return action.payload;
+    default:
+      return state;
+  }
+};
+
 const rootReducer = combineReducers({
   profile: profileReducer,
   user: userReducer,
   channelList: channelsReducer,
   messagesList: messagesReducer,
   currentChannel: currentChannelReducer,
+  currentMessages: currentMessagesReducer,
+
   // isAuthenticated: isAuthenticatedReducer,
 });
 

@@ -1,5 +1,5 @@
 // actions.js
-import { SET_PROFILE, SET_USER, SET_AUTHENTICATED, SET_CHANNELS, SET_MESSAGES, SET_CURRENT_CHANNEL } from './actionTypes';
+import { SET_PROFILE, SET_USER, SET_AUTHENTICATED, SET_CHANNELS, SET_MESSAGES, SET_CURRENT_CHANNEL, SET_CURRENT_MESSAGES } from './actionTypes';
 
 export const setProfile = (profile) => ({
   type: SET_PROFILE,
@@ -29,4 +29,9 @@ export const setMessages = (messages) => ({
 export const setCurrentChannel = (channel)=>({
   type: SET_CURRENT_CHANNEL,
   payload: channel,
+});
+
+export const setCurrentMessages = (messages)=>({
+  type: SET_CURRENT_MESSAGES,
+  payload: messages,
 });

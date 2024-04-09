@@ -9,9 +9,9 @@ import socket from "socket/socket";
 import {
   setChannels,
   setCurrentChannel,
+  setCurrentMessages,
   setMessages,
 } from "../../redux/action";
-import Conversation from "./Conversation";
 
 function ListMess() {
   const profile = useSelector((state) => state.profile);
@@ -19,9 +19,8 @@ function ListMess() {
   const [channelLoaded, setChannelLoaded] = useState(false);
   const currentChannel = useSelector((state) => state.currentChannel);
   const messagesList = useSelector((state) => state.messagesList);
-  const messageStorage = useRef([]);
-
   const dispatch = useDispatch();
+  const [profileUpdated, setProfileUpdated] = useState(false); // Biến cờ để theo dõi trạng thái cập nhật hồ sơ
 
   const fetchData = async () => {
     try {
@@ -50,74 +49,55 @@ function ListMess() {
         console.error("Lỗi khi lấy thông tin người dùng");
       }
     } catch (error) {
-      // console.error("Lỗi khi lấy thông tin người dùng:", error);
+      console.error("Lỗi khi lấy thông tin người dùng:", error);
     }
   };
 
   const IOAddUser = () => {
     if (profile?._id && channelLoaded) {
       socket.emit("addUser", { profileId: profile._id, channels: channelList });
-      // console.log("profile._id đã sẵn sàng",
-      //  {
-      //   profileId: profile._id,
-      //   channels: channelList,
-      // });
-    } else {
-      // console.log("profile._id chưa sẵn sàng");
     }
   };
 
-  const IOLoadMessages = () => {
-    socket.emit("loadMessages", {
-      senderId: profile?._id,
+  const selectChannel = (channel) => {
+    dispatch(setCurrentChannel(channel));
+    console.log(channel?._id);
+    console.log(messagesList[0]._id._id);
+
+    messagesList.forEach((item) => {
+      if (item._id._id === channel._id) {
+        dispatch(setCurrentMessages(item.messages));
+        console.log("Đã add current messages vào redux");
+        console.log(item.messages);
+      }
     });
   };
 
-  IOAddUser();
-  IOLoadMessages();
-
-  const IOTest = () => {
-    socket.emit("test");
+  const IOloadMessages = (senderId) => {
+    socket.emit("loadMessages", {
+      senderId: senderId,
+    });
   };
 
-  useLayoutEffect(() => {
-    fetchData();
-  }, []);
+  if (profile?._id && !profileUpdated) {
+    IOloadMessages(profile._id);
+    // console.log("Profile đã được cập nhật", profile._id);
+    setProfileUpdated(true);
+  } else {
+  }
 
   useEffect(() => {
-    if (currentChannel?._id) {
-      const handleGetMessages = ({ _id, messages }) => {
-        const filteredMessages = messages.filter(
-          (message) => message.receiverId === currentChannel._id
-        );
-        console.log(`Received messages from channel ${_id}:`);
-        const messageArray = filteredMessages.map((message) => ({
-          messageContent: message.messageContent,
-          receiverId: message.receiverId,
-          senderId: message.senderId._id,
-          senderName: message.senderId.fullName,
-          typeContent: message.typeContent,
-          updatedAt: message.updatedAt,
-          __v: message.__v,
-          _id: message._id,
-        }));
-        dispatch(setMessages(messageArray));
-      };
-      socket.on("getMessages", handleGetMessages);
-      return () => {
-        socket.off("getMessages", handleGetMessages);
-      };
-    }
-  }, [currentChannel]);
-
-  
-
-  const selectChannel = (channel) => {
-    socket.off("getMessages");
-    dispatch(setCurrentChannel(channel));
-    // console.log(`SELECT CHANNEL: `);
-    // console.log(channel);
-  };
+    fetchData();
+    IOAddUser();
+    socket.on("getMessages", (data) => {
+      console.log("data là::::: ");
+      console.log(data);
+      dispatch(setMessages(data));
+    });
+    return () => {
+      socket.off("getMessages");
+    };
+  }, []);
 
   return (
     <div className="listmess-chat-panel">
@@ -140,7 +120,7 @@ function ListMess() {
             onClick={() => selectChannel(channel)}
           >
             <div className="listmess-avatar">
-              <img src={otherUser?.avatar}></img>
+              <img src={otherUser?.avatar} alt="Avatar" />
             </div>
             <div className="listmess-content">
               <div className="listmess-name">{otherUser?.fullName}</div>
