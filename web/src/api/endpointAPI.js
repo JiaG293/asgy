@@ -8,6 +8,8 @@ const tokenEmail = '';
 
 const baseURL = `${protocol}://${IP_Address}:${server_PORT}/api/${version}`;
 
+export const serverURL = `${protocol}://${IP_Address}:${server_PORT}`
+
 const endpointAPI = {
   // Access
   signup: `${baseURL}/users/signup/`,

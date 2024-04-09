@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
@@ -14,26 +14,25 @@ import ListGroup from "../../layouts/home/ListGroup";
 import ListRequest from "../../layouts/home/ListRequest";
 import { useDispatch } from "react-redux";
 import { setProfile } from "../../redux/action";
+// import initializeSocket from "socket/socket";
 
 function Home() {
   const dispatch = useDispatch();
   const [selectedMenuItem, setSelectedMenuItem] = useState("messages");
   const [currentComponent, setCurrentComponent] = useState(null);
-  const [selectedMessage, setSelectedMessage] = useState("");
+  const [selectedMessage, setSelectedMessage] = useState(null);
 
   const fetchData = async () => {
     try {
       const refreshToken = Cookies.get("refreshToken");
+      const clientID = Cookies.get("clientId")
       if (!refreshToken) {
         console.error("refreshToken không tồn tại");
         return;
       }
-
-      const decodedToken = jwt_decode(refreshToken);
-      const clientID = decodedToken.clientId;
       const headers = {
         "x-client-id": clientID,
-        authorization: refreshToken,
+        "authorization": refreshToken,
       };
 
       const response = await axios.get("http://localhost:5000/api/v1/profile", {
@@ -51,7 +50,7 @@ function Home() {
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     fetchData();
   }, []);
 

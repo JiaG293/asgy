@@ -20,6 +20,12 @@ function Login() {
     handleLogin(usernameOrEmail, password, setLoading, navigate);
   };
 
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleLoginClick();
+    }
+  };
+
   // Render
   return (
     <div className="login-container">
@@ -38,6 +44,7 @@ function Login() {
             className="login-input"
             value={usernameOrEmail}
             onChange={(e) => setUsernameOrEmail(e.target.value)}
+            onKeyDown={handleKeyPress}
           ></input>
           <UserIcon className="login-icon"></UserIcon>
         </div>
@@ -49,6 +56,7 @@ function Login() {
             className="login-input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={handleKeyPress}
           ></input>
           <PasswordIcon className="login-icon"></PasswordIcon>
           {visible ? (

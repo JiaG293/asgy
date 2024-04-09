@@ -5,11 +5,11 @@ import Cookies from "js-cookie";
 import jwtDecode from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { setProfile } from "../../redux/action";
+import { toast } from "react-toastify";
 
-function UpdateModal({setShowUpdateModal }) {
-
+function UpdateModal({ setShowUpdateModal }) {
   const dispatch = useDispatch();
-  const profile = useSelector(state => state.profile);
+  const profile = useSelector((state) => state.profile);
 
   const [fullName, setFullName] = useState(profile.fullName);
   const [gender, setGender] = useState(profile.gender);
@@ -41,13 +41,14 @@ function UpdateModal({setShowUpdateModal }) {
       const profileData = {
         fullName: fullName,
         gender: gender,
-        birthday: dob.toISOString().split("T")[0], 
+        birthday: dob.toISOString().split("T")[0],
       };
       const response = await handleUpdateProfile(profileData);
       if (response.status === 200) {
         dispatch(setProfile(profileData)); // Cập nhật state trong Redux
         setShowUpdateModal(false);
-        console.log('Update thành công');
+        toast.success("Cập nhật thành công");
+        console.log("Update thành công");
       } else {
         console.error("Lỗi khi cập nhật thông tin cá nhân");
       }
@@ -62,7 +63,6 @@ function UpdateModal({setShowUpdateModal }) {
       const decodedToken = jwtDecode(refreshToken);
       console.log(decodedToken);
       const clientID = decodedToken.clientId;
-      
 
       const response = await axios.put(
         "http://localhost:5000/api/v1/profile/update",

@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import { publicRoutes, privateRoutes } from "./routes";
 import "react-toastify/dist/ReactToastify.css";
 import "components/CustomToastify.scss";
@@ -8,16 +8,21 @@ import Cookies from "js-cookie";
 
 function App() {
   const navigate = useNavigate();
-  //tạm thời chứ không bảo mật
-  const isAuthenticated = Cookies.get('refreshToken');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   useEffect(() => {
-    if (!isAuthenticated) {
+    const refreshToken = Cookies.get("refreshToken");
+    if (refreshToken) {
+      // Kiểm tra refreshToken nếu còn hiệu lực
+      // Ví dụ: Gửi yêu cầu đến máy chủ để xác thực refreshToken
+      // Nếu refreshToken hết hạn hoặc không hợp lệ, xử lý ở đây
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
       navigate("/login");
+      // Thông báo cho người dùng biết rằng họ cần đăng nhập
     }
-    else{
-      navigate("/home");
-    }
-  }, [isAuthenticated, navigate]);
+  }, [navigate]);
 
   return (
     <div className="App">

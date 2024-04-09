@@ -60,6 +60,7 @@ function Menu({ onSelectMenuItem }) {
       );
       if (response.status === 200) {
         Cookies.remove("refreshToken");
+        Cookies.remove("clientId");
         localStorage.removeItem('isAuthenticated');
         navigate("/login");
       }

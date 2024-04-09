@@ -70,14 +70,22 @@ body {
         background-color: #ddd;
       }
 
-    .listmess-avatar {
-      width: 40px;
-      height: 40px;
-      background-color: #ddd;
-      border-radius: 50%;
-      margin-right: 10px;
-      flex-shrink: 0;
-    }
+      .listmess-avatar {
+        width: 40px;
+        height: 40px;
+        background-color: #ddd;
+        border-radius: 50%;
+        margin-right: 10px;
+        flex-shrink: 0;
+        overflow: hidden; /* Đảm bảo ảnh không tràn ra khỏi div */
+      }
+      
+      .listmess-avatar img {
+        width: 100%; /* Đảm bảo ảnh vừa với div */
+        height: 100%; /* Đảm bảo ảnh vừa với div */
+        object-fit: cover; /* Hiển thị hình ảnh mà không bị vỡ ra khỏi khu vực */
+      }
+      
 
     .listmess-content {
       flex-grow: 1;
