@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../homeStyle/ListMess.scss";
 import { CiSearch as SearchIcon } from "react-icons/ci";
 import Cookies from "js-cookie";
@@ -13,14 +13,14 @@ import {
   setMessages,
 } from "../../redux/action";
 
-function ListMess() {
+function ListMess({ setSelectedMessage }) {
   const profile = useSelector((state) => state.profile);
   const channelList = useSelector((state) => state.channelList);
   const [channelLoaded, setChannelLoaded] = useState(false);
   const currentChannel = useSelector((state) => state.currentChannel);
   const messagesList = useSelector((state) => state.messagesList);
   const dispatch = useDispatch();
-  const [profileUpdated, setProfileUpdated] = useState(false); // Biến cờ để theo dõi trạng thái cập nhật hồ sơ
+  const [profileUpdated, setProfileUpdated] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -54,21 +54,27 @@ function ListMess() {
   };
 
   const IOAddUser = () => {
-    if (profile?._id && channelLoaded) {
+    console.log("profile?._id:", profile?._id);
+    console.log("channelLoaded:", channelLoaded);
+    console.log("channelList:", channelList);
+
+    if (profile?._id && channelLoaded && channelList) {
       socket.emit("addUser", { profileId: profile._id, channels: channelList });
+      console.log("đã add user: ");
+      console.log({ profileId: profile._id, channels: channelList });
+    } else {
+      console.log("chưa add được user");
     }
   };
 
   const selectChannel = (channel) => {
-    dispatch(setCurrentChannel(channel));
-    console.log(channel?._id);
-    console.log(messagesList[0]._id._id);
+    // Change this line to use function call instead of comparison
+    setSelectedMessage(true);
 
+    dispatch(setCurrentChannel(channel));
     messagesList.forEach((item) => {
       if (item._id._id === channel._id) {
         dispatch(setCurrentMessages(item.messages));
-        console.log("Đã add current messages vào redux");
-        console.log(item.messages);
       }
     });
   };
@@ -79,25 +85,27 @@ function ListMess() {
     });
   };
 
-  if (profile?._id && !profileUpdated) {
-    IOloadMessages(profile._id);
-    // console.log("Profile đã được cập nhật", profile._id);
-    setProfileUpdated(true);
-  } else {
-  }
-
   useEffect(() => {
     fetchData();
-    IOAddUser();
     socket.on("getMessages", (data) => {
-      console.log("data là::::: ");
-      console.log(data);
       dispatch(setMessages(data));
     });
     return () => {
       socket.off("getMessages");
     };
   }, []);
+
+  useEffect(() => {
+    if (profile?._id && channelLoaded) {
+      IOAddUser();
+    }
+  }, [profile?._id, channelLoaded]);
+
+  
+  if (profile?._id && !profileUpdated) {
+    IOloadMessages(profile._id);
+    setProfileUpdated(true);
+  }
 
   return (
     <div className="listmess-chat-panel">

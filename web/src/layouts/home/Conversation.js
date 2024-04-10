@@ -7,16 +7,15 @@ import socket from "socket/socket";
 import { setMessages } from "../../redux/action";
 
 function Conversation() {
-  const profile = useSelector((state) => state.profile);
-  const profileID = profile?._id;
-  const [messageContent, setMessageContent] = useState("");
-  const currentChannel = useSelector((state) => state.currentChannel);
-  const dispatch = useDispatch();
-  const currentMessages = useSelector((state) => state.currentMessages);
+  const profile = useSelector((state) => state.profile); // Lấy thông tin hồ sơ từ Redux store
+  const profileID = profile?._id; // Lấy ID của người dùng hiện tại
+  const [messageContent, setMessageContent] = useState(""); // State lưu nội dung tin nhắn mới
+  const currentChannel = useSelector((state) => state.currentChannel); // Lấy kênh hiện tại từ Redux store
+  const dispatch = useDispatch(); // Sử dụng useDispatch hook để gửi action đến Redux store
+  const currentMessages = useSelector((state) => state.currentMessages); // Lấy danh sách tin nhắn hiện tại từ Redux store
+  const [profileUpdated, setProfileUpdated] = useState(false);
 
-  console.log("currentMesssage là");
-  console.log(currentMessages);
-
+  // Render danh sách tin nhắn
   const message = currentMessages.map((message) => (
     <div
       key={message?._id}
@@ -30,6 +29,50 @@ function Conversation() {
     </div>
   ));
 
+  // Xử lý sự kiện nhấn phím Enter để gửi tin nhắn
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      IOSendMessage();
+    }
+  }
+
+  // Lắng nghe thay đổi trong danh sách tin nhắn và thực hiện các hành động cần thiết
+  useEffect(() => {
+    socket.on("getMessage", (newMessage) => {
+      console.log("Nhận về từ server",newMessage);
+      dispatch(setMessages([...currentMessages, newMessage]));
+    });
+
+    return () => {
+      socket.off("getMessage");
+    };
+  }, [currentMessages]); 
+
+  // Gửi tin nhắn từ máy khách tới máy chủ
+  const IOSendMessage = () => {
+    // Kiểm tra xem đã có đủ thông tin để gửi tin nhắn chưa
+    if (profile && currentChannel && messageContent) {
+      socket.emit("sendMessage", {
+        senderId: profile._id,
+        receiverId: currentChannel._id,
+        typeContent: "text",
+        messageContent: messageContent,
+      });
+      setMessageContent("");
+    }
+  };
+
+  const IOloadMessages = (senderId) => {
+    socket.emit("loadMessages", {
+      senderId: senderId,
+    });
+  };
+
+  if (profile?._id && !profileUpdated) {
+    IOloadMessages(profile._id);
+    setProfileUpdated(true);
+  }
+
   return (
     <div className="conversation-container">
       <Header />
@@ -42,8 +85,9 @@ function Conversation() {
             placeholder="Nhập tin nhắn của bạn..."
             value={messageContent}
             onChange={(e) => setMessageContent(e.target.value)}
+            onKeyPress={handleKeyPress} // Xử lý sự kiện nhấn phím Enter
           />
-          <button className="conversation-button">
+          <button className="conversation-button" onClick={IOSendMessage}>
             <span style={{ marginRight: 10 }}>Gửi</span>
             <SendIcon />
           </button>

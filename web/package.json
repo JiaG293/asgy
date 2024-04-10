@@ -25,11 +25,12 @@
     "react-redux": "^9.1.0",
     "react-router-dom": "^6.21.3",
     "react-scripts": "5.0.1",
-    "react-slick": "^0.30.0",
+    "react-slick": "^0.30.2",
     "react-toastify": "^10.0.4",
     "redux": "^5.0.1",
     "redux-thunk": "^3.1.0",
     "sass": "^1.70.0",
+    "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.7.4",
     "web-vitals": "^2.1.4"
   },

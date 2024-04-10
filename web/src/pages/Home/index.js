@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import jwt_decode from "jwt-decode";
 
 import "./Home.scss";
 import ListMess from "../../layouts/home/ListMess";
@@ -14,25 +13,25 @@ import ListGroup from "../../layouts/home/ListGroup";
 import ListRequest from "../../layouts/home/ListRequest";
 import { useDispatch } from "react-redux";
 import { setProfile } from "../../redux/action";
-// import initializeSocket from "socket/socket";
+import SplashScreen from "layouts/home/SplashScreen";
 
 function Home() {
   const dispatch = useDispatch();
   const [selectedMenuItem, setSelectedMenuItem] = useState("messages");
   const [currentComponent, setCurrentComponent] = useState(null);
-  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [isSelectMessage, setSelectMessage] = useState(false);
 
   const fetchData = async () => {
     try {
       const refreshToken = Cookies.get("refreshToken");
-      const clientID = Cookies.get("clientId")
+      const clientID = Cookies.get("clientId");
       if (!refreshToken) {
         console.error("refreshToken không tồn tại");
         return;
       }
       const headers = {
         "x-client-id": clientID,
-        "authorization": refreshToken,
+        authorization: refreshToken,
       };
 
       const response = await axios.get("http://localhost:5000/api/v1/profile", {
@@ -59,20 +58,19 @@ function Home() {
       case "messages":
         setCurrentComponent(
           <>
-            <ListMess onSelectMessage={setSelectedMessage} />
-            <Conversation message={selectedMessage} />
-            <Detail />
+            <ListMess setSelectedMessage={setSelectMessage} />
+            {isSelectMessage ? (
+              <>
+                <Conversation />
+                <Detail />
+              </>
+            ) : (
+              <SplashScreen />
+            )}
           </>
         );
         break;
       case "contacts":
-        setCurrentComponent(
-          <>
-            <Contacts onSelectMenuItem={setSelectedMenuItem} />
-            <ListFriend />
-          </>
-        );
-        break;
       case "friendList":
         setCurrentComponent(
           <>
@@ -100,7 +98,7 @@ function Home() {
       default:
         break;
     }
-  }, [selectedMenuItem, selectedMessage]);
+  }, [selectedMenuItem, isSelectMessage]);
 
   return (
     <div className="home-container">

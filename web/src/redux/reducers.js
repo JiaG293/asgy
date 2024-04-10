@@ -66,6 +66,8 @@ const currentChannelReducer = (state = null, action) => {
 const currentMessagesReducer = (state = [], action) => {
   switch (action.type) {
     case SET_CURRENT_MESSAGES:
+      console.log("từ redux:::::");
+      console.log(action.payload);
       return action.payload;
     default:
       return state;
