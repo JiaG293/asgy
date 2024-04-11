@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import "../homeStyle/Header.scss";
 import { CiSearch as SearchIcon } from "react-icons/ci";
 import { BiPhoneCall as CallIcon } from "react-icons/bi";
@@ -12,7 +12,7 @@ function Header() {
   const profileID = profile?._id;
   const currentChannel = useSelector((state) => state.currentChannel);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (currentChannel && currentChannel.members) {
       const otherUser = currentChannel.members.find(
         (member) => member.profileId?._id !== profileID

@@ -4,16 +4,17 @@ import Header from "./Header";
 import { FiSend as SendIcon } from "react-icons/fi";
 import { useSelector, useDispatch } from "react-redux";
 import socket from "socket/socket";
-import { setMessages } from "../../redux/action";
+import { setCurrentMessages, setMessages } from "../../redux/action";
+import PerfectScrollbar from 'react-perfect-scrollbar'
+import 'react-perfect-scrollbar/dist/css/styles.css';
 
 function Conversation() {
-  const profile = useSelector((state) => state.profile); // Lấy thông tin hồ sơ từ Redux store
-  const profileID = profile?._id; // Lấy ID của người dùng hiện tại
-  const [messageContent, setMessageContent] = useState(""); // State lưu nội dung tin nhắn mới
-  const currentChannel = useSelector((state) => state.currentChannel); // Lấy kênh hiện tại từ Redux store
-  const dispatch = useDispatch(); // Sử dụng useDispatch hook để gửi action đến Redux store
-  const currentMessages = useSelector((state) => state.currentMessages); // Lấy danh sách tin nhắn hiện tại từ Redux store
-  const [profileUpdated, setProfileUpdated] = useState(false);
+  const profile = useSelector((state) => state.profile);
+  const profileID = profile?._id;
+  const [messageContent, setMessageContent] = useState("");
+  const currentChannel = useSelector((state) => state.currentChannel);
+  const dispatch = useDispatch();
+  const currentMessages = useSelector((state) => state.currentMessages);
 
   // Render danh sách tin nhắn
   const message = currentMessages.map((message) => (
@@ -31,22 +32,27 @@ function Conversation() {
 
   // Xử lý sự kiện nhấn phím Enter để gửi tin nhắn
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       IOSendMessage();
     }
-  }
+  };
 
   // Lắng nghe thay đổi trong danh sách tin nhắn và thực hiện các hành động cần thiết
   useEffect(() => {
     socket.on("getMessage", (newMessage) => {
-      console.log("Nhận về từ server",newMessage);
-      dispatch(setMessages([...currentMessages, newMessage]));
-    });
+      console.log("Nhận về từ server", newMessage);
+      dispatch(setCurrentMessages([...currentMessages, newMessage]));
+      console.log(currentMessages);
+      setTimeout(() => {
+        scrollToBottom(); 
 
-    return () => {
-      socket.off("getMessage");
-    };
-  }, [currentMessages]); 
+      }, 1);
+    });
+  }, [currentMessages]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [currentChannel]);
 
   // Gửi tin nhắn từ máy khách tới máy chủ
   const IOSendMessage = () => {
@@ -59,24 +65,24 @@ function Conversation() {
         messageContent: messageContent,
       });
       setMessageContent("");
+      scrollToBottom()
     }
   };
 
-  const IOloadMessages = (senderId) => {
-    socket.emit("loadMessages", {
-      senderId: senderId,
-    });
+  // Cuộn xuống dòng mới nhất
+  const scrollToBottom = () => {
+    const messagesContainer = document.getElementById("conversation-messages-container");
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
   };
-
-  if (profile?._id && !profileUpdated) {
-    IOloadMessages(profile._id);
-    setProfileUpdated(true);
-  }
 
   return (
     <div className="conversation-container">
       <Header />
-      <div className="conversation-messages">{message}</div>
+      <PerfectScrollbar id="conversation-messages-container" className="conversation-messages">
+        {message}
+      </PerfectScrollbar>
       <div className="conversation-input-container">
         <div className="conversation-input-with-button">
           <input
@@ -85,7 +91,7 @@ function Conversation() {
             placeholder="Nhập tin nhắn của bạn..."
             value={messageContent}
             onChange={(e) => setMessageContent(e.target.value)}
-            onKeyPress={handleKeyPress} // Xử lý sự kiện nhấn phím Enter
+            onKeyPress={handleKeyPress}
           />
           <button className="conversation-button" onClick={IOSendMessage}>
             <span style={{ marginRight: 10 }}>Gửi</span>

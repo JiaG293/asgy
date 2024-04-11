@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import "../homeStyle/Detail.scss";
 import { IoIosNotifications } from "react-icons/io";
 import { MdOutlinePushPin } from "react-icons/md";
@@ -12,7 +12,7 @@ function Detail() {
   const profileID = profile?._id;
   const currentChannel = useSelector((state) => state.currentChannel);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (currentChannel && currentChannel.members) {
       const otherUser = currentChannel.members.find(
         (member) => member.profileId?._id !== profileID

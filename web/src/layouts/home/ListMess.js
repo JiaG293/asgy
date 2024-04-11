@@ -6,22 +6,28 @@ import axios from "axios";
 import statusCode from "utils/statusCode";
 import { useSelector, useDispatch } from "react-redux";
 import socket from "socket/socket";
+import { io } from "socket.io-client";
+
 import {
   setChannels,
   setCurrentChannel,
   setCurrentMessages,
   setMessages,
 } from "../../redux/action";
+import { serverURL } from "api/endpointAPI";
+import { clientID, refreshToken } from "../../env/env";
 
 function ListMess({ setSelectedMessage }) {
   const profile = useSelector((state) => state.profile);
+  const profileID = profile?._id;
   const channelList = useSelector((state) => state.channelList);
   const [channelLoaded, setChannelLoaded] = useState(false);
   const currentChannel = useSelector((state) => state.currentChannel);
   const messagesList = useSelector((state) => state.messagesList);
   const dispatch = useDispatch();
-  const [profileUpdated, setProfileUpdated] = useState(false);
+  const currentMessages = useSelector((state) => state.currentMessages); // Lấy danh sách tin nhắn hiện tại từ Redux store
 
+  //fecth data api
   const fetchData = async () => {
     try {
       const refreshToken = Cookies.get("refreshToken");
@@ -40,7 +46,6 @@ function ListMess({ setSelectedMessage }) {
           headers,
         }
       );
-
       if (response.status === statusCode.OK) {
         const channelList = response.data.metadata;
         dispatch(setChannels(channelList));
@@ -53,59 +58,88 @@ function ListMess({ setSelectedMessage }) {
     }
   };
 
-  const IOAddUser = () => {
-    console.log("profile?._id:", profile?._id);
-    console.log("channelLoaded:", channelLoaded);
-    console.log("channelList:", channelList);
-
-    if (profile?._id && channelLoaded && channelList) {
-      socket.emit("addUser", { profileId: profile._id, channels: channelList });
+  //hàm add user
+  const IOAddUser = async () => {
+    // console.log("profile:", profileID);
+    // console.log("channelLoaded:", channelLoaded);
+    // console.log("channelList:", channelList);
+    const channelsID = await channelList.map((channel) => channel._id);
+    if (profileID && channelLoaded && channelList) {
+      await socket.emit("addUser", { profileId: profileID, channels: channelsID });
       console.log("đã add user: ");
-      console.log({ profileId: profile._id, channels: channelList });
+      console.log({ profileId: profileID, channels: channelsID });
     } else {
       console.log("chưa add được user");
     }
   };
 
-  const selectChannel = (channel) => {
-    // Change this line to use function call instead of comparison
-    setSelectedMessage(true);
+  //hàm tải tin nhắn ban đầu
+  const IOLoadMessages = async ()=>{
+    await socket.emit("loadMessages", {
+      senderId: profileID,
+    });
+    console.log("đã load messages:::");
+    console.log(profileID);
+  }
 
+  //hàm chọn channel
+  const selectChannel = (channel) => {
+    setSelectedMessage(true);
     dispatch(setCurrentChannel(channel));
     messagesList.forEach((item) => {
-      if (item._id._id === channel._id) {
+      if (item._id === channel._id) {
         dispatch(setCurrentMessages(item.messages));
       }
     });
   };
 
-  const IOloadMessages = (senderId) => {
-    socket.emit("loadMessages", {
-      senderId: senderId,
-    });
-  };
-
   useEffect(() => {
     fetchData();
-    socket.on("getMessages", (data) => {
-      dispatch(setMessages(data));
-    });
-    return () => {
-      socket.off("getMessages");
-    };
   }, []);
-
-  useEffect(() => {
-    if (profile?._id && channelLoaded) {
-      IOAddUser();
-    }
-  }, [profile?._id, channelLoaded]);
-
   
-  if (profile?._id && !profileUpdated) {
-    IOloadMessages(profile._id);
-    setProfileUpdated(true);
-  }
+  useEffect(() => {
+    const reRender = async () => {
+      if (profileID && channelLoaded) {
+        
+        // const socket = io(serverURL, {
+        //   extraHeaders: {
+        //     "x-client-id": clientID,
+        //     authorization: refreshToken,
+        //   },
+        //   withCredentials: true,
+        // });
+
+        await IOAddUser();
+        await IOLoadMessages();
+  
+        //hàm nhận tất cả tin nhắn từ lúc đầu
+        socket.on("getMessages", (data) => {
+          dispatch(setMessages(data));
+        });  
+
+
+        //hàm nhận tin nhắn mới
+        // socket.on("getMessage", (newMessage) => {
+        //   console.log("Nhận về từ server", newMessage);
+        //   dispatch(setMessages([...currentMessages, newMessage]));// đưa vào redux
+
+        // });
+  
+        // await socket.on("message", (message) => {
+        //   console.log(message);
+        // });
+  
+        // return () => {
+        //   socket.disconnect();
+        // };
+      }
+    };
+  
+    reRender();
+  }, [profileID, channelLoaded]);
+  
+
+
 
   return (
     <div className="listmess-chat-panel">
@@ -119,7 +153,7 @@ function ListMess({ setSelectedMessage }) {
       </div>
       {channelList?.map((channel) => {
         const otherUser = channel?.members?.find(
-          (member) => member.profileId?._id !== profile?._id
+          (member) => member.profileId?._id !== profileID
         )?.profileId;
         return (
           <div

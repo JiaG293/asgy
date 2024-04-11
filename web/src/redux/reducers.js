@@ -27,15 +27,6 @@ const userReducer = (state = null, action) => {
   }
 };
 
-// const isAuthenticatedReducer = (state = false, action) => {
-//   switch (action.type) {
-//     case SET_AUTHENTICATED:
-//       return action.payload;
-//     default:
-//       return state;
-//   }
-// };
-
 const channelsReducer = (state = [], action) => {
   switch (action.type) {
     case SET_CHANNELS:
@@ -66,7 +57,7 @@ const currentChannelReducer = (state = null, action) => {
 const currentMessagesReducer = (state = [], action) => {
   switch (action.type) {
     case SET_CURRENT_MESSAGES:
-      console.log("từ redux:::::");
+      console.log("từ redux:::::::");
       console.log(action.payload);
       return action.payload;
     default:

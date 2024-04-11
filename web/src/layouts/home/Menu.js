@@ -14,6 +14,8 @@ import LogoutModal from "./LogoutModal";
 import InfoPopup from "./InfoPopup";
 import SettingsPopup from "./SettingsPopup";
 import { useSelector } from "react-redux";
+import {toast} from 'react-toastify'
+import socket from "socket/socket";
 
 function Menu({ onSelectMenuItem }) {
   const profile = useSelector((state) => state.profile);
@@ -61,11 +63,15 @@ function Menu({ onSelectMenuItem }) {
       if (response.status === 200) {
         Cookies.remove("refreshToken");
         Cookies.remove("clientId");
+        Cookies.remove("profileId")
         localStorage.removeItem('isAuthenticated');
+        toast.success('Đăng xuất thành công');
+        socket.disconnect();
         navigate("/login");
       }
     } catch (error) {
       console.error("Logout error:", error);
+      toast.error('Có lỗi xảy ra')
     }
   };
 

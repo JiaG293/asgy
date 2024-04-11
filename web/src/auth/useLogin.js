@@ -17,15 +17,18 @@ const useLogin = () => {
 
   // Đăng nhập thành công
   const handleLoginSuccess = (res, navigate) => {
-    const { refreshToken, profile, user } = res.metadata.tokens;
+    const refreshToken = res.metadata.tokens.refreshToken;
     const clientId =res.metadata.clientId;
+    const profile = res.metadata.profile;
+    const profileId = profile._id
+    const user = res.metadata.user
     dispatch(setProfile(profile));
     dispatch(setUser(user));
     //dòng này đánh lừa hacker thật ra ko có tác dụng
     localStorage.setItem('isAuthenticated', 'true');
-    
     Cookies.set("refreshToken", refreshToken);
     Cookies.set("clientId", clientId);
+    Cookies.set("profileId", profileId)
     toast.success("Đăng nhập thành công");
     navigate("/home");
   };

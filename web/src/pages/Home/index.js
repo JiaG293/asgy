@@ -11,20 +11,25 @@ import Contacts from "../../layouts/home/Contacts";
 import ListFriend from "../../layouts/home/ListFriend";
 import ListGroup from "../../layouts/home/ListGroup";
 import ListRequest from "../../layouts/home/ListRequest";
-import { useDispatch } from "react-redux";
-import { setProfile } from "../../redux/action";
+import { useDispatch, useSelector } from "react-redux";
+import { setMessages, setProfile } from "../../redux/action";
 import SplashScreen from "layouts/home/SplashScreen";
+import io from 'socket.io-client';
+import { serverURL } from "api/endpointAPI";
+import { clientID, refreshToken } from "env/env";
 
 function Home() {
   const dispatch = useDispatch();
   const [selectedMenuItem, setSelectedMenuItem] = useState("messages");
   const [currentComponent, setCurrentComponent] = useState(null);
   const [isSelectMessage, setSelectMessage] = useState(false);
+  const currentMessages = useSelector((state) => state.currentMessages); // Lấy danh sách tin nhắn hiện tại từ Redux store
 
   const fetchData = async () => {
     try {
       const refreshToken = Cookies.get("refreshToken");
       const clientID = Cookies.get("clientId");
+      
       if (!refreshToken) {
         console.error("refreshToken không tồn tại");
         return;
@@ -48,6 +53,7 @@ function Home() {
       console.error("Lỗi khi lấy thông tin người dùng:", error);
     }
   };
+
 
   useLayoutEffect(() => {
     fetchData();
@@ -109,3 +115,4 @@ function Home() {
 }
 
 export default Home;
+

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import "../homeStyle/ListFriend.scss";
 import { PiUserListBold } from "react-icons/pi";
 import Cookies from "js-cookie";
@@ -42,9 +42,9 @@ function ListFriend() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  // useLayoutEffect(() => {
+  //   fetchData();
+  // }, []);
 
 
   
