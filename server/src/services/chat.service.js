@@ -244,7 +244,7 @@ const loadMessagesHistory = async ({ senderId, oldMessageId, receiverId }) => {
         // dinh dang lai thong tin cac truong de tra ve du lieu
         {
             $project: {
-                _id: "$receiverId",
+                channelId: "$receiverId",
                 messages: "$messagesBefore"
             }
         }
@@ -270,6 +270,39 @@ const revokeMessageById = async (messageId) => {
 }
 
 
+const socketDetailsChannel = async ({profileId, channelId}) => {
+
+    const channel = await ChannelModel.findOne({ _id: channelId }).populate({
+        path: 'members.profileId',
+        select: '_id fullName avatar '
+    }).populate({
+        path: 'owner',
+        select: '_id fullName avatar '
+    }).lean()
+
+    if (!channel) {
+        throw new BadRequestError('Channel not existed');
+    }
+    // kiem tra xem channel neu la 101 va 102 thi doi ten name Channel && NEU TRONG DAY DA CO TRUONG NAME ROI THI SE KHONG DOI TEN NUA
+    let nameChannel = '';
+    if ((channel.typeChannel === 101 || channel.typeChannel === 102) && !channel.name) {
+        for (const member of channel.members) {
+            if (member.profileId) {
+                if (member.profileId._id.toString() !== profileId) {
+                    nameChannel = member.profileId.fullName;
+                    console.log("name channel duoc thay doi la:", nameChannel);
+                    break;
+                }
+            }
+        }
+        //Cap nhat lai truong name
+        channel.name = nameChannel;
+    }
+
+    return channel
+}
+
+
 module.exports = {
     accessChat,
     sendMessage,
@@ -277,6 +310,7 @@ module.exports = {
     deleteMessageById,
     removeTokenById,
     revokeMessageById,
+    socketDetailsChannel,
 
 
 }

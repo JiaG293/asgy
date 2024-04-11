@@ -10,4 +10,5 @@ router.get('/logout', redirectControllers.logout);
 router.get('/chat', redirectControllers.chat);
 router.get('/s3', redirectControllers.s3);
 
+
 module.exports = router;

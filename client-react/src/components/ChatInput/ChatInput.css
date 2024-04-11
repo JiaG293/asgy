@@ -1,0 +1,52 @@
+/* ChatInput.css */
+.chatInput {
+    position: relative;
+    display: flex; /* Thêm thuộc tính này để đảm bảo các phần tử con được sắp xếp theo chiều ngang */
+    align-items: center; /* Căn chỉnh các phần tử con theo chiều dọc */
+  }
+  
+  .chatInput__icons {
+    display: flex; /* Thêm thuộc tính này để đảm bảo các biểu tượng được sắp xếp theo chiều ngang */
+  }
+  
+  .chatInput__icon {
+    font-size: 20px;
+    color: #007bff;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    margin-right: 10px; /* Khoảng cách giữa các icons */
+  }
+  
+  .chatInput__icon:hover {
+    color: #0056b3;
+  }
+  
+  .chatInput__textInput {
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    flex: 1; /* Sử dụng flex: 1 để text input mở rộng ra toàn bộ không gian còn lại */
+  }
+  
+  .chatInput__textInput:focus {
+    border-color: #007bff; /* Màu đường viền khi focus */
+  }
+  
+  .chatInput__fileInput {
+    display: none;
+  }
+  
+  .chatInput__sendButton {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .chatInput__sendButton:hover {
+    background-color: #0056b3;
+  }
+  

@@ -8,6 +8,7 @@ const cors = require('cors')
 const PORT = 8085;
 const app = express();
 app.use(cors())
+app.use(express.static(path.join(__dirname, 'html')))
 
 
 app.use('/', routerHTML); 

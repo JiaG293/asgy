@@ -55,30 +55,51 @@ function loginUser() {
 
 //them id dinh danh group cho moi element
 async function addGroup(channels, profileId) {
-    await socket.emit('loadListDetailsChannels', profileId)
-    await socket.on('getListDetailsChannels', (data) => {
-        data.map(channel => {
-            let templateGroup = `
-                <div class="group" id="${channel}-group">
-                    <div class="group-icon prevent-click-event">
-                        <img id="group-icon-img" src="${channel.icon}">
-                    </div>
-                    <div class="group-content prevent-click-event">
-                        <div class="group-name prevent-click-event">${channel.name}</div>
-                        <div class="group-last-message prevent-click-event">${channel._id.slice(-10)}</div>
-                    </div>
+    channels.map(channel => {
+        let templateGroup = `
+            <div class="group" id="${channel}-group">
+                <div class="group-icon prevent-click-event">
+                    <img id="group-icon-img" src="https://i.imgur.com/fL8RNta.png">
                 </div>
-                `
-            let templateChatGroup = `
-                <li>
-                    <ul id="${channel}-chat" class="message-list hidden" id-channel-chats="test">
-                    </ul>
-                </li>
-                `
-            document.getElementById("sidebar").insertAdjacentHTML('beforeend', templateGroup);
-            document.getElementById("chat-list").insertAdjacentHTML('beforeend', templateChatGroup);
-        });
-    })
+                <div class="group-content prevent-click-event">
+                    <div class="group-name prevent-click-event">${channel}</div>
+                    <div class="group-last-message prevent-click-event">${channel.slice(-10)}</div>
+                </div>
+            </div>
+            `
+        let templateChatGroup = `
+            <li>
+                <ul id="${channel}-chat" class="message-list hidden" id-channel-chats="test">
+                </ul>
+            </li>
+            `
+        document.getElementById("sidebar").insertAdjacentHTML('beforeend', templateGroup);
+        document.getElementById("chat-list").insertAdjacentHTML('beforeend', templateChatGroup);
+    });
+    /*  await socket.emit('loadListDetailsChannels', profileId)
+     await socket.on('getListDetailsChannels', (data) => {
+         data.map(channel => {
+             let templateGroup = `
+                 <div class="group" id="${channel}-group">
+                     <div class="group-icon prevent-click-event">
+                         <img id="group-icon-img" src="${channel.icon}">
+                     </div>
+                     <div class="group-content prevent-click-event">
+                         <div class="group-name prevent-click-event">${channel.name}</div>
+                         <div class="group-last-message prevent-click-event">${channel._id.slice(-10)}</div>
+                     </div>
+                 </div>
+                 `
+             let templateChatGroup = `
+                 <li>
+                     <ul id="${channel}-chat" class="message-list hidden" id-channel-chats="test">
+                     </ul>
+                 </li>
+                 `
+             document.getElementById("sidebar").insertAdjacentHTML('beforeend', templateGroup);
+             document.getElementById("chat-list").insertAdjacentHTML('beforeend', templateChatGroup);
+         });
+     }) */
 
 }
 const listItemGroup = document.querySelectorAll('.group');
@@ -104,7 +125,7 @@ listItemGroup.forEach((item, index) => {
 //XU LI XOA TIN NHAN
 socket.on('messageDeleted', (data) => {
     if (data.status == true) {
-        const channelIndex = storageListMessage.findIndex((channel) => channel._id == data.receiverId)
+        const channelIndex = storageListMessage.findIndex((channel) => channel.channelId == data.receiverId)
         console.log("channel index:", channelIndex);
         const messageIndex = storageListMessage[channelIndex].messages.findIndex((msg) => msg._id == data._id)
         console.log("message Index:", messageIndex);
@@ -142,21 +163,21 @@ const handleDeleteMsg = (id) => {
 //XU LI THU HOI TIN NHAN
 socket.on('messageRevoked', (data) => {
     if (data.status == true) {
-        const channelIndex = storageListMessage.findIndex((channel) => channel._id == data.receiverId)
+        const channelIndex = storageListMessage.findIndex((channel) => channel.channelId == data.receiverId)
         console.log("channel index:", channelIndex);
-        const messageIndex = storageListMessage[channelIndex].messages.findIndex((msg) => msg._id == data._id)
+        const messageIndex = storageListMessage[channelIndex].messages.findIndex((msg) => msg._id == data.channelId)
         console.log("message Index:", messageIndex);
         if (messageIndex !== -1) {
             storageListMessage[channelIndex].messages[messageIndex].messageContent = data.messageContent
             storageListMessage[channelIndex].messages[messageIndex].typeContent = data.typeContent
             storageListMessage[channelIndex].messages[messageIndex].updatedAt = data.updatedAt
-            console.log("Revoked message id:", data._id);
+            console.log("Revoked message id:", data.channelId);
         } else {
-            console.log("Not found message id:", data._id);
+            console.log("Not found message id:", data.channelId);
         }
         const msg = storageListMessage[channelIndex].messages[messageIndex] //gan bien tu list danh tin nhan local
         const { _id, senderId, messageContent, updatedAt } = msg // spread msg tu trong local ra
-        const parentElement = document.getElementById(data._id); //khai bao de lay cac thanh phan con
+        const parentElement = document.getElementById(data.channelId); //khai bao de lay cac thanh phan con
         parentElement.querySelector('.message-content p').textContent = `${messageContent}`
         parentElement.querySelector('.message-info').textContent = `${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}`
     } else {
@@ -183,22 +204,6 @@ const handleRevokeMsg = (id) => {
 
 
 
-//Lang nghe su kien chon group de chat
-//kiem tra so phong room hien co
-function getStatusServer() {
-
-    // socket.emit('addChannel', { profileId: sessionStorage.getItem('profileId'), channelId: '65f421456957be1099c49d5g' })
-    console.log("status cua danh sach phong trong server");
-    // socket.emit('test')
-    // socket.emit('loadMessages', { senderId: sessionStorage.getItem('profileId') })
-    // console.log("tin nhan trong storage la ", storageListMessage);
-
-
-
-
-
-}
-
 socket.on('getListDetailsChannels', (data) => {
     console.log("data hien thi ra ", data)
 })
@@ -207,17 +212,18 @@ socket.on('getMessagesHistory', (data) => {
     console.log("tin nhan cu la ", data);
     /*  socket.on('lastMessage', (data) => {
          document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
-         document.getElementById(`${data._id}-chat`).insertAdjacentHTML('beforeend', `<h1>${data.info}</h1>`);
+         document.getElementById(`${data.channelId}-chat`).insertAdjacentHTML('beforeend', `<h1>${data.info}</h1>`);
      }) */
 
     //tim ra vi tri object noi luu danh sach tin nhan cu
-    const foundElementIndex = storageListMessage.findIndex(elem => elem._id == data._id);
+    const foundElementIndex = storageListMessage.findIndex(elem => elem.channelId == data.channelId);
     if (foundElementIndex !== -1) {
         (storageListMessage[foundElementIndex].messages).unshift(...data.messages)
     }
 
+    console.log(data);
     data.messages.map(message => {
-        const { senderId, messageContent, receiverId, createdAt, updatedAt } = message;
+        const { senderId, messageContent, receiverId, createdAt, updatedAt, _id } = message;
 
         const messageSenderElement = `<li class="message sender-message" id="${_id}">
                     <div class="message-avatar">
@@ -247,10 +253,10 @@ socket.on('getMessagesHistory', (data) => {
 
         if (senderId._id === sessionStorage.getItem('profileId')) {
             document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
-            document.getElementById(`${data._id}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
+            document.getElementById(`${data.channelId}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
         } else {
             document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
-            document.getElementById(`${data._id}-chat`).insertAdjacentHTML('beforeend', messageReceiverElement);
+            document.getElementById(`${data.channelId}-chat`).insertAdjacentHTML('beforeend', messageReceiverElement);
 
         }
     })
@@ -261,7 +267,7 @@ document.getElementById(`chat`).addEventListener('scroll', async () => {
     if (document.getElementById(`chat`).scrollTop === 0) {
         // Đã scroll đến đỉnh, gọi hàm load dữ liệu tiếp ở đây
         const channelId = await document.querySelector('.group.selected').id.split('-')[0]  // lay ra channel dang duoc focus vao
-        const listMessages = await storageListMessage.find(elem => elem._id == channelId)
+        const listMessages = await storageListMessage.find(elem => elem.channelId == channelId)
         console.log("channelId", channelId);
         console.log("tin nhan cu nhat scroll", listMessages.messages[0]);
 
@@ -306,10 +312,10 @@ function getListMessage() {
 
             if (senderId._id === sessionStorage.getItem('profileId')) {
                 document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
-                document.getElementById(`${data._id}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
+                document.getElementById(`${data.channelId}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
             } else {
                 document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
-                document.getElementById(`${data._id}-chat`).insertAdjacentHTML('beforeend', messageReceiverElement);
+                document.getElementById(`${data.channelId}-chat`).insertAdjacentHTML('beforeend', messageReceiverElement);
 
             }
         })
@@ -352,7 +358,7 @@ function getMessage() {
             </li>`
 
         console.log("tin nhan duoc gui la ", data);
-        const foundElementIndex = storageListMessage.findIndex(elem => elem._id === data.receiverId);
+        const foundElementIndex = storageListMessage.findIndex(elem => elem.channelId === data.receiverId);
         if (foundElementIndex !== -1) {
             storageListMessage[foundElementIndex].messages.push(data);
         }
@@ -391,4 +397,34 @@ function sendMessage() {
     // const _id = "1214"; // ID của tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
     socket.emit("sendMessage", { senderId, receiverId, typeContent, messageContent });
     messageInput.value = ""; // Xóa nội dung trong ô nhập sau khi gửi tin nhắn
+}
+
+//Lang nghe su kien chon group de chat
+//kiem tra so phong room hien co
+function getStatusServer() {
+    console.log("status cua danh sach phong trong server:");
+    // socket.emit('test')
+    // socket.emit('loadMessages', { senderId: sessionStorage.getItem('profileId') })
+    // console.log("tin nhan trong storage la ", storageListMessage);
+    socket.emit('test')
+}
+socket.on('getDetailsChannel', data => {
+    console.log(data);
+    const { _id } = data
+    socket.emit('addChannel', { profileId: sessionStorage.getItem('profileId'), channelId: _id })
+})
+socket.on('createdChannel', (channel) => {
+    console.log("id room duoc tao gui ve la ", channel);
+    socket.emit('joinChannel', channel._id)
+})
+
+socket.on('errorSocket', error => {
+    console.log("loi la: ", error);
+})
+
+function test() {
+    console.log("test chuc nang socket:");
+
+    socket.emit('createSingleChat', { typeChannel: 101, receiverId: '65f417a034e9a9f7e2f3cf9f' })
+    // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom con cac', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"]})
 }

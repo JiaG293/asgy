@@ -5,7 +5,7 @@ const morgan = require('morgan')
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
-const { PORT } = process.env;
+const { PORT, URL_CLIENT } = process.env;
 const fs = require('fs');
 const path = require('path');
 
@@ -18,7 +18,8 @@ require('./dbs/init.mongodb')
 //CORS 
 const cors = require("cors");
 app.use(cors(/* {
-    origin: [`http://localhost:` + PORT, 'http://localhost:8085', 'http://localhost:5000'],
+    allowedHeaders: ['x-client-id', 'authorization'],
+    origin: [`http://localhost:` + PORT, 'http://localhost:8085', URL_CLIENT],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
 } */))

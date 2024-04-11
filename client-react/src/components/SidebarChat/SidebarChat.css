@@ -1,0 +1,51 @@
+/* Sidebar.css */
+.sidebar {
+    flex: 0.25;
+    background-color: #f0f2f5;
+    border-right: 1px solid lightgray;
+    padding: 20px;
+
+  }
+  
+  .sidebar__chats {
+    margin-top: 20px;
+  }
+  
+  /* SidebarChat.css */
+  .sidebarChat {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid lightgray;
+    height: 75px;
+  }
+  
+  .sidebarChat:hover {
+    background-color: #e9eaeb; /* Màu nền khi hover */
+  }
+  
+  .sidebarChat.selected {
+    background-color: #cde5fd; /* Màu nền khi selected */
+  }
+  
+  .sidebarChat__icon {
+    margin-right: 10px;
+  }
+  
+  .sidebarChat__icon img {
+    width: 40px; /* Độ rộng của icon */
+    height: 40px; /* Chiều cao của icon */
+    border-radius: 50%; /* Độ cong viền của icon để tạo hình tròn */
+  }
+  
+  .sidebarChat__info h3 {
+    margin: 0;
+    font-size: 16px; /* Kích thước của tên nhóm */
+  }
+  
+  .sidebarChat__info p {
+    margin: 5px 0 0 0;
+    font-size: 14px; /* Kích thước của tin nhắn cuối cùng */
+    color: gray;
+  }
