@@ -5,8 +5,8 @@ import { io } from "socket.io-client";
 
 const socket = io(serverURL, {
   extraHeaders: {
-    "x-client-id": clientID,
-    authorization: refreshToken,
+      "x-client-id": clientID ,
+      "authorization": refreshToken,
   },
   withCredentials: true,
 });

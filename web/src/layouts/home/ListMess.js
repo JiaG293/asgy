@@ -6,7 +6,6 @@ import axios from "axios";
 import statusCode from "utils/statusCode";
 import { useSelector, useDispatch } from "react-redux";
 import socket from "socket/socket";
-import { io } from "socket.io-client";
 
 import {
   setChannels,
@@ -14,8 +13,6 @@ import {
   setCurrentMessages,
   setMessages,
 } from "../../redux/action";
-import { serverURL } from "api/endpointAPI";
-import { clientID, refreshToken } from "../../env/env";
 
 function ListMess({ setSelectedMessage }) {
   const profile = useSelector((state) => state.profile);
@@ -60,9 +57,6 @@ function ListMess({ setSelectedMessage }) {
 
   //hàm add user
   const IOAddUser = async () => {
-    // console.log("profile:", profileID);
-    // console.log("channelLoaded:", channelLoaded);
-    // console.log("channelList:", channelList);
     const channelsID = await channelList.map((channel) => channel._id);
     if (profileID && channelLoaded && channelList) {
       await socket.emit("addUser", { profileId: profileID, channels: channelsID });
@@ -84,11 +78,15 @@ function ListMess({ setSelectedMessage }) {
 
   //hàm chọn channel
   const selectChannel = (channel) => {
+    //hàm này để mất giao diện chờ
     setSelectedMessage(true);
     dispatch(setCurrentChannel(channel));
     messagesList.forEach((item) => {
-      if (item._id === channel._id) {
+      console.log("click");
+      if (item.channelId === channel._id) {
         dispatch(setCurrentMessages(item.messages));
+        console.log("message da chon");
+        console.log(item);
       }
     });
   };
@@ -100,46 +98,20 @@ function ListMess({ setSelectedMessage }) {
   useEffect(() => {
     const reRender = async () => {
       if (profileID && channelLoaded) {
-        
-        // const socket = io(serverURL, {
-        //   extraHeaders: {
-        //     "x-client-id": clientID,
-        //     authorization: refreshToken,
-        //   },
-        //   withCredentials: true,
-        // });
 
         await IOAddUser();
         await IOLoadMessages();
-  
         //hàm nhận tất cả tin nhắn từ lúc đầu
         socket.on("getMessages", (data) => {
           dispatch(setMessages(data));
         });  
-
-
-        //hàm nhận tin nhắn mới
-        // socket.on("getMessage", (newMessage) => {
-        //   console.log("Nhận về từ server", newMessage);
-        //   dispatch(setMessages([...currentMessages, newMessage]));// đưa vào redux
-
-        // });
-  
-        // await socket.on("message", (message) => {
-        //   console.log(message);
-        // });
-  
-        // return () => {
-        //   socket.disconnect();
-        // };
+        
       }
     };
   
     reRender();
   }, [profileID, channelLoaded]);
   
-
-
 
   return (
     <div className="listmess-chat-panel">

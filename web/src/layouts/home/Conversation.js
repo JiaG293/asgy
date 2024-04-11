@@ -15,6 +15,12 @@ function Conversation() {
   const currentChannel = useSelector((state) => state.currentChannel);
   const dispatch = useDispatch();
   const currentMessages = useSelector((state) => state.currentMessages);
+  const messagesList = useSelector((state) => state.messagesList);
+
+
+  // console.log("===============DANH SACH TIN NHAN HIEN TAI===================");
+  // console.log(messagesList);
+  // console.log(currentMessages);
 
   // Render danh sách tin nhắn
   const message = currentMessages.map((message) => (
@@ -43,16 +49,16 @@ function Conversation() {
       console.log("Nhận về từ server", newMessage);
       dispatch(setCurrentMessages([...currentMessages, newMessage]));
       console.log(currentMessages);
-      setTimeout(() => {
-        scrollToBottom(); 
+      // setTimeout(() => {
+      //   scrollToBottom(); 
 
-      }, 1);
+      // }, 1);
     });
   }, [currentMessages]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [currentChannel]);
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [currentChannel]);
 
   // Gửi tin nhắn từ máy khách tới máy chủ
   const IOSendMessage = () => {
@@ -65,7 +71,7 @@ function Conversation() {
         messageContent: messageContent,
       });
       setMessageContent("");
-      scrollToBottom()
+      // scrollToBottom()
     }
   };
 
