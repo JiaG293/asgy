@@ -53,20 +53,25 @@ const getListChannels = async (headers) => {
 
     for (const channel of profile.listChannels) {
         console.log("name channel neu ton tai: ", channel.name);
+        console.log("icon channel neu ton tai: ", channel.icon);
         // kiem tra xem channel neu la 101 va 102 thi doi ten name Channel && NEU TRONG DAY DA CO TRUONG NAME ROI THI SE KHONG DOI TEN NUA
-        if ((channel.typeChannel === 101 || channel.typeChannel === 102) && !channel.name) {
+        if ((channel.typeChannel === 101 || channel.typeChannel === 102) && (!channel.name || !channel.icon)) {
             let nameChannel = '';
+            let iconChannel = '';
             for (const member of channel.members) {
                 if (member.profileId) {
                     if (member.profileId._id.toString() !== profileId) {
                         nameChannel = member.profileId.fullName;
+                        iconChannel = member.profileId.avatar;
                         console.log("name channel duoc thay doi la:", nameChannel);
+                        console.log("icon channel duoc thay doi la:", iconChannel)
                         break;
                     }
                 }
             }
             //Cap nhat lai truong name
             channel.name = nameChannel;
+            channel.icon = iconChannel
         }
     }
 

@@ -10,7 +10,6 @@ const channelSchema = new mongoose.Schema(
     },
     icon: {
       type: String,
-      default: "https://i.imgur.com/WCRmPDS.png"
     },
     background: {
       type: String,
