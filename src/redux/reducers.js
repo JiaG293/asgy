@@ -1,5 +1,14 @@
-import { combineReducers } from 'redux';
-import { SET_PROFILE, SET_USER, SET_AUTHENTICATED } from './actionTypes';
+import { combineReducers } from "redux";
+import {
+    SET_PROFILE,
+    SET_USER,
+    SET_CHANNELS,
+    SET_MESSAGES,
+    SET_CURRENT_CHANNEL,
+    SET_CURRENT_MESSAGES,
+    SET_FRIENDS,
+    SET_FRIENDS_REQUEST,
+} from "./actionTypes";
 
 const profileReducer = (state = null, action) => {
     switch (action.type) {
@@ -19,19 +28,69 @@ const userReducer = (state = null, action) => {
     }
 };
 
-// const isAuthenticatedReducer = (state = false, action) => {
-//   switch (action.type) {
-//     case SET_AUTHENTICATED:
-//       return action.payload;
-//     default:
-//       return state;
-//   }
-// };
+const channelsReducer = (state = [], action) => {
+    switch (action.type) {
+        case SET_CHANNELS:
+            return [...action.payload];
+        default:
+            return state;
+    }
+};
 
+const messagesReducer = (state = [], action) => {
+    switch (action.type) {
+        case SET_MESSAGES:
+            return [...state, action.payload];
+        default:
+            return state;
+    }
+};
+
+const currentChannelReducer = (state = null, action) => {
+    switch (action.type) {
+        case SET_CURRENT_CHANNEL:
+            return { ...state, ...action.payload };
+        default:
+            return state;
+    }
+};
+
+const currentMessagesReducer = (state = [], action) => {
+    switch (action.type) {
+        case SET_CURRENT_MESSAGES:
+            return action.payload;
+        default:
+            return state;
+    }
+};
+
+const friendsReducer = (state = [], action) => {
+    switch (action.type) {
+        case SET_FRIENDS:
+            return action.payload;
+        default:
+            return state;
+    }
+};
+
+const friendsRequestReducer = (state = [], action) => {
+    switch (action.type) {
+        case SET_FRIENDS_REQUEST:
+            return action.payload;
+        default:
+            return state;
+    }
+};
 const rootReducer = combineReducers({
     profile: profileReducer,
     user: userReducer,
-    // isAuthenticated: isAuthenticatedReducer, 
+    channelList: channelsReducer,
+    messagesList: messagesReducer,
+    currentChannel: currentChannelReducer,
+    currentMessages: currentMessagesReducer,
+    friendsList: friendsReducer,
+    friendsRequestList: friendsRequestReducer
+    // isAuthenticated: isAuthenticatedReducer,
 });
 
 export default rootReducer;

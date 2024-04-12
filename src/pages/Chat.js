@@ -6,94 +6,117 @@ import SearchA from '../components/Search';
 import socketIOClient from 'socket.io-client';
 import callAPI from '../api/callAPI';
 import endpointAPI from '../api/endpointAPI';
-import { setProfile } from '../redux/action';
-import {useDispatch} from 'react-redux';
+import { setChannels, setProfile } from '../redux/action';
+import { useDispatch, useSelector } from 'react-redux';
+import { clientId, refreshToken } from '../auth/trans';
 
 
 export default function Chat({ navigation }) {
+    const profile = useSelector((state) => state.profile);
+    const profileID = profile?._id;
+    const channelList = useSelector((state) => state.channelList);
     const dispatch = useDispatch();
 
-    const { messages } = require('../data/mockChat');
-    // const [messages, setMessages] = useState([]);
+    // const { messages } = require('../data/mockChat');
 
-    /* useEffect(() => {
-        const fetchMessages = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/api/v1/chats/channels');
-                setMessages(response.data); // giả sử response.data là một mảng các tin nhắn
-            } catch (error) {
-                console.error(error);
+    const fetchDataProfile = async () => {
+        try {
+           
+            if (!refreshToken) {
+                console.error("refreshToken không tồn tại");
+                return;
             }
-        };
+            const headers = {
+                "x-client-id": clientId,
+                "authorization": refreshToken,
+            };
 
-        fetchMessages();
+            const response = await axios.get(endpointAPI.getInfoProfile, {
+                headers,
+            });
+
+            if (response.status === 200) {
+                const profile = response.data.metadata;
+                dispatch(setProfile(profile));
+            } else {
+                console.error("Lỗi khi lấy thông tin người dùng");
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy thông tin người dùng:", error);
+        }
+    };
+    const fetchDataChannel = async () => {
+        try {
+            if (!refreshToken) {
+                console.error("refreshToken không tồn tại");
+                return;
+            }
+            const headers = {
+                "x-client-id": clientId,
+                authorization: refreshToken,
+            };
+            const response = await axios.get(
+                "http://localhost:5000/api/v1/chats/channels",
+                {
+                    headers,
+                }
+            );
+            if (response.status === 200) {
+                const channelList = response.data.metadata;
+                dispatch(setChannels(channelList));
+                // setChannelLoaded(true);
+                console.log(channelList);
+            } else {
+                console.error("Lỗi khi lấy thông tin người dùng");
+            }
+        } catch (error) {
+            console.error("Lỗi khi lấy thông tin người dùng:", error);
+        }
+    };
+
+    useLayoutEffect(() => {
+        fetchDataProfile();
+        fetchDataChannel();
     }, []);
 
-    useEffect(() => {
-        const socket = socketIOClient(ENDPOINT);
-        
-        socket.on('newMessage', (message) => {
-            setMessages(prevMessages => [...prevMessages, message]);
-        });
-
-        return () => socket.disconnect(); // Clean up khi component unmount
-    }, []); */
-
-
-    const fetchData = async () => {
-        try {
-          const refreshToken = localStorage.getItem("refreshToken");
-          const clientID = localStorage.getItem("clientId");
-          if (!refreshToken) {
-            console.error("refreshToken không tồn tại");
-            return;
-          }
-          const headers = {
-            "x-client-id": clientID,
-            "authorization": refreshToken,
-          };
-    
-          const response = await axios.get(endpointAPI.getInfoProfile, {
-            headers,
-          });
-    
-          if (response.status === 200) {
-            const profile = response.data.metadata;
-            dispatch(setProfile(profile));
-          } else {
-            console.error("Lỗi khi lấy thông tin người dùng");
-          }
-        } catch (error) {
-          console.error("Lỗi khi lấy thông tin người dùng:", error);
-        }
-      };
-    
-      useLayoutEffect(() => {
-        fetchData();
-      }, []);
-
-
-    const renderMessageItem = ({ item }) => {
+      const rendermessit = ({item})=> {
+        // so sánh với profile ID của mình => 
         return (
-            <TouchableOpacity style={styles.messageItem}
-                onPress={() => {
-                    navigation.navigate("ChatScreen", {
-                        avatar: item.avatar,
-                        sender: item.sender,
-                        messages: item.messages,
-                    });
-                }}>
-                <Image source={{ uri: item.avatar }} style={styles.avatar} />
+          <TouchableOpacity key={item._id} style={styles.messageItem}>
+                <Image source={{ uri: item?.icon }} style={styles.avatar} />
                 <View style={styles.messageContent}>
                     <View style={styles.messageText}>
-                        <Text numberOfLines={1} style={styles.sender}>{item.sender}</Text>
-                        <Text>{item.content}</Text>
+                        <Text numberOfLines={1} style={styles.sender}>{item?.name}</Text>
+                        <Text>da7</Text>
                     </View>
-                    <Text style={styles.time}>{item.time}</Text>
+                    <Text style={styles.time}>{new Date(item.updatedAt).toLocaleDateString()}</Text>
+                </View>
+                
+            </TouchableOpacity>
+        );
+        return (
+            <View>
+
+            </View>
+        )
+      }
+
+
+     const renderMessageItem = ({ item }) => {
+        
+        return (
+            <TouchableOpacity style={styles.messageItem}>
+                <Image source={{ uri: item.background }} style={styles.avatar} />
+                <View style={styles.messageContent}>
+                    <View style={styles.messageText}>
+                        <Text numberOfLines={1} style={styles.sender}>{item.name}</Text>
+                        <Text>da7</Text>
+                    </View>
+                    <Text style={styles.time}>2:12pm</Text>
                 </View>
             </TouchableOpacity>
         );
-    };
+    }; 
 
     return (
         <View style={styles.container}>
@@ -102,9 +125,9 @@ export default function Chat({ navigation }) {
             </View>
             <FlatList
                 style={{ flex: 1 }}
-                data={messages}
-                keyExtractor={item => item.id}
-                renderItem={renderMessageItem}
+                data={channelList}
+                keyExtractor={item => item._id}
+                renderItem={rendermessit}
             />
         </View>
     );

@@ -24,14 +24,18 @@ const useLogin = () => {
     dispatch(setUser(user));
 
     // dung local web
-    localStorage.setItem('refreshToken', refreshToken);
-    localStorage.setItem('clientId',clientId)
+    // localStorage.setItem('refreshToken', refreshToken);
+    // localStorage.setItem('clientId',clientId)
+
+    // dung sessionStorage
+    // sessionStorage.setItem('refreshToken', refreshToken);
+    // sessionStorage.setItem('clientId',clientId)
 
 
     // dung storage app
-    /* await SecureStore.setItemAsync('secure_token', refreshToken);
-    const a = await SecureStore.getItemAsync('secure_token');
-    console.log(a); */
+    await SecureStore.setItemAsync('refreshToken', refreshToken);
+     await SecureStore.setItemAsync('clientId', clientId);
+   
 
 
     navigation.navigate('home');

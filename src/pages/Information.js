@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 export default function Profile() {
   const profile = useSelector(state => state.profile);
   console.log(profile);
+  const channelList = useSelector((state) => state.channelList);
+  console.log(channelList);
 
 
   // Dữ liệu mẫu, thay đổi theo thông tin thực tế
