@@ -162,25 +162,33 @@ const sendFriendRequest = async (req) => {
     const decodeToken = await decodeTokens(clientId, authorization);
     const { profileIdReceive } = req.body
 
-    //1. Kiem tra trung nhau 
+    // 1. Kiem tra trung nhau 
     if (decodeToken.profileId === profileIdReceive) {
         throw new ConflictRequestError("Do not request to yourself")
     }
 
-    //2. Kiem tra yeu cau ket ban co ton tai hay khong
+    // 2. kiem tra profile id muon ket ban co ton tai khong
+    const getDataProfile = await ProfileModel.findOne({ _id: profileIdReceive }).select('-_id birthday gender fullName info avatar').lean()
+    if (!getDataProfile) {
+        throw new BadRequestError("Not found profile request")
+    }
+
+    // 3. Kiem tra yeu cau ket ban co ton tai hay khong
     const requestExists = await ProfileModel.findOne({ _id: decodeToken.profileId, friendsRequest: { $elemMatch: { profileIdRequest: profileIdReceive } } }).lean()
 
     if (requestExists) {
         throw new ConflictRequestError('Request make friend is exists')
     }
 
-    //3. kiem tra profile id muon ket ban co ton tai khong
-    const getDataProfile = await ProfileModel.findOne({ _id: profileIdReceive }).select('-_id birthday gender fullName info avatar').lean()
+    // 4. kiem tra xem da la ban be chua
+    const friendExists = await ProfileModel.findOne({ _id: decodeToken.profileId, friends: { $elemMatch: { profileIdRequest: profileIdReceive } } }).lean()
 
-    if (!getDataProfile) {
-        throw new BadRequestError("Not found profile request")
+    if (friendExists) {
+        throw new ConflictRequestError('Friend is exists')
     }
-    // 3. Tao yeu cau ket ban neu chua ton tai
+
+
+    // 5. Tao yeu cau ket ban neu chua ton tai
     const newFriendRequest = await ProfileModel.findOneAndUpdate(
         {
             _id: profileIdReceive,

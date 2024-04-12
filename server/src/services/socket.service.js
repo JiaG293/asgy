@@ -38,7 +38,7 @@ FORM:
 
 */
 global._profileConnected = new Map();
-
+global._io = io
 //THEM PROFILEID VAO _PROFILECONNECTED 
 const addProfileConnected = async ({ profileId, channels }, socket) => {
     const check = _profileConnected.has(profileId);
@@ -138,6 +138,7 @@ io.use(async (socket, next) => {
         return next()
     }
 });
+
 
 io.on("connection", (socket) => {
     //xem thong tin headers

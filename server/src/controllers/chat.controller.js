@@ -1,6 +1,6 @@
-const { accessChat, sendMessage } = require("../services/chat.service");
+const { accessChat, sendMessage, sendVideo, sendImage, sendDocument, sendFiles } = require("../services/chat.service");
 const { createSingleChat, createGroupChat, findChannelByUserId, checkChannelSingleExists, getListChannels, getDetailsChannel} = require("../services/channel.service");
-const { CREATED, SuccessResponse } = require("../utils/responses/success.response");
+const { SuccessResponse } = require("../utils/responses/success.response");
 
 class ChatController {
 
@@ -60,6 +60,35 @@ class ChatController {
             metadata: await checkChannelExists(req.body)
         }).send(res)
     }
+
+    sendImage = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Send image success',
+            metadata: await sendImage(req)
+        }).send(res)
+    }
+
+    sendVideo = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Send video success',
+            metadata: await sendVideo(req)
+        }).send(res)
+    }
+
+    sendDocument = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Send document success',
+            metadata: await sendDocument(req)
+        }).send(res)
+    }
+
+    sendFiles = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Send file success',
+            metadata: await sendFiles(req)
+        }).send(res)
+    }
+
 
 
 }

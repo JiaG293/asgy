@@ -23,6 +23,38 @@ const fileFilter = (req, file, cb) => {
     return cb("Error: Please upload jpeg | jpg | png | gif");
 }
 
+const fileFilterImage = (req, file, cb) => {
+    const fileTypes = /jpeg|jpg|png|gif|/;
+
+    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = fileTypes.test(file.mimetype);
+    if (extname && mimetype) {
+        return cb(null, true);
+    }
+    return cb("Error: Please upload jpeg | jpg | png | gif");
+}
+const fileFilterVideo = (req, file, cb) => {
+    const fileTypes = /mp4|webm/;
+
+    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = fileTypes.test(file.mimetype);
+    if (extname && mimetype) {
+        return cb(null, true);
+    }
+    return cb("Error: Please upload mp4 | webm ");
+}
+
+const fileFilterDocument = (req, file, cb) => {
+    const fileTypes = /pdf|doc|docx|pptx|ppt|xls|xlsx|csv|epub|mobi|txt|bat/;
+
+    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = fileTypes.test(file.mimetype);
+    if (extname && mimetype) {
+        return cb(null, true);
+    }
+    return cb("Error: Please upload pdf | doc | docx | pptx | ppt | xls | xlsx | csv | epub | mobi | txt | bat ");
+}
+
 
 const uploadDocumentChat = multer({
     storage: multerS3({
@@ -44,13 +76,13 @@ const uploadDocumentChat = multer({
             
              */
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-            cb(null, "chats/" + file.fieldname + '_' + uniqueSuffix + file.originalname)
+            cb(null, "chats/document/" + file.fieldname + '_' + uniqueSuffix + file.originalname)
         }
     }),
     limits: {
         fieldSize: 1024 * 1024 * 100
     },
-    fileFilter: fileFilter
+    fileFilter: fileFilterDocument
 });
 
 const uploadVideoChat = multer({
@@ -73,13 +105,13 @@ const uploadVideoChat = multer({
             
              */
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-            cb(null, "chats/" + file.fieldname + '_' + uniqueSuffix + file.originalname)
+            cb(null, "chats/video/" + file.fieldname + '_' + uniqueSuffix + file.originalname)
         }
     }),
     limits: {
         fieldSize: 1024 * 1024 * 100
     },
-    fileFilter: fileFilter
+    fileFilter: fileFilterVideo
 });
 
 
@@ -103,13 +135,13 @@ const uploadImageChat = multer({
             
              */
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-            cb(null, "chats/" + file.fieldname + '_' + uniqueSuffix + file.originalname)
+            cb(null, "chats/image/" + file.fieldname + '_' + uniqueSuffix + file.originalname)
         }
     }),
     limits: {
-        fieldSize: 1024 * 1024 * 100
+        fieldSize: 1024 * 1024 * 1024 * 100
     },
-    fileFilter: fileFilter
+    fileFilter: fileFilterImage
 });
 
 
@@ -143,27 +175,6 @@ const uploadAvatar = multer({
 });
 
 
-/* const messageS3Config = multerS3({
-    s3: s3Config,
-    bucket: AWS_BUCKET_NAME,
-    acl: 'public-read',
-    metadata: function (req, file, cb) {
-        cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        cb(null, "messages/" + file.fieldname + '_' + uniqueSuffix + path.extname(file.originalname))
-    }
-});
- */
-
-/* exports.uploadMessage = multer({
-    storage: messageS3Config,
-    limits: {
-        fileSize: 1024 * 1024 * 5
-    }
-}); */
-
 const deleteFileS3 = async (fileuri) => {
     const fileKey = fileuri.split('/').slice(-2).join("/");
     return await s3Config.deleteObject({
@@ -171,7 +182,6 @@ const deleteFileS3 = async (fileuri) => {
         Key: fileKey
     }).promise();
 }
-
 module.exports = {
     deleteFileS3,
     uploadAvatar,

@@ -6,6 +6,15 @@ const socketService = require("./socket1.service");
 const mongoose = require("mongoose");
 const { findProfileById } = require("./profile.service");
 const { removeTokenById } = require("./keyToken.service");
+const { decodeTokens } = require("../auth/authUtils");
+const { uploadS3 } = require("./s3.service");
+
+const HEADER = {
+    API_KEY: 'x-api-key',
+    AUTHORIZATION: 'authorization',
+    X_CLIENT_ID: 'x-client-id',
+}
+
 
 const accessChat = async (chat) => {
     const { userId } = await chat;
@@ -270,7 +279,7 @@ const revokeMessageById = async (messageId) => {
 }
 
 
-const socketDetailsChannel = async ({profileId, channelId}) => {
+const socketDetailsChannel = async ({ profileId, channelId }) => {
 
     const channel = await ChannelModel.findOne({ _id: channelId }).populate({
         path: 'members.profileId',
@@ -302,6 +311,141 @@ const socketDetailsChannel = async ({profileId, channelId}) => {
     return channel
 }
 
+const sendImage = async (req) => {
+    const { receiverId } = req.params
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
+
+    if (req?.files == undefined) {
+        throw new BadRequestError('Failed upload s3')
+    }
+    const images = req.files.map(file => file.location);
+    console.log("files", images);
+
+
+    const newMessages = await Promise.all(images.map(async (image) => {
+        const saveNewMessage = await MessageModel.create({
+            senderId: decodeToken.profileId,
+            receiverId: mongoose.Types.ObjectId(receiverId),
+            typeContent: "image",
+            messageContent: image,
+        });
+
+
+        return saveNewMessage.populate({
+            path: 'senderId',
+            select: 'avatar fullName'
+        });
+    }));
+
+    if (!newMessages) {
+        throw new BadRequestError('Send image failed')
+    }
+    newMessages.forEach(message => {
+        _io.to(receiverId).emit('getMessage', message);
+    })
+    return newMessages
+}
+
+const sendVideo = async (req) => {
+    const { receiverId } = req.params
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
+
+    if (req?.files == undefined) {
+        throw new BadRequestError('Failed upload s3')
+    }
+    const videos = req.files.map(file => file.location);
+    console.log("files", videos);
+
+    const newMessages = await Promise.all(videos.map(async (video) => {
+        const saveNewMessage = await MessageModel.create({
+            senderId: decodeToken.profileId,
+            receiverId: mongoose.Types.ObjectId(receiverId),
+            typeContent: "video",
+            messageContent: video,
+        });
+
+
+        return saveNewMessage.populate({
+            path: 'senderId',
+            select: 'avatar fullName'
+        });
+    }));
+
+    if (!newMessages) {
+        throw new BadRequestError('Send video failed')
+    }
+    return newMessages
+}
+
+const sendDocument = async (req) => {
+    const { receiverId } = req.params
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
+
+    if (req?.files == undefined) {
+        throw new BadRequestError('Failed upload s3')
+    }
+    const documents = req.files.map(file => file.location);
+    console.log("files", documents);
+
+
+    const newMessages = await Promise.all(documents.map(async (document) => {
+        const saveNewMessage = await MessageModel.create({
+            senderId: decodeToken.profileId,
+            receiverId: mongoose.Types.ObjectId(receiverId),
+            typeContent: "document",
+            messageContent: document,
+        });
+
+
+        return saveNewMessage.populate({
+            path: 'senderId',
+            select: 'avatar fullName'
+        });
+    }));
+    if (!newMessages) {
+        throw new BadRequestError('Send document failed')
+    }
+    return newMessages
+}
+
+const sendFiles = async (req) => {
+    const { receiverId } = req.params
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
+
+    if (req?.files == undefined) {
+        throw new BadRequestError('Failed upload s3')
+    }
+    const documents = req.files.map(file => file.location);
+    console.log("files", documents);
+
+
+    const newMessages = await Promise.all(documents.map(async (document) => {
+        const saveNewMessage = await MessageModel.create({
+            senderId: decodeToken.profileId,
+            receiverId: mongoose.Types.ObjectId(receiverId),
+            typeContent: "document",
+            messageContent: document,
+        });
+
+
+        return saveNewMessage.populate({
+            path: 'senderId',
+            select: 'avatar fullName'
+        });
+    }));
+    if (!newMessages) {
+        throw new BadRequestError('Send document failed')
+    }
+    return newMessages
+}
 
 module.exports = {
     accessChat,
@@ -311,6 +455,8 @@ module.exports = {
     removeTokenById,
     revokeMessageById,
     socketDetailsChannel,
-
-
+    sendImage,
+    sendVideo,
+    sendDocument,
+    sendFiles
 }
