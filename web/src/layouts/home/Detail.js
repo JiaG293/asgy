@@ -33,11 +33,11 @@ function Detail() {
           <>
             <img src={othertUser.avatar} className="detail-avatar" />
             <div className="detail-group-name">{othertUser.fullName}</div>
-            <div className="detail-action-buttons">
+            {/* <div className="detail-action-buttons">
               <IoIosNotifications className="detail-item" />
               <MdOutlinePushPin className="detail-item" />
               <MdGroupAdd className="detail-item" />
-            </div>
+            </div> */}
           </>
         )}
       </div>

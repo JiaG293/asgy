@@ -59,7 +59,10 @@ function ListMess({ setSelectedMessage }) {
   const IOAddUser = async () => {
     const channelsID = await channelList.map((channel) => channel._id);
     if (profileID && channelLoaded && channelList) {
-      await socket.emit("addUser", { profileId: profileID, channels: channelsID });
+      await socket.emit("addUser", {
+        profileId: profileID,
+        channels: channelsID,
+      });
       console.log("đã add user: ");
       console.log({ profileId: profileID, channels: channelsID });
     } else {
@@ -68,21 +71,21 @@ function ListMess({ setSelectedMessage }) {
   };
 
   //hàm tải tin nhắn ban đầu
-  const IOLoadMessages = async ()=>{
+  const IOLoadMessages = async () => {
     await socket.emit("loadMessages", {
       senderId: profileID,
     });
     console.log("đã load messages:::");
     console.log(profileID);
-  }
+  };
 
   //hàm chọn channel
-  const selectChannel = (channel) => {
+  const selectChannel = async (channel) => {
     //hàm này để mất giao diện chờ
-    setSelectedMessage(true);
-    dispatch(setCurrentChannel(channel));
-    messagesList.forEach((item) => {
-      console.log("click");
+    await IOLoadMessages();
+    await setSelectedMessage(true);
+    await dispatch(setCurrentChannel(channel));
+    await messagesList.forEach((item) => {
       if (item.channelId === channel._id) {
         dispatch(setCurrentMessages(item.messages));
         console.log("message da chon");
@@ -94,24 +97,21 @@ function ListMess({ setSelectedMessage }) {
   useEffect(() => {
     fetchData();
   }, []);
-  
+
   useEffect(() => {
     const reRender = async () => {
       if (profileID && channelLoaded) {
-
         await IOAddUser();
         await IOLoadMessages();
         //hàm nhận tất cả tin nhắn từ lúc đầu
         socket.on("getMessages", (data) => {
           dispatch(setMessages(data));
-        });  
-        
+        });
       }
     };
-  
+
     reRender();
   }, [profileID, channelLoaded]);
-  
 
   return (
     <div className="listmess-chat-panel">

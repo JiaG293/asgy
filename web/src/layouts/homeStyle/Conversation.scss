@@ -16,30 +16,58 @@ body {
   overflow-y: auto;
   padding: 10px;
 
-  .conversation-item-me {
-    align-self: flex-end;
-    background-color: #3ad1b0;
-    color: #333;
-    padding: 15px;
-    border-radius: 10px;
-    max-width: 70%;
-    word-wrap: break-word;
-    transition: box-shadow 0.3s;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    margin-bottom: 10px; /* Thêm margin dưới */
+  .avatar-and-message {
+    display: flex;
+    align-items: flex-start; /* Hiển thị hình đại diện ở đầu dòng */
+    margin-bottom: 10px;
+
+    .conversation-message-avatar-container {
+      margin-right: 10px; /* Khoảng cách giữa hình đại diện và nội dung tin nhắn */
+      cursor: pointer;
+    }
+
+    .conversation-message-avatar {
+      width: 40px; /* Kích thước hình đại diện nhỏ lại */
+      height: 40px;
+      border-radius: 50%; /* Làm tròn hình đại diện */
+    }
+
+    .conversation-message-content {
+      max-width: calc(100% - 50px); /* Giảm kích thước tối đa của nội dung tin nhắn để làm cho hình đại diện nằm bên ngoài */
+      word-wrap: break-word;
+      transition: box-shadow 0.3s;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .conversation-message-sender-name {
+      color: #888;
+      margin-bottom: 7px;
+      font-size: small;
+      font-weight: bold;
+    }
+    
+    .conversation-message-send-time {
+      color: #555;
+      margin-top: 10px;
+      font-size: 8px;
+    }
   }
 
-  .conversation-item-you {
-    align-self: flex-start;
-    background-color: #f9f9f9;
-    color: #333;
-    padding: 15px;
-    border-radius: 10px;
-    max-width: 70%;
-    word-wrap: break-word;
-    transition: box-shadow 0.3s;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    margin-bottom: 10px; /* Thêm margin dưới */
+  .conversation-item-you .avatar-and-message {
+    flex-direction: row-reverse; /* Đảo chiều của hình đại diện và nội dung tin nhắn */
+    .conversation-message-content {
+      background-color: #3ad1b0;
+      color: #333;
+    }
+  }
+
+  .conversation-item-others .avatar-and-message {
+    .conversation-message-content {
+      background-color: #f9f9f9;
+      color: #333;
+    }
   }
 }
 
@@ -80,4 +108,9 @@ body {
       background-color: #169a7d;
     }
   }
+}
+.conversation-message-avatar-container:hover .conversation-message-avatar {
+  transform: scale(1.15); /* Phóng to hình đại diện lên khi hover */
+  transition-duration: 0.5s; /* Thời gian chuyển tiếp */
+  transition-timing-function: ease; /* Hiệu ứng "ease" */
 }
