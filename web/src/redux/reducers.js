@@ -7,6 +7,8 @@ import {
   SET_MESSAGES,
   SET_CURRENT_CHANNEL,
   SET_CURRENT_MESSAGES,
+  SET_FRIENDS,
+  SET_FRIENDS_REQUEST,
 } from "./actionTypes";
 
 const profileReducer = (state = null, action) => {
@@ -63,6 +65,24 @@ const currentMessagesReducer = (state = [], action) => {
   }
 };
 
+const friendsReducer = (state = [], action) => {
+  switch (action.type) {
+    case SET_FRIENDS:
+      return action.payload;
+    default:
+      return state;
+  }
+};
+
+const friendsRequestReducer = (state = [], action) => {
+  switch (action.type) {
+    case SET_FRIENDS_REQUEST:
+      return action.payload;
+    default:
+      return state;
+  }
+};
+
 const rootReducer = combineReducers({
   profile: profileReducer,
   user: userReducer,
@@ -70,7 +90,8 @@ const rootReducer = combineReducers({
   messagesList: messagesReducer,
   currentChannel: currentChannelReducer,
   currentMessages: currentMessagesReducer,
-
+  friendsList: friendsReducer,
+  friendsRequestList: friendsRequestReducer
   // isAuthenticated: isAuthenticatedReducer,
 });
 

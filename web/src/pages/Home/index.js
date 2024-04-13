@@ -12,11 +12,17 @@ import ListFriend from "../../layouts/home/ListFriend";
 import ListGroup from "../../layouts/home/ListGroup";
 import ListRequest from "../../layouts/home/ListRequest";
 import { useDispatch, useSelector } from "react-redux";
-import { setMessages, setProfile } from "../../redux/action";
+import {
+  setFriends,
+  setFriendsRequest,
+  setMessages,
+  setProfile,
+} from "../../redux/action";
 import SplashScreen from "layouts/home/SplashScreen";
-import io from 'socket.io-client';
+import io from "socket.io-client";
 import { serverURL } from "api/endpointAPI";
 import { clientID, refreshToken } from "env/env";
+import socket from "socket/socket";
 
 function Home() {
   const dispatch = useDispatch();
@@ -29,7 +35,7 @@ function Home() {
     try {
       const refreshToken = Cookies.get("refreshToken");
       const clientID = Cookies.get("clientId");
-      
+
       if (!refreshToken) {
         console.error("refreshToken không tồn tại");
         return;
@@ -45,7 +51,14 @@ function Home() {
 
       if (response.status === 200) {
         const profile = response.data.metadata;
+        const friends = response.data.metadata.friends;
+        const friendsRequest = response.data.metadata.friendsRequest;
         dispatch(setProfile(profile));
+        dispatch(setFriends(friends));
+        dispatch(setFriendsRequest(friendsRequest));
+
+        console.log(response.data.metadata.friendsRequest);
+        console.log(response.data.metadata.friends);
       } else {
         console.error("Lỗi khi lấy thông tin người dùng");
       }
@@ -54,8 +67,8 @@ function Home() {
     }
   };
 
-
   useLayoutEffect(() => {
+    socket.connect();
     fetchData();
   }, []);
 
@@ -101,6 +114,15 @@ function Home() {
           </>
         );
         break;
+      case "findProfile":
+        setCurrentComponent(
+          <>
+            <Contacts onSelectMenuItem={setSelectedMenuItem} />
+            <Conversation />
+            <Detail />
+          </>
+        );
+        break;
       default:
         break;
     }
@@ -115,4 +137,3 @@ function Home() {
 }
 
 export default Home;
-

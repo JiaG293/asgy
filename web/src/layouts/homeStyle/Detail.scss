@@ -9,7 +9,6 @@ body {
   background-color: #f8f8f8;
   display: flex;
   flex-direction: column;
-  // justify-content: center; /* Canh giữa theo chiều dọc */
 
   .detail-header {
     display: flex;
@@ -20,36 +19,56 @@ body {
     height: 5%;
     border-bottom: 1px solid #ddd;
 
-    span{
+    span {
       margin-left: 15px;
     }
-
   }
 
   .detail-info {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Canh giữa theo chiều ngang */
-    margin-top: 20px; /* Khoảng cách giữa header và thông tin */
-  
+    align-items: center;
+    margin-top: 20px;
+
     .detail-avatar {
-      height: 70px; /* Kích thước avatar */
-      width: 70px; /* Kích thước avatar */
-      border-radius: 50%; 
-      margin-bottom: 10px; /* Khoảng cách giữa avatar và các phần tử khác */
+      height: 70px;
+      width: 70px;
+      border-radius: 50%;
+      margin-bottom: 10px;
     }
 
     .detail-group-name {
-      font-size: 18px; /* Kích thước font cho tên nhóm */
-      margin-bottom: 10px; /* Khoảng cách giữa tên nhóm và các phần tử khác */
+      font-size: 18px;
+      margin-bottom: 10px;
     }
 
     .detail-action-buttons {
       display: flex;
-  
+
       .detail-item {
-      
         margin-right: 10px;
+      }
+    }
+  }
+
+  .detail-group-icon {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+
+    .detail-icon {
+      font-size: 25px;
+      margin-right: 10px;
+      cursor: pointer;
+      transition: transform 0.3s ease; 
+      &:hover {
+        transform: scale(1.2); /* Scale up on hover */
+        transition: transform 0.5s ease; 
+      }
+
+
+      &:last-child {
+        margin-right: 0;
       }
     }
   }

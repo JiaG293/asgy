@@ -1,10 +1,12 @@
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .listrequests-container {
   height: 100vh;
   width: 75vw;
+  display: flex;
+  flex-direction: column; /* Display cards in a column */
 
   .listrequests-header {
     height: 10vh;
@@ -16,9 +18,10 @@ body {
     background-color: #f9f9f9;
     border-left: none;
 
-    .listrequests-icon {
-      font-size: 30px;
-      margin-right: 10px;
+    .listrequests-icon-group {
+      .listrequests-icon {
+        font-size: 50px;
+      }
     }
 
     .listrequests-text {
@@ -26,11 +29,46 @@ body {
       font-weight: bold;
     }
   }
+}
 
-  .listrequests-card {
-    height: 90vh;
-    width: 75vw;
-    border: 1px solid #f9f9f9;
-    background-color: #fff;
-  }
+.listrequests-card {
+  width: 90%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  align-self: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Added box shadow */
+}
+
+.listrequest-group-icon {
+  display: flex;
+  justify-content: space-between;
+}
+
+.listrequest-information {
+  display: flex;
+  justify-content: space-between;
+}
+
+.listrequest-icon {
+  font-size: 30px;
+  cursor: pointer;
+  transition: transform 0.5s ease, color 0.5s ease; /* Adjusted transition properties */
+  margin-right: 15px;
+}
+
+.listrequest-icon.accept {
+  color: green; /* Set color to green for accept icon */
+}
+
+.listrequest-icon.decline {
+  color: red; /* Set color to red for decline icon */
+}
+
+.listrequest-icon:hover {
+  transform: scale(1.2);
 }

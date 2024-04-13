@@ -30,7 +30,9 @@ const useLogin = () => {
     Cookies.set("clientId", clientId);
     Cookies.set("profileId", profileId)
     toast.success("Đăng nhập thành công");
-    navigate("/home");
+    // navigate("/home");
+    window.location.href = "/home";
+
   };
 
   // Đăng nhập thất bại

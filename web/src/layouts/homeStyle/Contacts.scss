@@ -107,17 +107,8 @@
         }
       }
 
-      .contact-add-friend-icon {
-        font-size: 20px;
-        margin-left: auto;
-        transition: transform 0.3s ease; /* Thêm hiệu ứng transform */
-      }
-
-      .contact-add-friend-icon:hover {
-        transform: scale(1.5); /* To lên khi hover */
-      }
-
       .contact-menu-information {
+        flex-grow: 1; // Thêm vào để thông tin liên lạc nằm bên trái
         .contact-menu-fullname {
           font-weight: bold;
           font-size: 16px;
@@ -127,6 +118,24 @@
           font-size: 13px;
           color: #555;
         }
+      }
+
+      .contact-icons {
+        display: flex;
+        align-items: center;
+      }
+
+      .contact-add-friend-icon,
+      .contact-send-message-icon {
+        font-size: 20px;
+        margin-left: auto;
+        margin-left: 15px;
+        transition: transform 0.3s ease; /* Thêm hiệu ứng transform */
+      }
+
+      .contact-add-friend-icon:hover,
+      .contact-send-message-icon:hover {
+        transform: scale(1.5); /* To lên khi hover */
       }
     }
   }

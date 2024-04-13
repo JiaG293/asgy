@@ -5,18 +5,27 @@ import { PiUserListBold as FriendListIcon } from "react-icons/pi";
 import { FaUserFriends as GroupListIcon } from "react-icons/fa";
 import { LuMailOpen as RequestListIcon } from "react-icons/lu";
 import { FaUserPlus as AddFriendIcon } from "react-icons/fa";
+import { AiFillMessage as SendMessageIcon } from "react-icons/ai";
 
 import Cookies from "js-cookie";
 import axios from "axios";
 import statusCode from "utils/statusCode";
 import { profileID } from "env/env";
-import PerfectScrollbar from 'react-perfect-scrollbar'
-import 'react-perfect-scrollbar/dist/css/styles.css';
+import PerfectScrollbar from "react-perfect-scrollbar";
+import "react-perfect-scrollbar/dist/css/styles.css";
+import { truncateText } from "utils/formatString";
+import { toast } from "react-toastify";
+import socket from "socket/socket";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentChannel, setCurrentMessages } from "../../redux/action";
+import { FaUserFriends as FriendIcon} from "react-icons/fa";
 
 function Contacts({ onSelectMenuItem }) {
   const [stringFind, setStringFind] = useState("");
-  const [searchResults, setSearchResults] = useState([]); // State để lưu kết quả tìm kiếm
+  const [searchResults, setSearchResults] = useState([]);
   const [timer, setTimer] = useState(null);
+  const dispatch = useDispatch();
+  const friendsList = useSelector((state) => state.friendsList);
 
   const fetchData = async () => {
     try {
@@ -54,7 +63,6 @@ function Contacts({ onSelectMenuItem }) {
     setStringFind(value);
   };
 
-
   useEffect(() => {
     if (timer) {
       clearTimeout(timer);
@@ -63,7 +71,6 @@ function Contacts({ onSelectMenuItem }) {
     // Đặt timer mới
     setTimer(
       setTimeout(() => {
-        // Kiểm tra nếu chuỗi có ít nhất 6 ký tự thì gọi fetchData
         fetchData();
       }, 500)
     );
@@ -71,8 +78,58 @@ function Contacts({ onSelectMenuItem }) {
     // Cleanup function
     return () => clearTimeout(timer);
   }, [stringFind]);
-  
 
+  const sendFriendRequest = async (profileIdReceive) => {
+    try {
+      const refreshToken = Cookies.get("refreshToken");
+      const clientID = Cookies.get("clientId");
+      const headers = {
+        "x-client-id": clientID,
+        authorization: refreshToken,
+      };
+
+      if (stringFind.trim() !== "") {
+        const response = await axios.post(
+          `http://localhost:5000/api/v1/profile/send-request`,
+          { profileIdReceive: profileIdReceive },
+          {
+            headers,
+          }
+        );
+        if (response.status === statusCode.OK) {
+          toast.success("Đã gửi yêu cầu kết bạn");
+        }
+      } else {
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi yêu cầu:", error);
+    }
+  };
+
+  //Tạo single chat
+  const IOCreateSingleChat = (receiverId) => {
+    socket.emit("createSingleChat", { receiverId, typeChannel: 101 });
+  };
+
+  const sendFirstMessage = (receiver) => {
+    // IOCreateSingleChat(receiverId);
+    onSelectMenuItem("findProfile");
+    const receiverId = receiver?._id;
+    console.log(receiver);
+
+    //tạo fake channel vì chưa có nhắn tin
+    const cloneChannel = {
+      _id: receiverId,
+      icon: receiver?.avatar,
+      name: receiver?.fullName,
+      gender: receiver?.gender,
+      phoneNumber: receiver?.phoneNumber,
+      typeChannel: 101,
+    };
+    //fake channel
+    dispatch(setCurrentChannel(cloneChannel));
+    dispatch(setCurrentMessages([]));
+  };
 
   return (
     <PerfectScrollbar className="contacts-panel">
@@ -123,18 +180,38 @@ function Contacts({ onSelectMenuItem }) {
                     <img src={item?.avatar} />
                   </div>
                   <div className="contact-menu-information">
-                    <p className="contact-menu-fullname">{item?.fullName}</p>
+                    <p className="contact-menu-fullname">
+                      {truncateText(item?.fullName, 13)}
+                    </p>
                     <p className="contact-menu-username">
                       {item?.user_details?.username}
                     </p>
                   </div>
-                  {profileID !== item?._id ? (
-                    <AddFriendIcon
-                      className="contact-add-friend-icon"
-                      onClick={() => {
-                      }}
-                    />
-                  ) : null}
+                  <div className="contact-menu-icon">
+                    {profileID !== item?._id && (
+                      <>
+                        {!friendsList.some(
+                          (friend) => friend.profileIdFriend === item?._id
+                        ) ? (
+                          <AddFriendIcon
+                            className="contact-add-friend-icon"
+                            onClick={() => {
+                              console.log(item?._id);
+                              sendFriendRequest(item?._id);
+                            }}
+                          />
+                        ) : (
+                          <FriendIcon
+                            className="contact-add-friend-icon"
+                          />
+                        )}
+                        <SendMessageIcon
+                          className="contact-send-message-icon"
+                          onClick={() => sendFirstMessage(item)}
+                        />
+                      </>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

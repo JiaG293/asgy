@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React from "react";
 import "../homeStyle/Header.scss";
 import { CiSearch as SearchIcon } from "react-icons/ci";
 import { BiPhoneCall as CallIcon } from "react-icons/bi";
@@ -7,35 +7,41 @@ import { CiBookmark as MarkIcon } from "react-icons/ci";
 import { useSelector } from "react-redux";
 
 function Header() {
-  const [othertUser, setOtherUser] = useState(null);
-  const profile = useSelector((state) => state.profile);
-  const profileID = profile?._id;
   const currentChannel = useSelector((state) => state.currentChannel);
-
-  useLayoutEffect(() => {
-    if (currentChannel && currentChannel.members) {
-      const otherUser = currentChannel.members.find(
-        (member) => member.profileId?._id !== profileID
-      )?.profileId;
-      setOtherUser(otherUser);
-    }
-  }, [currentChannel, profileID]);
 
   return (
     <div className="header-container">
-      <div className="header-left">
-        {othertUser ? (
-          <>
-            <img src={othertUser.avatar} alt="avatar" className="header-avatar" />
-            <div>
-              <h2 className="header-name">{othertUser.fullName}</h2>
-              <MarkIcon className="header-mark" />
-            </div>
-          </>
-        ) : (
-          <div>Loading...</div>
-        )}
-      </div>
+      {currentChannel ? (
+        <div className="header-left">
+          {currentChannel.typeChannel === 101 ? (
+            <>
+              <img
+                src={currentChannel.icon}
+                alt="avatar"
+                className="header-avatar"
+              />
+              <div>
+                <h2 className="header-name">{currentChannel.name}</h2>
+                <MarkIcon className="header-mark" />
+              </div>
+            </>
+          ) : (
+            <>
+              <img
+                src={currentChannel.background}
+                alt="avatar"
+                className="header-avatar"
+              />
+              <div>
+                <h2 className="header-name">{currentChannel.name}</h2>
+                <MarkIcon className="header-mark" />
+              </div>
+            </>
+          )}
+        </div>
+      ) : <>
+      <h1 className="header-name">Loadding...</h1>
+      </>}
       <div className="header-right">
         <SearchIcon className="header-icon" />
         <CallIcon className="header-icon" />

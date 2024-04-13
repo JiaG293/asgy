@@ -1,10 +1,9 @@
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
 .listfriends-container {
   height: 100vh;
   width: 75vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   .listfriend-header {
     height: 10vh;
@@ -28,12 +27,15 @@ body {
   }
 
   .listfriend-card {
-    height: 90vh; /* Chiều cao phần danh sách cân đối với phần header */
-    width: 100%;
-    border: 1px solid #f9f9f9;
-    background-color: #fff;
-    overflow-y: auto; /* Hiển thị thanh cuộn nếu nội dung vượt quá kích thước */
-    padding: 10px; /* Thêm padding để tạo khoảng cách với biên */
+    width: 90%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column; /* Thay đổi thành flex-direction: column */
+    align-items: flex-start; /* Thay đổi từ space-between thành flex-start */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Added box shadow */
   }
 
   .friend-item {
