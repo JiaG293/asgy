@@ -1,18 +1,53 @@
-import { Pressable, StyleSheet, Text, View, TextInput, Image } from "react-native";
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Pressable, StyleSheet, Text, View, TextInput } from "react-native";
+import AntDesign from "react-native-vector-icons/AntDesign";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import React, { useState } from "react";
-import useLogin from "../auth/useLogin";
+import endpointAPI from "../api/endpointAPI";
+import axios from "axios";
+import statusCode from "../utils/statusCode";
+import { setProfile, setUser } from "../redux/action";
+import { useDispatch } from "react-redux";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Login = ({ navigation }) => {
-  const { handleLogin } = useLogin();
+  // const { handleLogin } = useLogin();
   const [usernameOrEmail, setUsernameOrEmail] = useState("asgy2002");
   const [password, setPassword] = useState("12344321");
   const [message, setMessage] = useState("");
-  const handleLoginClick = () => {
-    handleLogin(usernameOrEmail, password/* , setLoading , navigate */);
-  };
+  const dispatch = useDispatch();
+  const handleLogin = async (usernameOrEmail, password) => {
+    console.log(1);
+    console.log(usernameOrEmail);
+    console.log(password);
+    try {
+      console.log(endpointAPI.login);
+      console.log(2);
 
+      const response = await axios.post(endpointAPI.login, {
+        userID: usernameOrEmail,
+        password: password,
+      });
+      console.log(3);
+      if (response.status === statusCode.OK) {
+        const refreshToken = response.data.metadata.tokens.refreshToken;
+        const clientId = response.data.metadata.clientId;
+        const profile = response.data.metadata.profile;
+        const user = response.data.metadata.user;
+        console.log("Đăng nhập thành công");
+        dispatch(setProfile(profile));
+        dispatch(setUser(user));
+        
+        await AsyncStorage.setItem("refreshToken", refreshToken);
+        await AsyncStorage.setItem("clientId", clientId);
+
+        navigation.navigate("home");
+      } else {
+        console.error("Đăng nhập thất bại");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <View style={styles.contaiter}>
@@ -48,7 +83,12 @@ const Login = ({ navigation }) => {
           <Text style={styles.text3}>Lấy lại mật khẩu </Text>
         </Pressable>
       </View>
-      <Pressable style={styles.wrapicon} onPress={() => { handleLoginClick()}}>
+      <Pressable
+        style={styles.wrapicon}
+        onPress={() => {
+          handleLogin(usernameOrEmail, password);
+        }}
+      >
         <AntDesign name="arrowright" size={20} color="#000" />
       </Pressable>
     </View>
@@ -126,7 +166,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderBottomColor: "#23D1F4",
     borderBottomWidth: 2,
-    outlineStyle: "none",
+    // outlineStyle: "none",
     marginBottom: 8,
   },
   body: {

@@ -4,9 +4,7 @@ import { useSelector } from 'react-redux';
 
 export default function Profile() {
   const profile = useSelector(state => state.profile);
-  console.log(profile);
   const channelList = useSelector((state) => state.channelList);
-  console.log(channelList);
 
 
   // Dữ liệu mẫu, thay đổi theo thông tin thực tế
@@ -26,8 +24,10 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <View style={styles.header}>
-          <Image source={ profile?.avatar } style={styles.avatar} />
+        <View style={styles.header}>{
+          console.log(profile.avatar)
+        }
+          <Image source={{uri: profile?.avatar} } style={styles.avatar} />
           <Text style={styles.name}>{profile?.fullName}</Text>
           <Text style={styles.phoneNumber}>{userInfo.tieuSu}</Text>
         </View>

@@ -9,34 +9,33 @@ const Tab = createBottomTabNavigator();
 
 export default function ButtonTab() {
     return (
-        
-            <Tab.Navigator 
-                screenOptions={({ route }) => ({
-                    tabBarIcon: ({ focused, color, size }) => {
-                        let iconName;
+        <Tab.Navigator 
+            screenOptions={({ route }) => ({
+                tabBarIcon: ({ focused, color, size }) => {
+                    let iconName;
 
-                        if (route.name === 'Chat') {
-                            iconName = focused ? 'chatbubble' : 'chatbubble-outline';
-                        } else if (route.name === 'Danh ba') {
-                            iconName = focused ? 'people' : 'people-outline';
-                        } else if (route.name === 'Ca nhan') {
-                            iconName = focused ? 'information-circle' : 'information-circle-outline';
-                        }
-                        return <Ionicons name={iconName} size={size} color={color} />;
-                    },
-                    headerShown: false,
-                })
-                
-            }
-                tabBarOptions={{
-                    activeTintColor: '#ccc',
-                    inactiveTintColor: 'gray',
-                }}
-            >
-                <Tab.Screen name="Chat" component={Chat} options={{ tabBarBadge: 3 }}/>
-                <Tab.Screen name="Danh ba" component={Contacts} />
-                <Tab.Screen name="Ca nhan" component={Information} />
-            </Tab.Navigator>
-        
+                    if (route.name === 'Chat') {
+                        iconName = focused ? 'chatbubble' : 'chatbubble-outline';
+                    } else if (route.name === 'Danh ba') {
+                        iconName = focused ? 'people' : 'people-outline';
+                    } else if (route.name === 'Ca nhan') {
+                        iconName = focused ? 'information-circle' : 'information-circle-outline';
+                    }
+                    return <Ionicons name={iconName} size={size} color={color} />;
+                },
+                headerShown: false,
+            })}
+            tabBarOptions={{
+                activeTintColor: '#ccc',
+                inactiveTintColor: 'gray',
+                style: {
+                    display: 'flex'
+                },
+            }}
+        >
+            <Tab.Screen name="Chat" component={Chat} options={{ tabBarBadge: 3 }}/>
+            <Tab.Screen name="Danh ba" component={Contacts} />
+            <Tab.Screen name="Ca nhan" component={Information} />
+        </Tab.Navigator>
     );
 }
