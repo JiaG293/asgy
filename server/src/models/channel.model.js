@@ -8,12 +8,16 @@ const channelSchema = new mongoose.Schema(
     name: {
       type: String,
     },
-    icon: {
+    iconGroup: {
       type: String,
+      required: () => {
+        return !(this.typeChannel === 201 || this.typeChannel === 202) && !this.iconGroup;
+      },
+      default: "https://i.imgur.com/WCRmPDS.png",
     },
+
     background: {
       type: String,
-      default: "https://i.imgur.com/WCRmPDS.png",
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
@@ -54,8 +58,19 @@ const channelSchema = new mongoose.Schema(
       }
     ],
 
-    last_message: { type: mongoose.Schema.Types.ObjectId, ref: "Message" },
-    seen_last_messages: { type: Boolean, require: true, default: false },
+    last_message: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Message",
+    },
+    seen_last_messages: {
+      type: Boolean,
+      require: true,
+      default: false
+    },
+    isDisbanded: {
+      type: Boolean,
+      default: false
+    }
   },
   {
     collection: COLLECTION_NAME,

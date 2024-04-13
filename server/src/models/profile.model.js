@@ -68,7 +68,7 @@ const profileSchema = new mongoose.Schema({
                 ref: 'Profile',
                 required: true,
             },
-            RequestDated: {
+            requestDated: {
                 type: Date,
             },
             _id: false,

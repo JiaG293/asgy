@@ -35,7 +35,65 @@ const getInformationProfile = async (headers) => {
     const decodeToken = await decodeTokens(clientId, authorization);
 
     //find profile by _id profile
-    const infoProfile = await ProfileModel.findOne({ _id: decodeToken.profileId }).select('-createdAt -updatedAt -listChannels')
+    /* const infoProfile = await ProfileModel.findOne({ _id: decodeToken.profileId })
+        .select('-createdAt -updatedAt -listChannels').populate({
+            path: 'friendsRequest.profileIdRequest',
+            select: 'avatar fullName userId',
+            populate: {
+                path: 'userId',
+                select: 'username'
+            }
+        })
+        .lean()
+        .then(result => ({
+            ...result,
+            friendsRequest: result.friendsRequest.map(profile => ({
+                profileIdRequest: profile.profileIdRequest,
+                avatar: profile.avatar,
+                fullName: profile.fullName,
+                requestDated: profile.requestDated,
+            }))
+        })) */
+    const infoProfile = await ProfileModel.findOne({ _id: decodeToken.profileId })
+        .select('-createdAt -updatedAt -listChannels')
+        .populate({
+            path: 'friendsRequest.profileIdRequest',
+            select: 'avatar fullName userId',
+            populate: {
+                path: 'userId',
+                select: 'username'
+            }
+        })
+        .populate({
+            path: 'friends.profileIdFriend',
+            select: 'avatar fullName userId',
+            populate: {
+                path: 'userId',
+                select: 'username'
+            }
+        })
+        .lean()
+        .then(result => ({
+            ...result,
+            friendsRequest: result.friendsRequest.map(profile => ({
+                profileIdRequest: profile.profileIdRequest._id,
+                avatar: profile.profileIdRequest.avatar,
+                fullName: profile.profileIdRequest.fullName,
+                requestDated: profile.requestDated,
+                username: profile.profileIdRequest.userId.username,
+
+            })),
+            friends: result.friends.map(profile => ({
+                ...profile.requestDated,
+                profileIdFriend: profile.profileIdFriend._id,
+                avatar: profile.profileIdFriend.avatar,
+                fullName: profile.profileIdFriend.fullName,
+                username: profile.profileIdFriend.userId.username,
+
+            })),
+        }));
+
+    console.log(infoProfile)
     if (!infoProfile) {
         throw new BadRequestError('User for profile not found');
     }
@@ -198,7 +256,7 @@ const sendFriendRequest = async (req) => {
             $addToSet: {
                 friendsRequest: {
                     profileIdRequest: decodeToken.profileId,
-                    RequestDated: new Date()
+                    requestDated: new Date()
                 }
             }
         },

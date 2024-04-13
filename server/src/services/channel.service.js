@@ -18,23 +18,8 @@ const getListChannels = async (headers) => {
     const { authorization } = await headers;
     const clientId = await headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
-    //cach cu khong sua doi 
-    /* const listChannels = await ProfileModel
-        .findOne({ _id: decodeToken.profileId })
-        .select('listChannels')
-        .populate({
-            path: 'listChannels',
-            populate: {
-                path: 'members.profileId',
-                model: 'Profile',
-                select: '_id fullName avatar '
-            }
-        }).lean()
 
-    if (!listChannels) {
-        throw new BadRequestError('Profile not existed');
-    }
-    return listChannels */
+
     const profileId = decodeToken.profileId;
     const profile = await ProfileModel
         .findOne({ _id: profileId })
@@ -51,7 +36,7 @@ const getListChannels = async (headers) => {
         throw new BadRequestError('Profile not existed');
     }
 
-    for (const channel of profile.listChannels) {
+    /* for (const channel of profile.listChannels) {
         console.log("name channel neu ton tai: ", channel.name);
         console.log("icon channel neu ton tai: ", channel.icon);
         // kiem tra xem channel neu la 101 va 102 thi doi ten name Channel && NEU TRONG DAY DA CO TRUONG NAME ROI THI SE KHONG DOI TEN NUA
@@ -69,11 +54,43 @@ const getListChannels = async (headers) => {
                     }
                 }
             }
-            //Cap nhat lai truong name
+            //Cap nhat lai truong name, icon
             channel.name = nameChannel;
             channel.icon = iconChannel
         }
+    } */
+    for (const channel of profile.listChannels) {
+        console.log("name channel nếu tồn tại: ", channel.name);
+        console.log("icon channel nếu tồn tại: ", channel.icon);
+        // kiem tra xem channel neu la 101 va 102 thi doi ten name Channel && NEU TRONG DAY DA CO TRUONG NAME ROI THI SE KHONG DOI TEN NUA
+        if ((channel.typeChannel === 101 || channel.typeChannel === 102) && (!channel.name || !channel.icon)) {
+            let nameChannel = '';
+            let iconChannel = '';
+            for (const member of channel.members) {
+                if (member.profileId) {
+                    if (member.profileId._id.toString() !== profileId) {
+                        nameChannel = member.profileId.fullName;
+                        iconChannel = member.profileId.avatar;
+                        console.log("name channel được thay đổi là:", nameChannel);
+                        console.log("icon channel được thay đổi là:", iconChannel);
+                        break;
+                    }
+                }
+            }
+            // Cap nhat lai truong name, icon
+            channel.name = nameChannel;
+            channel.icon = iconChannel;
+        }
+        // Phan giai profileId
+        channel.members = channel.members.map(member => ({
+            profileId: member.profileId._id,
+            fullName: member.profileId.fullName,
+            avatar: member.profileId.avatar,
+            joinedDate: member.joinedDate,
+            isRemoved: member.isRemoved
+        }));
     }
+
 
     return profile.listChannels
 }
@@ -140,13 +157,21 @@ const checkChannelSingleExists = async ({ members, typeChannel }) => {
 }
 
 const createSingleChat = async (req) => {
-    const { receiverId, typeChannel } = await req.body
+    const { receiverId, typeChannel, name } = await req.body
     const authorization = await req.headers[HEADER.AUTHORIZATION]
     const cliendId = await req.headers[HEADER.X_CLIENT_ID]
     if (!authorization) {
         throw new BadRequestError('Invalid authorization header')
     }
     const { profileId } = await decodeTokens(cliendId, authorization)
+
+    if (receiverId == profileId) {
+        throw new ConflictRequestError("Cant not create single chat with yourself")
+    }
+
+    if (!receiverId || !typeChannel) {
+        throw new BadRequestError("Must provide receiverId and typeChannel")
+    }
     const members = await [profileId, receiverId]
 
     //1. kiem tra loai channel de tao
@@ -174,18 +199,23 @@ const createSingleChat = async (req) => {
             }), typeChannel
         })
 
-    await newSingleChannel.members.map(async (member) => {
-        const filter = { _id: member.profileId }
+    for (const member of newSingleChannel.members) {
+        const filter = { _id: member.profileId };
         const update = {
             $push: { listChannels: { $each: [newSingleChannel._id], $position: 0 } }
+        };
+
+        try {
+            await ProfileModel.findOneAndUpdate(filter, update, { new: true });
+        } catch (error) {
+            throw new BadRequestError(`Error updating member ${member.profileId}: ${error}`);
         }
-        return await ProfileModel.findOneAndUpdate(filter, update, { new: true });
-    })
+    }
     return newSingleChannel;
 }
 
 const createGroupChat = async (req) => {
-    const { members, typeChannel, name } = req.body
+    const { members, typeChannel, name, iconGroup } = req.body
     const authorization = req.headers[HEADER.AUTHORIZATION]
     const cliendId = req.headers[HEADER.X_CLIENT_ID]
     if (!authorization) {
@@ -194,6 +224,9 @@ const createGroupChat = async (req) => {
 
     const { profileId } = await decodeTokens(cliendId, authorization)
 
+    if (!members || !typeChannel || !name) {
+        throw new BadRequestError("Must provide receiverId, typeChannel, name")
+    }
     await members.push(profileId)
 
 
@@ -220,12 +253,28 @@ const createGroupChat = async (req) => {
                 profileId: member,
                 joinedDate: datedNow
             }
-        }), typeChannel
+        }), typeChannel, iconGroup
     })
+
+    for (const member of newGroupChat.members) {
+        const filter = { _id: member.profileId };
+        const update = {
+            $push: { listChannels: { $each: [newGroupChat._id], $position: 0 } }
+        };
+
+        try {
+            await ProfileModel.findOneAndUpdate(filter, update, { new: true });
+        } catch (error) {
+            throw new BadRequestError(`Error updating member ${member.profileId}: ${error}`);
+        }
+    }
+
     return newGroupChat;
 
 
 }
+
+
 
 module.exports = {
     createSingleChat,

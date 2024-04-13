@@ -25,36 +25,85 @@ socket.on("errorAuthentication", (err) => {
 loginUser()
 getListMessage()
 getMessage()
+async function fetchData(url, profileId) {
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            // body: data,
+            headers: {
+                'x-client-id': sessionStorage.getItem('clientId'),
+                'authorization': sessionStorage.getItem('authorization'),
+            }
+        });
 
-
-
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data: ${response.statusText}`);
+        }
+        const data = await response.json();
+        await socket.emit('addUser', { profileId, channels: await data.metadata.map((channel => channel._id)) })
+        await sessionStorage.setItem('channels', JSON.stringify(data.metadata.map((channel => channel._id))))
+        return data.metadata.map((channel => channel._id));
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error; // Re-throw lỗi để xử lý ở phần gọi
+    }
+}
 
 function setCookie() {
     var urlParams = new URLSearchParams(window.location.search);
     var dataString = urlParams.get('data');
     var dataPassed = JSON.parse(decodeURIComponent(dataString));
-    const { profileId, channels, accessToken, clientId } = dataPassed
+    const { profileId, accessToken, clientId } = dataPassed
     sessionStorage.setItem('authorization', accessToken);
     sessionStorage.setItem('clientId', clientId);
     sessionStorage.setItem('profileId', profileId);
     console.log("\ndata params:::", dataPassed);
 }
 
-function loginUser() {
+async function loginUser() {
+
     var urlParams = new URLSearchParams(window.location.search);
     var dataString = urlParams.get('data');
     var dataPassed = JSON.parse(decodeURIComponent(dataString));
     const { profileId, channels, accessToken, clientId } = dataPassed
+    // fetchData('http://localhost:5000/api/v1/chats/channels', profileId)
     //goi lai de lay channels add vao - tren kia chi goi api de lay 
-    socket.emit('addUser', { profileId, channels })
+    //Dung cho binh thuong
     addGroup(channels, profileId)
+    socket.emit('addUser', { profileId, channels })
+
+    //fetch api
+    // addGroup(sessionStorage.getItem('channels'), profileId)
     socket.emit('loadMessages', {
         senderId: sessionStorage.getItem('profileId')
     })
 }
 
 //them id dinh danh group cho moi element
-async function addGroup(channels, profileId) {
+function addGroup(channels, profileId) {
+    //FetchAPI
+    /*  JSON.parse(channels).map(channel => {
+         let templateGroup = `
+             <div class="group" id="${channel}-group">
+                 <div class="group-icon prevent-click-event">
+                     <img id="group-icon-img" src="https://i.imgur.com/fL8RNta.png">
+                 </div>
+                 <div class="group-content prevent-click-event">
+                     <div class="group-name prevent-click-event">${channel}</div>
+                     <div class="group-last-message prevent-click-event">${channel.slice(-10)}</div>
+                 </div>
+             </div>
+             `
+         let templateChatGroup = `
+             <li>
+                 <ul id="${channel}-chat" class="message-list hidden" id-channel-chats="test">
+                 </ul>
+             </li>
+             `
+         document.getElementById("sidebar").insertAdjacentHTML('beforeend', templateGroup);
+         document.getElementById("chat-list").insertAdjacentHTML('beforeend', templateChatGroup);
+     }); */
+    //Dung binh thuong
     channels.map(channel => {
         let templateGroup = `
             <div class="group" id="${channel}-group">
@@ -416,15 +465,38 @@ socket.on('getDetailsChannel', data => {
 socket.on('createdChannel', (channel) => {
     console.log("id room duoc tao gui ve la ", channel);
     socket.emit('joinChannel', channel._id)
+    /*  let templateGroup = `
+     <div class="group" id="${channel}-group">
+         <div class="group-icon prevent-click-event">
+             <img id="group-icon-img" src="https://i.imgur.com/fL8RNta.png">
+         </div>
+         <div class="group-content prevent-click-event">
+             <div class="group-name prevent-click-event">${channel._id}</div>
+             <div class="group-last-message prevent-click-event">${channel._id.slice(-10)}</div>
+         </div>
+     </div>
+     `
+     let templateChatGroup = `
+     <li>
+         <ul id="${channel._id}-chat" class="message-list hidden" id-channel-chats="test">
+         </ul>
+     </li>
+     `
+     document.getElementById("sidebar").insertAdjacentHTML('beforeend', templateGroup);
+     document.getElementById("chat-list").insertAdjacentHTML('beforeend', templateChatGroup); */
 })
 
 socket.on('errorSocket', error => {
     console.log("loi la: ", error);
 })
+socket.on('disbanedGroup', (data) => {
+    console.log("Nhom bi disband ", data.message);
+})
 
 function test() {
     console.log("test chuc nang socket:");
+    socket.emit('disbandGroup', { channelId: '661a0f6c0a33bccb48968087' })
+    // socket.emit('createSingleChat', { typeChannel: 101, receiverId: '65f417a034e9a9f7e2f3cf9f' })
+    // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom con cac', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
 
-    socket.emit('createSingleChat', { typeChannel: 101, receiverId: '65f417a034e9a9f7e2f3cf9f' })
-    // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom con cac', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"]})
 }

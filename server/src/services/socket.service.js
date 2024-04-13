@@ -7,6 +7,7 @@ const { findTokenById } = require("./keyToken.service");
 const { verifyJWT } = require("../auth/authUtils");
 const mongoose = require("mongoose");
 const { checkChannelSingleExists } = require("./channel.service");
+const { message } = require("../controllers/socket.controller");
 require("dotenv").config();
 
 const { URL_CLIENT } = process.env;
@@ -22,45 +23,58 @@ const io = new Server({
     pingTimeout: 60000, // increate the ping timeout
 });
 
+
+
 const socketService = {
     io: io,
 };
-
-/*  
-FORM: 
-
-[ "profileId": 
-    [
-        { socketId: "socket.id", channels:  ["channelId", "channelId"] },
-        { socketId: "socket.id", channels:  ["channelId", "channelId"] },
-    ]
-] 
-
-*/
+global._io = io;
 global._profileConnected = new Map();
-global._io = io
+
+/* 
+FORM:
+
+["profileId":
+    {
+        socketIds: ["socket.id", "socket.id"],
+        channels: ["channelId", "channelId"]
+    }
+]
+ */
+
+
+
+
 //THEM PROFILEID VAO _PROFILECONNECTED 
 const addProfileConnected = async ({ profileId, channels }, socket) => {
-    const check = _profileConnected.has(profileId);
-    if (check) {
-        _profileConnected.get(profileId).push(
-            {
-                socketId: socket.id,
-                channels: channels
+    try {
+        if (_profileConnected.has(profileId)) {
+            const profile = _profileConnected.get(profileId);
+            if (profile.socketIds.length === 0) {
+                profile.socketIds.push(socket.id);
+            } else {
+                if (!profile.socketIds.includes(socket.id)) {
+                    profile.socketIds.push(socket.id);
+                }
             }
-        )
-        channels.forEach(channelId => socket.join(channelId))
-    } else {
-        _profileConnected.set(profileId, [
-            {
-                socketId: socket.id,
+            channels.forEach(channelId => {
+                socket.join(channelId);
+            });
+        } else {
+            _profileConnected.set(profileId, {
+                socketIds: [socket.id],
                 channels: channels
-            }
-        ]);
-        channels.forEach(channelId => socket.join(channelId))
+            });
+            channels.forEach(channelId => {
+                socket.join(channelId);
+            });
+        }
+    } catch (error) {
+        console.error('Error addProfileConnected:', error);
+        socket.emit('errorSocket', { message: 'add profileConnected id not exist', status: 404 });
     }
-
 };
+
 
 //XOA SOCKET.ID KHI CLIENT DISCONNECTED 
 const removeProfileConnect = async (profileId, socket) => {
@@ -68,41 +82,48 @@ const removeProfileConnect = async (profileId, socket) => {
     if (check) {
 
         //Xoa socket.id neu disconected
-        const indexSocket = _profileConnected.get(profileId).findIndex(elem => elem.socketId == socket.id)
+        const indexSocket = _profileConnected.get(profileId).socketIds.findIndex(elem => elem == socket.id)
         if (indexSocket !== -1) {
-            _profileConnected.get(profileId).splice(indexSocket, 1)
+            _profileConnected.get(profileId).socketIds.splice(indexSocket, 1)
         }
 
         //Neu khoong co socket.id nao ton tai trong do thi se xoa luon profileId 
-        if (_profileConnected.get(profileId).length == 0) {
+        if (_profileConnected.get(profileId).socketIds.length == 0) {
             _profileConnected.delete(profileId)
         }
 
     } else {
         socket.emit('errorSocket', { message: 'profile id not exist', status: 404 })
+        console.log(`\n\nError removeProfileConnect: profile id not exist`);
     }
-
 };
 
 const emitProfileId = ({ profileId, params, data }, io) => {
-    _profileConnected.get(profileId).forEach(socket => io.to(socket.socketId).emit(params, data))
+    if (_profileConnected.get(profileId)) {
+        _profileConnected.get(profileId).socketIds.forEach(socket => io.to(socket).emit(params, data))
+    } else {
+        // socket.emit('errorSocket', { message: 'profile id is not exist', status: 500 })
+        console.log(`\n\n emitProfileId: profile id is not exist`);
+    }
 };
 
 
 const addNewChannel = async (channelId, socket) => {
-    const profileId = socket.auth.pro
-    if (_profileConnected.has(profileId)) {
-        _profileConnected.get(profileId).forEach(elem => {
-            if (!elem.channels.includes(channelId)) {
-                elem.channels.push(channelId)
-                socket.join(channelId)
-                socket.to(elem.socketId).emit('createdChannel', channelId) //thong bao da tao channel thanh cong 
-            } else {
-                socket.emit('errorSocket', { message: 'channel id already exists', status: 409 })
-            }
-        })
-    }
+    const profileId = socket.auth.profileId;
 
+    if (_profileConnected.has(profileId)) {
+        const profile = _profileConnected.get(profileId);
+
+        if (!profile.channels.includes(channelId)) {
+            profile.channels.push(channelId);
+
+            // Thêm socket vào kênh mới và gửi sự kiện 'createdChannel' đến socket đó
+            socket.join(channelId);
+            socket.emit('createdChannel', channelId);
+        } else {
+            socket.emit('errorSocket', { message: 'Channel ID already exists', status: 409 });
+        }
+    }
 };
 
 
@@ -182,7 +203,6 @@ io.on("connection", (socket) => {
     //TAI THONG TIN CHI TIET TAT CA CHANNEL KHI DUA PROFILEID 
     socket.on("loadListDetailsChannels", async (profileId) => {
         try {
-            const channelId = _profileConnected.get(profileId)
             const profile = await ProfileModel
                 .findOne({ _id: profileId })
                 .select('listChannels')
@@ -239,13 +259,9 @@ io.on("connection", (socket) => {
 
     //TAI TIN NHAN TU DATABASE KHI CLIENT KET NOI DEN
     socket.on("loadMessages", async (data) => {
-        //sender id = id nguoi dang nhap => cu the o day la profileId 
-        //messages = array 50 tin nhan moi nhat tu database
-        // receiver id = danh sach id cua channel
         const { senderId } = data;
         try {
-            
-            const senderChannelsId = _profileConnected.get(senderId).find(info => info.socketId == socket.id).channels; // Lay duoc danh sach cac kenh hien co cua user nay
+            const senderChannelsId = _profileConnected.get(senderId).channels; // Lay duoc danh sach cac kenh hien co cua user nay
             if (senderChannelsId) {
                 senderChannelsId.map(async (channel) => {
 
@@ -277,7 +293,7 @@ io.on("connection", (socket) => {
         const { senderId, receiverId, typeContent, messageContent } = data;
         try {
             //Lay ra channel cua user dang online
-            const listChannel = _profileConnected.get(senderId).find(info => info.socketId == socket.id).channels
+            const listChannel = _profileConnected.get(senderId).channels
 
             //Kiem tra channel co hop le hay khong
             const check = listChannel.find(channel => channel == receiverId)
@@ -319,7 +335,7 @@ io.on("connection", (socket) => {
         // receiver id = danh sach id cua channel
         const { senderId, oldMessageId, receiverId } = data;
         try {
-            const senderChannelsId = _profileConnected.get(senderId).find(info => info.socketId == socket.id).channels // Lay duoc danh sach cac kenh hien co cua user nay
+            const senderChannelsId = _profileConnected.get(senderId).channels // Lay duoc danh sach cac kenh hien co cua user nay
             if (senderChannelsId) {
                 const listMessages = await loadMessagesHistory(data)
                 // await socket.to(receiverId).emit('getMessagesHistory', listMessages[0].messages)
@@ -377,9 +393,9 @@ io.on("connection", (socket) => {
 
     })
 
-    
+
     //TAO KENH CHAT DON 
-    socket.on("createSingleChat", async ({ receiverId, typeChannel }) => {
+    socket.on("createSingleChat", async ({ receiverId, typeChannel, name }) => {
         try {
             const senderId = socket.auth.profileId
             //1. kiem tra loai channel de tao
@@ -388,6 +404,11 @@ io.on("connection", (socket) => {
              200 la private | 102 la public group | 202 la private group
              999 la cloud luu tru ca nhan | 998 dich vu bot, khach hang, tin nhan tu dong  
              */
+
+            if (receiverId == senderId) {
+                throw new Error("Cant not create single chat with yourself")
+            }
+
             if (Number(typeChannel) != 101 && Number(typeChannel) != 102) {
                 throw new Error("Invalid type channel 101 public 1-1 | 102 private 1-1")
             }
@@ -411,19 +432,25 @@ io.on("connection", (socket) => {
                 throw new Error("Error creating single chat")
             }
 
-            await newSingleChannel.members.map(async (member) => {
-                const filter = { _id: member.profileId }
+
+            for (const member of newSingleChannel.members) {
+                const filter = { _id: member.profileId };
                 const update = {
                     $push: { listChannels: { $each: [newSingleChannel._id], $position: 0 } }
+                };
+
+                try {
+                    await ProfileModel.findOneAndUpdate(filter, update, { new: true });
+                } catch (error) {
+                    throw new Error(`Error updating member ${member.profileId}: ${error}`);
                 }
-                await ProfileModel.findOneAndUpdate(filter, update, { new: true });
-            })
+            }
 
 
-            addNewChannel(newSingleChannel._id, socket) //Them group chat vao store server
-            members.forEach( (member) => {
+            addNewChannel(String(newSingleChannel._id), socket) //Them group chat vao store server
+            members.forEach((member) => {
 
-                 emitProfileId({ profileId: member, params: 'createdChannel', data: newSingleChannel }, io)  //Gui thong tin ve cac profileId co socket.id connect server
+                emitProfileId({ profileId: member, params: 'createdChannel', data: newSingleChannel }, io)  //Gui thong tin ve cac profileId co socket.id connect server
                 /*
                 
                 Sau do o client hay them xu li nay de tham gia vao channel
@@ -447,7 +474,13 @@ io.on("connection", (socket) => {
     socket.on("createGroupChat", async ({ members, typeChannel, name }) => {
         try {
             const senderId = socket.auth.profileId
+
             await members.push(senderId)
+
+            const uniqueMembers = new Set(members);
+            if (uniqueMembers.size !== members.length) {
+                throw new Error('480: duplicate memberId');
+            }
 
             if (members.length > 3) {
                 throw new Error('Members must have at least 3 members')
@@ -462,7 +495,7 @@ io.on("connection", (socket) => {
                 throw new Error("Invalid type channel 201 public 1-1 | 202 private 1-1")
             }
 
-            //4. tao channel khi da du dieu kien
+            //3. tao channel khi da du dieu kien
             const datedNow = Date.now()
 
             const newGroupChat = await ChannelModel.create({
@@ -475,8 +508,21 @@ io.on("connection", (socket) => {
                     }
                 }), typeChannel
             })
-            addNewChannel(newGroupChat._id, socket) //Them group chat vao store server
-            members.forEach((member) => {
+            for (const member of newGroupChat.members) {
+                const filter = { _id: member.profileId };
+                const update = {
+                    $push: { listChannels: { $each: [newGroupChat._id], $position: 0 } }
+                };
+
+                try {
+                    await ProfileModel.findOneAndUpdate(filter, update, { new: true });
+                } catch (error) {
+                    throw new Error(`Error updating member ${member.profileId}: ${error}`);
+                }
+            }
+
+            addNewChannel(String(newGroupChat._id), socket) //Them group chat vao store server
+            members.map((member) => {
                 emitProfileId({ profileId: member, params: 'createdChannel', data: newGroupChat }, io) //Gui thong tin ve cac profileId co socket.id connect server
                 /*
                 
@@ -488,10 +534,52 @@ io.on("connection", (socket) => {
                 }) 
                 
                 */
-
-
             });
 
+        } catch (error) {
+            socket.emit('errorSocket', { message: error.message, status: error.status })
+        }
+
+    })
+
+
+    //GIAI TAN NHOM
+    socket.on("disbandGroup", async ({ channelId }) => {
+        try {
+            const senderId = socket.auth.profileId
+
+            const channel = await ChannelModel.findOne({ _id: channelId }).select('members owner').lean()
+            if (!channel) {
+                throw new Error("Channel not found")
+            }
+
+            if (String(channel.owner) !== senderId) {
+                throw new Error("You do not permission disband group")
+            }
+
+            const filter = { _id: channelId };
+            const update = { isDisbanded: true };
+            const options = { new: true };
+            const disbandGroup = await ChannelModel.findOneAndUpdate(filter, update, options);
+
+            if (!disbandGroup) {
+                throw new Error('Channel not found or could not be updated.');
+            } else {
+                console.log('isDisbanded has been updated successfully.');
+                channel.members.map((member) => {
+                    emitProfileId({ profileId: String(member.profileId), params: 'disbanedGroup', data: { message: "Nhóm đã bị giải tán", status: true } }, io) //Gui thong tin ve cac profileId co socket.id connect server
+                    /*
+                    
+                    Sau do o client hay them xu li nay de tham gia vao channel
+    
+                     socket.on('disbanedGroup', (channel) => {
+                        console.log("id room duoc tao gui ve la ", channel);
+                        Xu li thong tin khong frontend o day
+                    }) 
+                    
+                    */
+                });
+            }
         } catch (error) {
             socket.emit('errorSocket', { message: error.message, status: error.status })
         }
