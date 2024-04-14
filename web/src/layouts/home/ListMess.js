@@ -58,19 +58,19 @@ function ListMess({ setSelectedMessage }) {
   };
 
   //hàm add user
-  const IOAddUser = async () => {
-    const channelsID = await channelList.map((channel) => channel._id);
-    if (profileID && channelLoaded && channelList) {
-      await socket.emit("addUser", {
-        profileId: profileID,
-        channels: channelsID,
-      });
-      // console.log("đã add user: ");
-      // console.log({ profileId: profileID, channels: channelsID });
-    } else {
-      // console.log("chưa add được user");
-    }
-  };
+  // const IOAddUser = async () => {
+  //   const channelsID = await channelList.map((channel) => channel._id);
+  //   if (profileID && channelLoaded && channelList) {
+  //     await socket.emit("addUser", {
+  //       profileId: profileID,
+  //       channels: channelsID,
+  //     });
+  //     // console.log("đã add user: ");
+  //     // console.log({ profileId: profileID, channels: channelsID });
+  //   } else {
+  //     // console.log("chưa add được user");
+  //   }
+  // };
 
   //hàm tải tin nhắn ban đầu
   const IOLoadMessages = async () => {
@@ -104,7 +104,7 @@ function ListMess({ setSelectedMessage }) {
   useEffect(() => {
     const reRender = async () => {
       if (profileID && channelLoaded) {
-        await IOAddUser();
+        // await IOAddUser();
         await IOLoadMessages();
         //hàm nhận tất cả tin nhắn từ lúc đầu
         socket.on("getMessages", (data) => {
@@ -146,7 +146,7 @@ function ListMess({ setSelectedMessage }) {
               src={
                 channel?.typeChannel === 101
                   ? channel?.icon
-                  : channel?.background
+                  : channel?.iconGroup
               }
               alt="Avatar"
             />
@@ -157,7 +157,7 @@ function ListMess({ setSelectedMessage }) {
           </div>
         </div>
       ))}
-      {showAddGroupModal && <AddGroupModal />}
+      {showAddGroupModal && <AddGroupModal onClose={handleToggleAddGroupModal}/>}
 
     </div>
   );

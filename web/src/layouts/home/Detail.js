@@ -28,7 +28,7 @@ function Detail() {
             ) : (
               <>
                 <img
-                  src={currentChannel.background}
+                  src={currentChannel.iconGroup}
                   className="detail-avatar"
                 />
                 <div className="detail-group-name">{currentChannel.name}</div>

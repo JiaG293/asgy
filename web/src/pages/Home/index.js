@@ -68,7 +68,6 @@ function Home() {
   };
 
   useLayoutEffect(() => {
-    socket.connect();
     fetchData();
   }, []);
 

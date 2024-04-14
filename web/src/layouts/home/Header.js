@@ -28,7 +28,7 @@ function Header() {
           ) : (
             <>
               <img
-                src={currentChannel.background}
+                src={currentChannel.iconGroup}
                 alt="avatar"
                 className="header-avatar"
               />
