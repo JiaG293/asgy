@@ -488,6 +488,7 @@ socket.on('createdChannel', (channel) => {
 
 socket.on('errorSocket', error => {
     console.log("loi la: ", error);
+    
 })
 socket.on('disbanedGroup', (data) => {
     console.log("Nhom bi disband ", data.message);

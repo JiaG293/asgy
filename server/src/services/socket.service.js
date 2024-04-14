@@ -8,6 +8,7 @@ const { verifyJWT } = require("../auth/authUtils");
 const mongoose = require("mongoose");
 const { checkChannelSingleExists } = require("./channel.service");
 const { message } = require("../controllers/socket.controller");
+const authenticationSocket = require("../socket/socket.auth");
 require("dotenv").config();
 
 const { URL_CLIENT } = process.env;
@@ -130,7 +131,7 @@ const addNewChannel = async (channelId, socket) => {
 
 
 // check thong tin token truoc khi connect
-io.use(async (socket, next) => {
+/* io.use(async (socket, next) => {
     try {
 
         //Lay headers tu client
@@ -159,7 +160,11 @@ io.use(async (socket, next) => {
         return next()
     }
 });
+ */
 
+io.use(async (socket, next) => {
+    authenticationSocket(socket, next)
+})
 
 io.on("connection", (socket) => {
     //xem thong tin headers
