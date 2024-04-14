@@ -1,0 +1,42 @@
+.message-dropdown {
+  .dropdown-toggle {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: large;
+    color: #000;
+    text-decoration: none;
+  }
+
+  .dropdown-menu {
+    min-width: 120px;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    left: 100%;
+    top: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    margin-right: 15px; // Thêm margin bên phải
+    margin-top: 10px;
+    transition: border-radius 0.1s ease; // Thêm hiệu ứng transition cho border-radius
+    overflow: hidden; // Loại bỏ phần lớn của hiệu ứng scale
+  }
+
+  .dropdown-item {
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #333333;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease; // Thêm hiệu ứng transition cho transform
+    text-decoration: none;
+
+    &:hover {
+      background-color: #f8f9fa;
+      transform: scale(1.02); // Hiệu ứng scale khi di chuột qua
+    }
+  }
+}

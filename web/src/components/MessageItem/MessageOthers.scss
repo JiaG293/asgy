@@ -1,0 +1,48 @@
+.message-others-container {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  margin: 20px;
+}
+
+.message-others-avatar-container {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 12px;
+  margin-top: 27px;
+}
+
+.message-others-avatar-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.message-others-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.message-others-name {
+  font-weight: bold;
+  margin-bottom: 2px; /* Tăng khoảng cách giữa tên và nội dung tin nhắn */
+  font-size: 13px;
+}
+
+.message-others-content {
+  display: flex;
+  flex-direction: column;
+  background-color: #e0e0e0;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 17px;
+}
+
+.message-others-time {
+  font-size: 8px;
+  color: #777;
+  margin-top: 12px; /* Tăng khoảng cách giữa nội dung tin nhắn và thời gian */
+}

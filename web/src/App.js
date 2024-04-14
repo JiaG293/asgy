@@ -19,10 +19,9 @@ function App() {
       setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
-      navigate("/login");
       // Thông báo cho người dùng biết rằng họ cần đăng nhập
     }
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="App">

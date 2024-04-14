@@ -44,14 +44,42 @@ body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Added box shadow */
 }
 
-.listrequest-group-icon {
-  display: flex;
-  justify-content: space-between;
+.listrequest-avatar-container {
+  width: 50px; /* Điều chỉnh kích thước avatar */
+  height: 50px;
+  border-radius: 50%; /* Làm cho avatar tròn */
+  overflow: hidden; /* Ẩn phần nội dung vượt quá khung của avatar */
+}
+
+.listrequest-avatar-container img {
+  width: 100%; /* Đảm bảo hình ảnh avatar lấp đầy khu vực của nó */
+  height: 100%;
+  object-fit: cover; /* Đảm bảo hình ảnh không bị biến dạng */
 }
 
 .listrequest-information {
-  display: flex;
-  justify-content: space-between;
+  flex: 1; /* Thay đổi flex-grow để thông tin mở rộng và lấp đầy không gian trống */
+  margin: 0 10px; /* Điều chỉnh khoảng cách giữa avatar và thông tin */
+}
+
+.listrequest-fullname{
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.listrequest-username{
+  margin-top: 10px;
+  font-size: 14px;
+  color: #777;
+}
+
+.listrequest-time{
+  color: #666;
+  margin-right: 50px;
+}
+
+.listrequest-group-icon {
+  margin-left: auto; /* Di chuyển nhóm biểu tượng sang phải */
 }
 
 .listrequest-icon {

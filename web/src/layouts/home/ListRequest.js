@@ -8,6 +8,7 @@ import { clientID, refreshToken } from "env/env";
 import axios from "axios";
 import statusCode from "utils/statusCode";
 import { toast } from "react-toastify";
+import { calculateTimeAgo } from "utils/formatDate";
 
 function ListRequest() {
   const friendsRequestList = useSelector((state) => state.friendsRequestList);
@@ -44,8 +45,16 @@ function ListRequest() {
       </div>
       {friendsRequestList.map((element) => (
         <div className="listrequests-card" key={element.profileIdRequest}>
+          <div className="listrequest-avatar-container">
+            <img src={element?.avatar}></img>
+          </div>
           <div className="listrequest-information">
-            <p>{element.profileIdRequest}</p>
+            <p className="listrequest-fullname">{element.fullName}</p>
+            <p className="listrequest-username">{element.username}</p>
+
+          </div>
+          <div className="listrequest-time">
+            <p className="listrequest-time">{calculateTimeAgo(element.requestDated)}</p>
           </div>
           <div className="listrequest-group-icon">
             <DeclineIcon className="listrequest-icon decline" />

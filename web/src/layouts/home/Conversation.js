@@ -5,9 +5,12 @@ import { FiSend as SendIcon } from "react-icons/fi";
 import { useSelector, useDispatch } from "react-redux";
 import socket from "socket/socket";
 import { setCurrentMessages, setMessages } from "../../redux/action";
-import PerfectScrollbar from 'react-perfect-scrollbar'
-import 'react-perfect-scrollbar/dist/css/styles.css';
+import PerfectScrollbar from "react-perfect-scrollbar";
+import "react-perfect-scrollbar/dist/css/styles.css";
 import { convertISOToFullDateTime } from "utils/formatDate";
+import MessageDropdown from "../../components/DropdownMenu/MessageDropdown";
+import MessageYou from "components/MessageItem/MessageYou";
+import MessageOthers from "components/MessageItem/MessageOthers";
 
 function Conversation() {
   const profile = useSelector((state) => state.profile);
@@ -18,29 +21,15 @@ function Conversation() {
   const currentMessages = useSelector((state) => state.currentMessages);
   const messagesList = useSelector((state) => state.messagesList);
 
-
   // Render danh sách tin nhắn
-  const messages = currentMessages.map((message) => (
-    <div key={message?._id} className={message.senderId._id === profileID ? "conversation-item-you" : "conversation-item-others"}>
-      <div className="avatar-and-message">
-        {message.senderId._id !== profileID && (
-          <div className="conversation-message-avatar-container">
-            <img src={message.senderId.avatar} alt="Avatar" className="conversation-message-avatar" />
-          </div>
-        )}
-        <div className="conversation-message-content">
-          {message.senderId._id !== profileID && (
-            <p className="conversation-message-sender-name">{message.senderId.fullName}</p>
-          )}
-          <div>{message?.messageContent}</div>
-          <p className="conversation-message-send-time">{convertISOToFullDateTime(message.createdAt)}</p>
-        </div>
-      </div>
-    </div>
-  ));
+  const messages = currentMessages.map((message) =>
+    message.senderId._id === profileID ? (
+      <MessageYou key={message?._id} message={message} />
+    ) : (
+      <MessageOthers key={message?._id} message={message} />
+    )
+  );
   
-  
-
 
   // Xử lý sự kiện nhấn phím Enter để gửi tin nhắn
   const handleKeyPress = (event) => {
@@ -55,19 +44,12 @@ function Conversation() {
       console.log("Nhận về từ server", newMessage);
       dispatch(setCurrentMessages([...currentMessages, newMessage]));
       console.log(currentMessages);
-      setTimeout(() => {
-        scrollToBottom(); 
-
-      }, 1);
+      scrollToBottom();
     });
-
   }, [currentMessages]);
 
   useEffect(() => {
-    setTimeout(() => {
-      scrollToBottom(); 
-
-    }, 1);
+    scrollToBottom();
   }, [currentChannel]);
 
   // Gửi tin nhắn từ máy khách tới máy chủ
@@ -81,13 +63,15 @@ function Conversation() {
         messageContent: messageContent,
       });
       setMessageContent("");
-      scrollToBottom()
+      scrollToBottom();
     }
   };
 
   // Cuộn xuống dòng mới nhất
   const scrollToBottom = () => {
-    const messagesContainer = document.getElementById("conversation-messages-container");
+    const messagesContainer = document.getElementById(
+      "conversation-messages-container"
+    );
     if (messagesContainer) {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
@@ -96,7 +80,10 @@ function Conversation() {
   return (
     <div className="conversation-container">
       <Header />
-      <PerfectScrollbar id="conversation-messages-container" className="conversation-messages">
+      <PerfectScrollbar
+        id="conversation-messages-container"
+        className="conversation-messages"
+      >
         {messages}
       </PerfectScrollbar>
       <div className="conversation-input-container">
