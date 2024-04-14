@@ -261,16 +261,48 @@ const sendFriendRequest = async (req) => {
             }
         },
         { new: true }
-    )
+    ).populate({
+        path: 'friendsRequest.profileIdRequest',
+        select: '_id fullName avatar userId',
+        populate: {
+            path: 'userId',
+            select: 'name'
+        }
+    }).then(result => ({
+        ...result,
+        friendsRequest: result.friendsRequest.map(profile => ({
+            profileIdRequest: profile.profileIdRequest._id,
+            avatar: profile.profileIdRequest.avatar,
+            fullName: profile.profileIdRequest.fullName,
+            requestDated: profile.requestDated,
+            username: profile.profileIdRequest.userId.username,
+
+        })),
+        friends: result.friends.map(profile => ({
+            ...profile.requestDated,
+            profileIdFriend: profile.profileIdFriend._id,
+            avatar: profile.profileIdFriend.avatar,
+            fullName: profile.profileIdFriend.fullName,
+            username: profile.profileIdFriend.userId.username,
+
+        })),
+    }));
 
     if (!newFriendRequest) {
         throw new ConflictRequestError("Friend request exists")
     }
 
     //5. Them phan tao thong bao 
+    const profileSocket = await _profileConnected.get(profileIdReceive)
+    if (profileSocket == undefined) {
+        profileSocket.forEach(elem => {
+            _io.to(elem.socketIds).emit('createdRequestFriend', newFriendRequest)
+        });
+    }
 
 
-    return newFriendRequest
+    console.log("profile socket", profileSocket, typeof (profileSocket));
+    return newFriendRequest.friendsRequest
 }
 
 //CHAP NHAN KET BAN

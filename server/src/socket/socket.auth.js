@@ -1,4 +1,5 @@
 const { verifyJWT } = require("../auth/authUtils");
+const ProfileModel = require("../models/profile.model");
 const { findTokenById } = require("../services/keyToken.service");
 
 
@@ -21,6 +22,9 @@ const authenticationSocket = async (socket, next) => {
         }
         //gan thong tin da xac thuc cho auth
         socket.auth = decodeUser;
+        socket.channels = await ProfileModel.findById(decodeUser.profileId)
+            .lean()
+            .then((profile) => profile.listChannels.map((channel) => String(channel)))
 
     } catch (error) {
         return next(error)

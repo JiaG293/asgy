@@ -11,15 +11,25 @@ const socket = io('http://localhost:5000', {
         "authorization": sessionStorage.getItem('authorization')
     }
 });
+
+//XAC THUC THAT BAI
+socket.on('errorAuthenticate', (data) => {
+    console.error("%c XAC THUC THAT BAI:", "color: red", data);
+})
+
+
+//XAC THCU THANH CONG
+socket.on('authorized', (data) => {
+    console.info("%c XAC THUC THANH CONG:", "color: green", data);
+
+    //Luu channels vao trong mang
+    sessionStorage.setItem('channels', JSON.stringify(data.metadata.channels))
+})
+
+
+
 console.log("INFO connect io:", socket);
 var storageListMessage = []
-
-//Kiem tra xem co loi authentication khong
-socket.on("errorAuthentication", (err) => {
-    // setSocketError(err?.message);
-    console.log(err);
-});
-
 
 
 loginUser()
@@ -65,10 +75,11 @@ async function loginUser() {
     var urlParams = new URLSearchParams(window.location.search);
     var dataString = urlParams.get('data');
     var dataPassed = JSON.parse(decodeURIComponent(dataString));
-    const { profileId, channels, accessToken, clientId } = dataPassed
+    const { profileId, accessToken, clientId } = dataPassed
     // fetchData('http://localhost:5000/api/v1/chats/channels', profileId)
     //goi lai de lay channels add vao - tren kia chi goi api de lay 
     //Dung cho binh thuong
+    const channels = JSON.parse(sessionStorage.getItem('channels'))
     addGroup(channels, profileId)
     socket.emit('addUser', { profileId, channels })
 
@@ -488,7 +499,7 @@ socket.on('createdChannel', (channel) => {
 
 socket.on('errorSocket', error => {
     console.log("loi la: ", error);
-    
+
 })
 socket.on('disbanedGroup', (data) => {
     console.log("Nhom bi disband ", data.message);
@@ -501,3 +512,8 @@ function test() {
     // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom con cac', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
 
 }
+
+socket.on('createdRequestFriends', (data) => {
+    console.log("Thong tin ket ban duoc gui den la:", data);
+})
+

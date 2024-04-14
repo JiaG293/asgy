@@ -59,15 +59,15 @@ const addProfileConnected = async ({ profileId, channels }, socket) => {
                 }
             }
             channels.forEach(channelId => {
-                socket.join(channelId);
+                socket.join(String(channelId));
             });
         } else {
             _profileConnected.set(profileId, {
                 socketIds: [socket.id],
-                channels: channels
+                channels: channels.map(channel => String(channel))
             });
             channels.forEach(channelId => {
-                socket.join(channelId);
+                socket.join(String(channelId));
             });
         }
     } catch (error) {
@@ -115,11 +115,11 @@ const addNewChannel = async (channelId, socket) => {
     if (_profileConnected.has(profileId)) {
         const profile = _profileConnected.get(profileId);
 
-        if (!profile.channels.includes(channelId)) {
-            profile.channels.push(channelId);
+        if (!profile.channels.includes(String(channelId))) {
+            profile.channels.push(String(channelId));
 
             // Thêm socket vào kênh mới và gửi sự kiện 'createdChannel' đến socket đó
-            socket.join(channelId);
+            socket.join(String(channelId));
             socket.emit('createdChannel', channelId);
         } else {
             socket.emit('errorSocket', { message: 'Channel ID already exists', status: 409 });
@@ -167,16 +167,39 @@ io.use(async (socket, next) => {
 })
 
 io.on("connection", (socket) => {
+
     //xem thong tin headers
     // console.log(" Header xac thuc thong tin", socket.handshake.headers)
     console.log("\n### Socket id connected:::", socket.id)
 
-    //lay thong tin middleware da xac thuc
+    //XAC THUC THANH CONG TRA VE THONG TIN CAC CHANNELS CUA USER 
     console.log("\n### socket user sau khi da xac thuc: \n", socket.auth);
     if (socket.auth === undefined) {
-        socket.emit('errorAuthentication', { message: "authorization failed", status: 401 });
+        socket.emit('errorAuthenticate', { message: "authorization failed", status: 401 });
         socket.disconnect(socket.id)
+    } else {
+        const profileId = socket.auth.profileId
+        const channels = socket.channels
+        console.log("channel", channels);
+        addProfileConnected({ profileId: profileId, channels: channels }, socket);
+        socket.emit('authorized', { message: "authorized", status: 200, metadata: { channels: channels } })
     }
+
+    //AUTH
+    /* socket.on("authentication", async (data) => {
+        const profileId = socket.auth.profileId
+        await addProfileConnected({ profileId: profileId, channels: data.channels }, socket);
+    }); */
+
+
+    //THEM USER VAO MAP CLIENT HIEN CO TREN SERVER DE QUAN LI
+    socket.on("addUser", async (data) => {
+        const profileId = socket.auth.profileId
+        await addProfileConnected({ profileId: profileId, channels: data.channels }, socket);
+    });
+
+
+
 
     socket.on("test", () => {
         console.log("\n1. Socket id connected:::", socket.id)
@@ -198,11 +221,7 @@ io.on("connection", (socket) => {
     })
 
 
-    //THEM USER VAO MAP CLIENT HIEN CO TREN SERVER DE QUAN LI
-    socket.on("addUser", async (data) => {
-        const profileId = socket.auth.profileId
-        await addProfileConnected({ profileId: profileId, channels: data.channels }, socket);
-    });
+
 
 
     //TAI THONG TIN CHI TIET TAT CA CHANNEL KHI DUA PROFILEID 
