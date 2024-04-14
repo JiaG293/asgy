@@ -6,6 +6,8 @@ import axios from "axios";
 import statusCode from "utils/statusCode";
 import { useSelector, useDispatch } from "react-redux";
 import socket from "socket/socket";
+import { MdOutlineGroupAdd as AddGroupIcon } from "react-icons/md";
+import AddGroupModal from "./AddGroupModal";
 
 import {
   setChannels,
@@ -23,7 +25,7 @@ function ListMess({ setSelectedMessage }) {
   const messagesList = useSelector((state) => state.messagesList);
   const dispatch = useDispatch();
   const currentMessages = useSelector((state) => state.currentMessages); // Lấy danh sách tin nhắn hiện tại từ Redux store
-
+  const [showAddGroupModal, setShowAddGroupModal] = useState(false);
   //fecth data api
   const fetchData = async () => {
     try {
@@ -114,16 +116,24 @@ function ListMess({ setSelectedMessage }) {
     reRender();
   }, [profileID, channelLoaded]);
 
+  const handleToggleAddGroupModal = () => {
+    setShowAddGroupModal(!showAddGroupModal);
+    console.log("đã click");
+
+  };
 
   return (
     <div className="listmess-chat-panel">
-      <div className="listmess-search-bar">
-        <input
-          type="text"
-          placeholder="Tìm kiếm..."
-          className="listmess-search-bar-input"
-        />
-        <SearchIcon className="listmess-search-icon" />
+      <div className="listmess-nav">
+        <div className="listmess-search-bar">
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            className="listmess-search-bar-input"
+          />
+          <SearchIcon className="listmess-search-icon" />
+        </div>
+        <AddGroupIcon className="listmess-add-group-icon" onClick={handleToggleAddGroupModal} />
       </div>
       {channelList?.map((channel) => (
         <div
@@ -147,6 +157,8 @@ function ListMess({ setSelectedMessage }) {
           </div>
         </div>
       ))}
+      {showAddGroupModal && <AddGroupModal />}
+
     </div>
   );
 }
