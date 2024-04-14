@@ -292,17 +292,19 @@ const sendFriendRequest = async (req) => {
         throw new ConflictRequestError("Friend request exists")
     }
 
-    //5. Them phan tao thong bao 
+    //5. Them phan tao thong bao socket
     const profileSocket = await _profileConnected.get(profileIdReceive)
-    if (profileSocket == undefined) {
-        profileSocket.forEach(elem => {
-            _io.to(elem.socketIds).emit('createdRequestFriend', newFriendRequest)
+    if (profileSocket !== undefined) {
+        profileSocket.socketIds.forEach(elem => {
+            _io.to(elem).emit('createdRequestFriend', newFriendRequest.friendsRequest.reverse()[0])
         });
+    } else{
+       console.error("Failed send socket")
     }
 
 
-    console.log("profile socket", profileSocket, typeof (profileSocket));
-    return newFriendRequest.friendsRequest
+    console.log("\nprofile socket:\n", profileSocket, "\ntypeOf", typeof (profileSocket));
+    return true
 }
 
 //CHAP NHAN KET BAN
@@ -381,7 +383,16 @@ const acceptFriendRequest = async (req) => {
         await session.commitTransaction();
         session.endSession();
 
-        //4. Them phan thong bao 
+        //4. Them phan thong bao socket
+        const profileSocket = await _profileConnected.get(profileIdSend)
+        if (profileSocket !== undefined) {
+            profileSocket.socketIds.forEach(elem => {
+                //Day la profileId cua nguoi gui ket ban, nghia la neu chap nhan thi se thong bao voi nguoi gui yeu cau ket ban
+                _io.to(elem).emit('acceptedRequestFriend', {profileIdReceive: decodeToken.profileId})
+            });
+        } else{
+           console.error("Failed send socket")
+        }
 
         return true;
     } catch (error) {

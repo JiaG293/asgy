@@ -29,7 +29,7 @@ const io = new Server({
 const socketService = {
     io: io,
 };
-global._io = io;
+
 global._profileConnected = new Map();
 
 /* 
@@ -167,6 +167,7 @@ io.use(async (socket, next) => {
 })
 
 io.on("connection", (socket) => {
+    global._io = io;
 
     //xem thong tin headers
     // console.log(" Header xac thuc thong tin", socket.handshake.headers)

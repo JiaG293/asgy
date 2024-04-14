@@ -513,7 +513,10 @@ function test() {
 
 }
 
-socket.on('createdRequestFriends', (data) => {
-    console.log("Thong tin ket ban duoc gui den la:", data);
+socket.on('createdRequestFriend', (data) => {
+    console.log("Yeu cau ket ban tu profile:", data);
+})
+socket.on('acceptedRequestFriend', (data) => {
+    console.log("Ket ban da duoc chap nhan:", data);
 })
 
