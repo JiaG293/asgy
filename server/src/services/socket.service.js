@@ -127,6 +127,28 @@ const addNewChannel = async (channelId, socket) => {
     }
 };
 
+const removeChannel = async (channelId, socket) => {
+    const profileId = socket.auth.profileId;
+
+    if (_profileConnected.has(profileId)) {
+        const profile = _profileConnected.get(profileId);
+
+        if (profile.channels.includes(String(channelId))) {
+            const index = profile.channels.indexOf(String(channelId));
+            profile.channels.splice(index, 1);
+
+            const sockets = profile.socketIds.map(socketId => io.sockets.connected[socketId]);
+            sockets.forEach(socket => {
+                socket.leave(String(channelId));
+                socket.emit('removedChannel', channelId);
+            });
+
+        } else {
+            socket.emit('errorSocket', { message: 'Channel ID does not exist in profile', status: 404 });
+        }
+    }
+};
+
 
 
 
@@ -162,9 +184,7 @@ const addNewChannel = async (channelId, socket) => {
 });
  */
 
-io.use(async (socket, next) => {
-    authenticationSocket(socket, next)
-})
+io.use(authenticationSocket)
 
 io.on("connection", (socket) => {
     global._io = io;
@@ -177,7 +197,7 @@ io.on("connection", (socket) => {
     console.log("\n### socket user sau khi da xac thuc: \n", socket.auth);
     if (socket.auth === undefined) {
         socket.emit('errorAuthenticate', { message: "authorization failed", status: 401 });
-        socket.disconnect(socket.id)
+        // socket.disconnect(socket.id) 
     } else {
         const profileId = socket.auth.profileId
         const channels = socket.channels
@@ -425,8 +445,8 @@ io.on("connection", (socket) => {
             const senderId = socket.auth.profileId
             //1. kiem tra loai channel de tao
             /*
-             100 la public | 101 la public 1-1 | 201 la private 1-1
-             200 la private | 102 la public group | 202 la private group
+             100 la public | 101 la public 1-1 | 102 la private 1-1
+             200 la private | 201 la public group | 202 la private group
              999 la cloud luu tru ca nhan | 998 dich vu bot, khach hang, tin nhan tu dong  
              */
 
@@ -479,7 +499,7 @@ io.on("connection", (socket) => {
                 /*
                 
                 Sau do o client hay them xu li nay de tham gia vao channel
-
+    
                  socket.on('createdChannel', (channel) => {
                     console.log("id room duoc tao gui ve la ", channel);
                     socket.emit('joinChannel', channel._id)
@@ -507,13 +527,13 @@ io.on("connection", (socket) => {
                 throw new Error('480: duplicate memberId');
             }
 
-            if (members.length > 3) {
-                throw new Error('Members must have at least 3 members')
+            if (members.length < 3) {
+                throw new Error('Must have at least 3 members')
             }
             //2. kiem tra loai channel de tao
             /*
-             100 la public | 101 la public 1-1 | 201 la private 1-1
-             200 la private | 102 la public group | 202 la private group
+             100 la public | 101 la public 1-1 | 102 la private 1-1
+             200 la private | 201 la public group | 202 la private group
              999 la cloud luu tru ca nhan | 998 dich vu bot, khach hang, tin nhan tu dong  
              */
             if (Number(typeChannel) == 201 && Number(typeChannel) == 202) {
@@ -552,7 +572,7 @@ io.on("connection", (socket) => {
                 /*
                 
                 Sau do o client hay them xu li nay de tham gia vao channel
-
+    
                  socket.on('createdChannel', (channel) => {
                     console.log("id room duoc tao gui ve la ", channel);
                     socket.emit('joinChannel', channel._id)
@@ -591,12 +611,21 @@ io.on("connection", (socket) => {
                 throw new Error('Channel not found or could not be updated.');
             } else {
                 console.log('isDisbanded has been updated successfully.');
+
+                channel.members.forEach(async (mem) => {
+                    await ProfileModel.findOneAndUpdate(
+                        { _id: mem.profileId },
+                        { $pull: { listChannels: channelId } },
+                        { new: true }
+                    );
+                })
+
                 channel.members.map((member) => {
-                    emitProfileId({ profileId: String(member.profileId), params: 'disbanedGroup', data: { message: "Nhóm đã bị giải tán", status: true } }, io) //Gui thong tin ve cac profileId co socket.id connect server
+                    emitProfileId({ profileId: String(member.profileId), params: 'disbanedGroup', data: { channelId: channelId, message: "Nhóm đã bị giải tán", status: true } }, io) //Gui thong tin ve cac profileId co socket.id connect server
                     /*
                     
                     Sau do o client hay them xu li nay de tham gia vao channel
-    
+     
                      socket.on('disbanedGroup', (channel) => {
                         console.log("id room duoc tao gui ve la ", channel);
                         Xu li thong tin khong frontend o day
@@ -610,6 +639,124 @@ io.on("connection", (socket) => {
         }
 
     })
+
+
+    //THEM THANH VIEN VAO NHOM
+    socket.on("addMembersToChannel", async ({ channelId, membersToAdd }) => {
+        try {
+            const senderId = socket.auth.profileId;
+
+            const channel = await ChannelModel.findOne({ _id: channelId }).select('members owner').lean();
+            if (!channel) {
+                throw new Error("Channel not found");
+            }
+
+            if (String(channel.owner) !== senderId) {
+                throw new Error("You do not have permission to add members to this channel");
+            }
+
+            const membersUpdate = [];
+            const dateNow = Date.now()
+            membersToAdd.forEach((newMember) => {
+                const existingMember = channel.members.find((mem) => String(mem.profileId) === String(newMember));
+                if (existingMember) {
+                    throw new Error(`Member ${newMember.profileId} already exists in the channel`);
+                } else {
+                    membersUpdate.push({ profileId: newMember, joinedDate: dateNow });
+                }
+            });
+
+            const filter = { _id: channelId };
+            const update = { $push: { members: { $each: membersUpdate } } };
+            const options = { new: true };
+            const updatedChannel = await ChannelModel.findOneAndUpdate(filter, update, options);
+            console.log("updatedChannel", updatedChannel);
+
+            if (!updatedChannel) {
+                throw new Error('Channel not found or could not be updated.');
+            } else {
+                for (const mem of membersUpdate) {
+                    const filter = { _id: mem.profileId };
+                    const update = {
+                        $push: { listChannels: { $each: [String(channel._id)], $position: 0 } }
+                    };
+
+                    try {
+                        await ProfileModel.findOneAndUpdate(filter, update, { new: true });
+                    } catch (error) {
+                        throw new Error(`Error updating member ${mem.profileId}: ${error}`);
+                    }
+                }
+                console.log('Member added to the channel successfully.');
+
+                membersUpdate.forEach((newMember) => {
+                    emitProfileId({
+                        profileId: String(newMember.profileId),
+                        params: 'addedToChannel',
+                        data: {
+                            message: "Bạn đã được thêm vào nhóm",
+                            status: 200,
+                            metadata: {
+                                channelId: channelId,
+                            }
+                        }
+                    }, io);
+                });
+            }
+        } catch (error) {
+            socket.emit('errorSocket', { message: error.message, status: error.status });
+        }
+    });
+
+    //XOA THANH VIEN KHOI NHOM
+    socket.on("removeMember", async ({ channelId, memberId }) => {
+        try {
+            const senderId = socket.auth.profileId;
+
+            const channel = await ChannelModel.findOne({ _id: channelId }).select('members owner').lean();
+            if (!channel) {
+                throw new Error("Channel not found");
+            }
+
+            if (String(channel.owner) !== senderId) {
+                throw new Error("You do not have permission to remove members from this channel");
+            }
+
+
+            const filter = { _id: channelId };
+            const update = { $pull: { members: { profileId: memberId } } };
+            const options = { new: true };
+            const updatedChannel = await ChannelModel.findOneAndUpdate(filter, update, options);
+
+            if (!updatedChannel) {
+                throw new Error('Channel not found or could not be updated.');
+            } else {
+                console.log('Member removed from the channel successfully.');
+
+                const profileUpdate = await ProfileModel.findOneAndUpdate(
+                    { _id: memberId },
+                    { $pull: { listChannels: channelId } },
+                    { new: true }
+                );
+
+
+                emitProfileId({
+                    profileId: memberId,
+                    params: 'removedMember',
+                    data: {
+                        message: "Bạn đã bị loại khỏi nhóm",
+                        status: 200,
+                        metadata: {
+                            channelId: channelId,
+                        }
+                    }
+                }, io);
+            }
+        } catch (error) {
+            socket.emit('errorSocket', { message: error.message, status: error.status });
+        }
+    });
+
 
 
     //NGAT KET NOI 

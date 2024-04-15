@@ -176,8 +176,8 @@ const createSingleChat = async (req) => {
 
     //1. kiem tra loai channel de tao
     /*
-     100 la public | 101 la public 1-1 | 201 la private 1-1
-     200 la private | 102 la public group | 202 la private group
+     100 la public | 101 la public 1-1 | 102 la private 1-1
+     200 la private | 201 la public group | 202 la private group
      999 la cloud luu tru ca nhan | 998 dich vu bot, khach hang, tin nhan tu dong  
      */
     if (Number(typeChannel) != 101 && Number(typeChannel) != 102) {
@@ -234,10 +234,11 @@ const createGroupChat = async (req) => {
         throw new BadRequestError('Members must have at least 3 members')
     }
     //2. kiem tra loai channel de tao
-    /*
-     100 la public | 101 la public 1-1 | 201 la private 1-1
-     200 la private | 102 la public group | 202 la private group
-     999 la cloud luu tru ca nhan | 998 dich vu bot, khach hang, tin nhan tu dong  
+
+    /*   
+    100 la public | 101 la public 1 - 1 | 102 la private 1 - 1
+    200 la private | 201 la public group | 202 la private group
+    999 la cloud luu tru ca nhan | 998 dich vu bot, khach hang, tin nhan tu dong
      */
     if (Number(typeChannel) == 201 && Number(typeChannel) == 202) {
         throw new BadRequestError("Invalid type channel 201 public 1-1 | 202 private 1-1")

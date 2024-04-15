@@ -50,7 +50,7 @@ async function fetchData(url, profileId) {
             throw new Error(`Failed to fetch data: ${response.statusText}`);
         }
         const data = await response.json();
-        await socket.emit('addUser', { profileId, channels: await data.metadata.map((channel => channel._id)) })
+        // await socket.emit('addUser', { profileId, channels: await data.metadata.map((channel => channel._id)) })
         await sessionStorage.setItem('channels', JSON.stringify(data.metadata.map((channel => channel._id))))
         return data.metadata.map((channel => channel._id));
     } catch (error) {
@@ -476,8 +476,8 @@ socket.on('getDetailsChannel', data => {
 socket.on('createdChannel', (channel) => {
     console.log("id room duoc tao gui ve la ", channel);
     socket.emit('joinChannel', channel._id)
-    /*  let templateGroup = `
-     <div class="group" id="${channel}-group">
+     let templateGroup = `
+     <div class="group" id="${channel._id}-group">
          <div class="group-icon prevent-click-event">
              <img id="group-icon-img" src="https://i.imgur.com/fL8RNta.png">
          </div>
@@ -494,7 +494,7 @@ socket.on('createdChannel', (channel) => {
      </li>
      `
      document.getElementById("sidebar").insertAdjacentHTML('beforeend', templateGroup);
-     document.getElementById("chat-list").insertAdjacentHTML('beforeend', templateChatGroup); */
+     document.getElementById("chat-list").insertAdjacentHTML('beforeend', templateChatGroup);
 })
 
 socket.on('errorSocket', error => {
@@ -507,16 +507,21 @@ socket.on('disbanedGroup', (data) => {
 
 function test() {
     console.log("test chuc nang socket:");
-    socket.emit('disbandGroup', { channelId: '661a0f6c0a33bccb48968087' })
-    // socket.emit('createSingleChat', { typeChannel: 101, receiverId: '65f417a034e9a9f7e2f3cf9f' })
+    // socket.emit('disbandGroup', { channelId: '661a0f6c0a33bccb48968087' })
+    // socket.emit('createSingleChat', { channelId: '65f417a034e9a9f7e2f3cf9f', memebersToAdd: ''})
     // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom con cac', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
-
+    socket.emit('addMembersToChannel', { membersToAdd: ["65f806fe141880574bb04421"], channelId: '661ca52f44cd164574552575' })
 }
 
 socket.on('createdRequestFriend', (data) => {
     console.log("Yeu cau ket ban tu profile:", data);
+    //Them vao danh sach cho redux
 })
 socket.on('acceptedRequestFriend', (data) => {
     console.log("Ket ban da duoc chap nhan:", data);
+    //Them ban be vao redux
 })
-
+socket.on('addedToChannel', (data) => {
+    console.log("Member da duoc them vao:", data);
+    //Xu li them channel vao redux
+})
