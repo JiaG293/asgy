@@ -72,10 +72,7 @@ const AddGroupModal = ({ onClose }) => {
       });
       console.log("okee");
       toast.success("Tạo nhóm thành công");
-      setTimeout(() => {
-        window.location.reload();
-      }, 3000)
-      
+      window.location.reload();
     }
   };
 

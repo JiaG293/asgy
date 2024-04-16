@@ -4,7 +4,7 @@ import { FiMoreVertical } from "react-icons/fi";
 import RevokeModal from "../RevokeModal/RevokeModal"; 
 import "./MessageDropdown.scss";
 
-function MessageDropdown({revokeHandler}) {
+function MessageDropdown({revokeHandler, deleteHandler,}) {
   
   const [isOpen, setIsOpen] = useState(false);
   const [showRevokeModal, setShowRevokeModal] = useState(false); 
@@ -30,13 +30,15 @@ function MessageDropdown({revokeHandler}) {
 
         {isOpen && (
           <Dropdown.Menu className="dropdown-menu">
-            <Dropdown.Item>Xóa</Dropdown.Item>
+            <Dropdown.Item onClick={deleteHandler}>Xóa</Dropdown.Item>
             <Dropdown.Item onClick={handleRevoke}>Thu hồi</Dropdown.Item> {/* Assign handleRevoke to onClick */}
           </Dropdown.Menu>
         )}
       </Dropdown>
       {/* Render RevokeModal component only when showRevokeModal is true */}
-      {showRevokeModal && <RevokeModal onClose={handleCloseRevokeModal} onConfirm={() => revokeHandler()} />}
+      {showRevokeModal && <RevokeModal onClose={handleCloseRevokeModal} onConfirm={() => {revokeHandler() ;
+      handleCloseRevokeModal()
+      }} />}
     </>
   );
 }

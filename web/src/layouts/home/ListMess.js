@@ -91,10 +91,14 @@ function ListMess({ setSelectedMessage }) {
     await messagesList.forEach((item) => {
       if (item.channelId === channel._id) {
         dispatch(setCurrentMessages(item.messages));
-        // console.log("message da chon");
-        // console.log(item);
+        console.log("message da chon");
+        console.log(item);
       }
     });
+
+    // console.log("MessageList");
+
+
   };
 
   useEffect(() => {
@@ -110,6 +114,9 @@ function ListMess({ setSelectedMessage }) {
         socket.on("getMessages", (data) => {
           dispatch(setMessages(data));
         });
+        socket.on("messageRevoked", data=>{
+          console.log("đã thu hồi", data);
+        })
       }
     };
 

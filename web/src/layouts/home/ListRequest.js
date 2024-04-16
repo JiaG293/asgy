@@ -62,6 +62,9 @@ function ListRequest() {
               className="listrequest-icon accept"
               onClick={() => {
                 acceptFriendRequest(element.profileIdRequest);
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1500);
               }}
             />
           </div>

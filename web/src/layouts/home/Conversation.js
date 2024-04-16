@@ -30,7 +30,6 @@ function Conversation() {
     )
   );
   
-
   // Xử lý sự kiện nhấn phím Enter để gửi tin nhắn
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
@@ -50,7 +49,7 @@ function Conversation() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [currentChannel]);
+  }, [currentChannel, currentMessages]);
 
   // Gửi tin nhắn từ máy khách tới máy chủ
   const IOSendMessage = () => {
