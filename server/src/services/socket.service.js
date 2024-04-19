@@ -140,7 +140,7 @@ const removeChannel = async (channelId, socket) => {
             const sockets = profile.socketIds.map(socketId => io.sockets.connected[socketId]);
             sockets.forEach(socket => {
                 socket.leave(String(channelId));
-                socket.emit('removedChannel', channelId);
+                socket.emit('leaveChannel', channelId);
             });
 
         } else {
