@@ -56,8 +56,8 @@ const removeProfileConnect = async (profileId, socket) => {
 };
 
 const emitProfileId = ({ profileId, params, data }, io) => {
-    if (_profileConnected.get(profileId)) {
-        _profileConnected.get(profileId).socketIds.forEach(socket => io.to(socket).emit(params, data))
+    if (_profileConnected.get(String(profileId))) {
+        _profileConnected.get(String(profileId)).socketIds.forEach(socket => io.to(socket).emit(params, data))
     } else {
         // socket.emit('errorSocket', { message: 'profile id is not exist', status: 500 })
         console.log(`\n\n emitProfileId: profile id is not exist`);

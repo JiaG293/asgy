@@ -476,25 +476,25 @@ socket.on('getDetailsChannel', data => {
 socket.on('createdChannel', (channel) => {
     console.log("id room duoc tao gui ve la ", channel);
     socket.emit('joinChannel', channel._id)
-     let templateGroup = `
+    let templateGroup = `
      <div class="group" id="${channel._id}-group">
          <div class="group-icon prevent-click-event">
              <img id="group-icon-img" src="https://i.imgur.com/fL8RNta.png">
          </div>
          <div class="group-content prevent-click-event">
              <div class="group-name prevent-click-event">${channel._id}</div>
-             <div class="group-last-message prevent-click-event">${channel._id.slice(-10)}</div>
+             <div class="group-last-message prevent-click-event">${channel._id}</div>
          </div>
      </div>
      `
-     let templateChatGroup = `
+    let templateChatGroup = `
      <li>
          <ul id="${channel._id}-chat" class="message-list hidden" id-channel-chats="test">
          </ul>
      </li>
      `
-     document.getElementById("sidebar").insertAdjacentHTML('beforeend', templateGroup);
-     document.getElementById("chat-list").insertAdjacentHTML('beforeend', templateChatGroup);
+    document.getElementById("sidebar").insertAdjacentHTML('beforeend', templateGroup);
+    document.getElementById("chat-list").insertAdjacentHTML('beforeend', templateChatGroup);
 })
 
 socket.on('errorSocket', error => {
@@ -508,8 +508,8 @@ socket.on('disbanedGroup', (data) => {
 function test() {
     console.log("test chuc nang socket:");
     // socket.emit('disbandGroup', { channelId: '661a0f6c0a33bccb48968087' })
-    // socket.emit('createSingleChat', { channelId: '65f417a034e9a9f7e2f3cf9f', memebersToAdd: ''})
-    socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom  ca', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
+    socket.emit('createSingleChat', { receiverId: '65f417a034e9a9f7e2f3cf9f', typeChannel: 101, })
+    // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom ca ca', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
     // socket.emit('addMembersToChannel', { membersToAdd: ["65f806fe141880574bb04421"], channelId: '661ca52f44cd164574552575' })
 }
 

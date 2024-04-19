@@ -1,6 +1,8 @@
 require('dotenv').config();
 const { Server } = require('socket.io');
-const app = require('./src/app')
+const app = require('./src/app');
+const SocketController = require('./src/socket/socket.controller');
+const authenticationSocket = require('./src/socket/socket.auth');
 const { PORT } = process.env;
 
 
@@ -10,29 +12,23 @@ const io = new Server({
     adapter: createAdapter(_redisClient)
 }); */
 
-//SOCKET.IO
-// const server = require('http').createServer(app)
-// const io = new Server(server);
-// const SocketService = require('./src/services/socket1.service')
-// global._io = io;
 
 
+/* //C1
 const socketService = require('./src/services/socket.service');
+const socketController = require('./src/socket/socket.controller');
 
 const server = require('http').createServer(app);
-socketService.io.attach(server);
+socketService.io.attach(server); */
+
+//C2
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+global._io = io;
+global._io.use(authenticationSocket)
+global._io.on('connection', SocketController.connection)
 
 
-/* //middlware socket service
-global._io.use((socket, next) => {
-    const { accessToken } = socket.handshake.headers;
-
-    console.log(`User connect id is ${socket.id}`);
-    next()
-}) */
-
-// connection socket io
-// global._io.on('connection', SocketService.connection)
 
 
 server.listen(PORT, () => {

@@ -144,16 +144,12 @@ const getDetailsChannel = async (req) => {
 }
 
 const checkChannelSingleExists = async ({ members, typeChannel }) => {
-    const findChannel = await ChannelModel.find({
+    const findChannel = await ChannelModel.findOne({
         "members": { $size: members.length }, // do dai mang so sanh phai bang mang da cho 
         "members.profileId": { $all: members }, // profileId ban muon tim
         typeChannel: typeChannel,
     }).lean()
-
-    if (findChannel.length != 0) {
-        throw new ConflictRequestError("Channel 1-1 is exists")
-    }
-
+    return findChannel
 }
 
 const createSingleChat = async (req) => {

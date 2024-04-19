@@ -10,10 +10,13 @@ const channelSchema = new mongoose.Schema(
     },
     iconGroup: {
       type: String,
-      required: () => {
-        return !(this.typeChannel === 201 || this.typeChannel === 202) && !this.iconGroup;
+      default: function () {
+
+        if (this.typeChannel === 101 || this.typeChannel === 102) {
+          return undefined;
+        }
+        return "https://i.imgur.com/WCRmPDS.png";
       },
-      default: "https://i.imgur.com/WCRmPDS.png",
     },
 
     background: {
