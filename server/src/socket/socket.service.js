@@ -1,7 +1,7 @@
 const ChannelModel = require("../models/channel.model");
 const ProfileModel = require("../models/profile.model");
 const { checkChannelSingleExists } = require("../services/channel.service");
-const { ConflictRequestError, BadRequestError } = require("../utils/responses/error.response");
+const { ConflictRequestError, BadRequestError, UnauthorizeError } = require("../utils/responses/error.response");
 const { removeProfileConnect, addProfileConnected } = require("./socket.store");
 
 
@@ -138,13 +138,147 @@ class SocketService {
     }
 
     //join channel
-    joinChannel = async ({ channelId }) => {
+    static joinChannelByLink = async ({ channelId }, socket) => {
 
     }
 
     // disband group
-    disbandGroup = async ({ channelId }) => {
+    static disbandGroup = async ({ channelId }, socket) => {
+        const senderId = socket.auth.profileId
 
+        const channel = await ChannelModel.findOne({ _id: channelId }).select('members owner').lean()
+        if (!channel) {
+            throw new BadRequestError("Channel not found")
+        }
+
+        if (String(channel.owner) !== senderId) {
+            throw new UnauthorizeError("You do not permission disband group")
+        }
+
+        const filter = { _id: channelId };
+        const update = { isDisbanded: true };
+        const options = { new: true };
+        const disbandGroup = await ChannelModel.findOneAndUpdate(filter, update, options);
+
+        if (!disbandGroup) {
+            throw new BadRequestError('Channel not found or could not be updated.');
+        } else {
+            console.log('isDisbanded has been updated successfully.');
+
+            channel.members.forEach(async (mem) => {
+                await ProfileModel.findOneAndUpdate(
+                    { _id: mem.profileId },
+                    { $pull: { listChannels: channelId } },
+                    { new: true }
+                );
+            })
+
+            return {
+                status: "OK",
+                metadata: disbandGroup
+            }
+        }
+    }
+
+    //add members group
+    static addMembers = async ({ channelId, members }, socket) => {
+        const senderId = socket.auth.profileId;
+
+        const channel = await ChannelModel.findOne({ _id: channelId }).select('members owner').lean();
+        if (!channel) {
+            throw new Error("Channel not found");
+        }
+
+        if (String(channel.owner) !== senderId) {
+            throw new Error("You do not have permission to add members to this channel");
+        }
+
+        const membersUpdate = [];
+        const dateNow = Date.now()
+        members.forEach((newMember) => {
+            const existingMember = channel.members.find((mem) => String(mem.profileId) === String(newMember));
+            if (existingMember) {
+                throw new ConflictRequestError(`Member ${newMember.profileId} already exists in the channel`);
+            } else {
+                membersUpdate.push({ profileId: newMember, joinedDate: dateNow });
+            }
+        });
+
+        const filter = { _id: channelId };
+        const update = { $push: { members: { $each: membersUpdate } } };
+        const options = { new: true };
+        const updatedChannel = await ChannelModel.findOneAndUpdate(filter, update, options);
+        console.log("updatedChannel", updatedChannel);
+
+        if (!updatedChannel) {
+            throw new BadRequestError('Channel not found or could not be updated.');
+        } else {
+            for (const mem of membersUpdate) {
+                const filter = { _id: mem.profileId };
+                const update = {
+                    $push: { listChannels: { $each: [String(channel._id)], $position: 0 } }
+                };
+
+                try {
+                    await ProfileModel.findOneAndUpdate(filter, update, { new: true });
+                } catch (error) {
+                    throw new BadRequestError(`Error updating member ${mem.profileId}: ${error}`);
+                }
+            }
+            console.log('Member added to the channel successfully.');
+            return {
+                status: "OK",
+                metadata: {
+                    channel: updatedChannel,
+                    newMembers: membersUpdate,
+                }
+            }
+        }
+    }
+
+    //Delete members group
+    static deleteMembers = async ({ channelId, members }, socket) => {
+        const senderId = socket.auth.profileId;
+
+        const channel = await ChannelModel.findOne({ _id: channelId }).select('members owner').lean();
+        if (!channel) {
+            throw new Error("Channel not found");
+        }
+
+        if (String(channel.owner) !== senderId) {
+            throw new Error("You do not have permission to remove members from this channel");
+        }
+
+
+        const filter = { _id: channelId };
+        const update = { $pull: { members: { profileId: memberId } } };
+        const options = { new: true };
+        const updatedChannel = await ChannelModel.findOneAndUpdate(filter, update, options);
+
+        if (!updatedChannel) {
+            throw new Error('Channel not found or could not be updated.');
+        } else {
+            console.log('Member removed from the channel successfully.');
+
+            const profileUpdate = await ProfileModel.findOneAndUpdate(
+                { _id: memberId },
+                { $pull: { listChannels: channelId } },
+                { new: true }
+            );
+
+
+            emitProfileId({
+                profileId: memberId,
+                params: 'removedMember',
+                data: {
+                    message: "Bạn đã bị loại khỏi nhóm",
+                    status: 200,
+                    metadata: {
+                        channelId: channelId,
+                    }
+                }
+            }, io);
+        }
     }
 
 
@@ -153,21 +287,6 @@ class SocketService {
 
 
 
-
-
-
-
-    /* PROFILE */
-
-    // add members group
-    addMembers = async ({ channelId, members }) => {
-
-    }
-
-    // delete members group
-    deleteMembers = async ({ channelId, members }) => {
-
-    }
 
 
 

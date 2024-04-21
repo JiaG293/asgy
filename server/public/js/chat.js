@@ -502,15 +502,15 @@ socket.on('errorSocket', error => {
 
 })
 socket.on('disbanedGroup', (data) => {
-    console.log("Nhom bi disband ", data.message);
+    console.log("Nhom bi disband ", data);
 })
 
 function test() {
     console.log("test chuc nang socket:");
-    // socket.emit('disbandGroup', { channelId: '661a0f6c0a33bccb48968087' })
-    socket.emit('createSingleChat', { receiverId: '65f417a034e9a9f7e2f3cf9f', typeChannel: 101, })
+    // socket.emit('disbandGroup', { channelId: '6622674ad0c8de3491c351bc' })
+    // socket.emit('createSingleChat', { receiverId: '65f417a034e9a9f7e2f3cf9f', typeChannel: 101, })
     // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom ca ca', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
-    // socket.emit('addMembersToChannel', { membersToAdd: ["65f806fe141880574bb04421"], channelId: '661ca52f44cd164574552575' })
+    socket.emit('addMembers', { members: ["65f806fe141880574bb04421"], channelId: '6622674ad0c8de3491c351bc' })
 }
 
 socket.on('createdRequestFriend', (data) => {
@@ -521,9 +521,9 @@ socket.on('acceptedRequestFriend', (data) => {
     console.log("Ket ban da duoc chap nhan:", data);
     //Them ban be vao redux
 })
-socket.on('addedToChannel', (data) => {
+socket.on('addedMembers', (data) => {
     console.log("Member da duoc them vao:", data);
-    //Xu li them channel vao redux
+    socket.emit("joinChannel", { channelId: data.metadata._id })
 })
 
 socket.on('leaveChannel', (data) => {

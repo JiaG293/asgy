@@ -1,3 +1,4 @@
+const { message } = require("../controllers/socket.controller");
 const { SuccessResponse } = require("../utils/responses/success.response");
 const SocketService = require("./socket.service");
 const { addNewChannel, addProfileConnected, removeProfileConnect, emitProfileId } = require("./socket.store");
@@ -94,6 +95,63 @@ class SocketController {
             }
         })
 
+        socket.on("joinChannel", ({ channelId }) => {
+            socket.join(String(channelId))
+        })
+
+        // disband group
+        socket.on('disbandGroup', async ({ channelId }) => {
+            try {
+                const disbandGroupChat = await SocketService.disbandGroup({ channelId }, socket)
+                console.log("disbandGroup", disbandGroupChat);
+                disbandGroupChat.metadata.members.forEach((member) => {
+                    emitProfileId({ profileId: member.profileId, params: 'disbanedGroup', data: { channelId: channelId, message: "Nhóm đã bị giải tán", status: true } }, _io) //Gui thong tin ve cac profileId co socket.id connect server
+                    /*
+                    
+                    Sau do o client hay them xu li nay de tham gia vao channel
+     
+                     socket.on('disbanedGroup', (channel) => {
+                        console.log("id room duoc tao gui ve la ", channel);
+                        Xu li thong tin khong frontend o day
+                    }) 
+                    
+                    */
+                });
+            } catch (error) {
+                socket.emit("errorSocket", {
+                    status: error.status,
+                    message: error.message,
+                })
+            }
+        })
+
+        // add member to group
+        socket.on('addMembers', async ({ channelId, members }) => {
+            try {
+                const addNewMembers = await SocketService.addMembers({ channelId, members }, socket)
+                addNewMembers.metadata.newMembers.forEach((newMember) => {
+                    emitProfileId({
+                        profileId: newMember.profileId,
+                        params: 'addedMembers',
+                        data: addNewMembers.metadata.channel
+                    }, _io);
+                });
+                socket.emit("addMembers", { status: "OK", message: "Added members successfully" })
+            } catch (error) {
+                socket.emit("errorSocket", {
+                    status: error.status,
+                    message: error.message,
+                })
+            }
+        })
+
+        //Delete members from group
+        socket.on('deleteMembers', async({ channelId, members }) => {
+
+        })
+
+
+
 
 
 
@@ -117,73 +175,11 @@ class SocketController {
 module.exports = new SocketController()
 
 
-/* authSocket = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Connected to chat',
-        metadata: await,
-    }).send(res)
-}
-// CHANNEL
-
-//create single chat
-createSingleChat = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Created single chat',
-        metadata: await SocketService.createSingleChat(req),
-    }).send(res)
-}
-
-//create group chat
-createGroupChat = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Created group chat',
-        metadata: await ,
-    }).send(res)
-}
-
-//join channel
-joinChannel = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Find channel',
-        metadata: await ,
-    }).send(res)
-}
-
-// disband group
-disbandGroup = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Receive message success',
-        metadata: await ,
-    }).send(res)
-}
+/*
 
 
 
 
-
-
-
-
-
-
-
-// PROFILE
-
-// add members group
-addMembers = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Send image success',
-        metadata: await ,
-    }).send(res)
-}
-
-// delete members group
-deleteMembers = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Send video success',
-        metadata: await ,
-    }).send(res)
-}
 
 
 
