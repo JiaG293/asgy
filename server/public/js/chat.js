@@ -280,18 +280,16 @@ socket.on('getMessagesHistory', (data) => {
     if (foundElementIndex !== -1) {
         (storageListMessage[foundElementIndex].messages).unshift(...data.messages)
     }
-
-    console.log(data);
     data.messages.map(message => {
-        const { senderId, messageContent, receiverId, createdAt, updatedAt, _id } = message;
+        const { senderId, messageContent, receiverId, createdAt, updatedAt, _id, avatar, fullName } = message;
 
         const messageSenderElement = `<li class="message sender-message" id="${_id}">
                     <div class="message-avatar">
-                        <img id="message-avatar-img" src="${senderId.avatar}">
+                        <img id="message-avatar-img" src="${avatar}">
                     </div>
                     <div class="message-content">
                         <p>${messageContent}</p>
-                        <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
+                        <div class="message-info">${senderId} / ${fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                     </div>
                     <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                     <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
@@ -299,11 +297,11 @@ socket.on('getMessagesHistory', (data) => {
                 </li>`
         const messageReceiverElement = `<li class="message receiver-message" id="${_id}">
                     <div class="message-avatar">
-                        <img id="message-avatar-img" src="${senderId.avatar}">
+                        <img id="message-avatar-img" src="${avatar}">
                     </div>
                     <div class="message-content">
                         <p>${messageContent}</p>
-                        <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
+                        <div class="message-info">${senderId} / ${fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                     </div>
                     <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                      <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
@@ -311,7 +309,7 @@ socket.on('getMessagesHistory', (data) => {
                 </li>`
 
 
-        if (senderId._id === sessionStorage.getItem('profileId')) {
+        if (senderId === sessionStorage.getItem('profileId')) {
             document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
             document.getElementById(`${data.channelId}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
         } else {
@@ -342,15 +340,15 @@ function getListMessage() {
         console.log("tin nhan duoc sap theo thu tu", data);
 
         data.messages.map(message => {
-            const { senderId, messageContent, receiverId, createdAt, updatedAt, _id } = message;
+            const { senderId, messageContent, receiverId, createdAt, updatedAt, _id, avatar, fullName } = message;
 
             const messageSenderElement = `<li class="message sender-message" id="${_id}">
                     <div class="message-avatar">
-                        <img id="message-avatar-img" src="${senderId.avatar}">
+                        <img id="message-avatar-img" src="${avatar}">
                     </div>
                     <div class="message-content">
                         <p>${messageContent}</p>
-                        <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
+                        <div class="message-info">${senderId} / ${fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                     </div>
                     <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                      <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
@@ -358,11 +356,11 @@ function getListMessage() {
                 </li>`
             const messageReceiverElement = `<li class="message receiver-message" id="${_id}">
                     <div class="message-avatar">
-                        <img id="message-avatar-img" src="${senderId.avatar}">
+                        <img id="message-avatar-img" src="${avatar}">
                     </div>
                     <div class="message-content">
                         <p>${messageContent}</p>
-                        <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
+                        <div class="message-info">${senderId} / ${fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                     </div>
                     <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                      <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
@@ -370,7 +368,7 @@ function getListMessage() {
                 </li>`
 
 
-            if (senderId._id === sessionStorage.getItem('profileId')) {
+            if (senderId=== sessionStorage.getItem('profileId')) {
                 document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
                 document.getElementById(`${data.channelId}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
             } else {
@@ -390,15 +388,15 @@ function getListMessage() {
 
 function getMessage() {
     socket.on("getMessage", (data) => {
-        const { senderId, messageContent, receiverId, createdAt, updatedAt, _id } = data;
+        const { senderId, messageContent, receiverId, createdAt, updatedAt, _id, avatar, fullName} = data;
         console.log("data get message: ", data);
         const messageSenderElement = `<li class="message sender-message" id="${_id}">
                 <div class="message-avatar">
-                    <img id="message-avatar-img" src="${senderId.avatar}">
+                    <img id="message-avatar-img" src="${avatar}">
                 </div>
                 <div class="message-content">
                     <p>${messageContent}</p>
-                    <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
+                    <div class="message-info">${senderId} / ${fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                 </div>
                 <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                  <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
@@ -406,11 +404,11 @@ function getMessage() {
             </li>`
         const messageReceiverElement = `<li class="message receiver-message" id="${_id}">
                 <div class="message-avatar">
-                    <img id="message-avatar-img" src="${senderId.avatar}">
+                    <img id="message-avatar-img" src="${avatar}">
                 </div>
                 <div class="message-content">
                     <p>${messageContent}</p>
-                    <div class="message-info">${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
+                    <div class="message-info">${_id} / ${fullName} - ${new Date(updatedAt).toLocaleTimeString()}</div>
                 </div>
                 <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                  <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
@@ -422,7 +420,7 @@ function getMessage() {
         if (foundElementIndex !== -1) {
             storageListMessage[foundElementIndex].messages.push(data);
         }
-        if (senderId._id === sessionStorage.getItem('profileId')) {
+        if (senderId === sessionStorage.getItem('profileId')) {
             document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
             document.getElementById(`${receiverId}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
         } else {
@@ -510,7 +508,11 @@ function test() {
     // socket.emit('disbandGroup', { channelId: '6622674ad0c8de3491c351bc' })
     // socket.emit('createSingleChat', { receiverId: '65f417a034e9a9f7e2f3cf9f', typeChannel: 101, })
     // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom ca ca', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
-    socket.emit('addMembers', { members: ["65f806fe141880574bb04421"], channelId: '6622674ad0c8de3491c351bc' })
+    // socket.emit('addMembers', { members: ["65f806fe141880574bb04421"], channelId: '6622674ad0c8de3491c351bc' })
+    // socket.emit('deleteMembers', {channelId: '6625e5cdac26377772ad96ca', members: ['65f417a034e9a9f7e2f3cf9f']})
+    storageListMessage[1].messages.map(message => {
+        console.log(message.messageContent);
+    })
 }
 
 socket.on('createdRequestFriend', (data) => {
@@ -528,7 +530,11 @@ socket.on('addedMembers', (data) => {
 
 socket.on('leaveChannel', (data) => {
     console.log("Member da duoc them vao:", data);
-    socket.leave(channelId)
+    // socket.leave(channelId)
     //Xu li them channel vao redux
+})
+
+socket.on('removedMember', (data) => {
+    console.log("member da bi xoa khoi nhom", data);
 })
 

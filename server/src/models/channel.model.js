@@ -61,14 +61,9 @@ const channelSchema = new mongoose.Schema(
       }
     ],
 
-    last_message: {
+    lastMessage: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Message",
-    },
-    seen_last_messages: {
-      type: Boolean,
-      require: true,
-      default: false
     },
     isDisbanded: {
       type: Boolean,

@@ -3,7 +3,8 @@ const { Server } = require('socket.io');
 const app = require('./src/app');
 const SocketController = require('./src/socket/socket.controller');
 const authenticationSocket = require('./src/socket/socket.auth');
-const { PORT } = process.env;
+const { instrument } = require('@socket.io/admin-ui');
+const { PORT, URL_CLIENT } = process.env;
 
 
 //redis adapter stream
@@ -23,10 +24,31 @@ socketService.io.attach(server); */
 
 //C2
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+    cors: {
+        origin: [URL_CLIENT, "https://admin.socket.io"],
+        allowedHeaders: ["x-client-id", "authorization"],
+        credentials: true,
+    },
+    transports: ["websocket", "polling"],
+    maxHttpBufferSize: 1e8, // 100 MB we can upload to server (By Default = 1MB)
+    pingTimeout: 60000, // increase the ping timeout
+})
 global._io = io;
+instrument(_io, {
+    auth: {
+        type: "basic",
+        username: "admin",
+        password: "$2a$12$emlebPOJC7W5RRfAWfFbKu9t5hG.YV/spyzY8NS0ct6aOyNDFq9e." //hash: 12 | password: admin
+    },
+    namespaceName: "/admin",
+    mode: "development",
+    /* auth: false,
+    mode: "development", */
+});
 global._io.use(authenticationSocket)
 global._io.on('connection', SocketController.connection)
+
 
 
 

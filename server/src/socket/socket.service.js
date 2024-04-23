@@ -1,6 +1,10 @@
+const { default: mongoose } = require("mongoose");
+const { message } = require("../controllers/socket.controller");
 const ChannelModel = require("../models/channel.model");
+const MessageModel = require("../models/message.model");
 const ProfileModel = require("../models/profile.model");
 const { checkChannelSingleExists } = require("../services/channel.service");
+const { findProfileById } = require("../services/profile.service");
 const { ConflictRequestError, BadRequestError, UnauthorizeError } = require("../utils/responses/error.response");
 const { removeProfileConnect, addProfileConnected } = require("./socket.store");
 
@@ -251,7 +255,7 @@ class SocketService {
 
 
         const filter = { _id: channelId };
-        const update = { $pull: { members: { profileId: memberId } } };
+        const update = { $pull: { members: { profileId: { $in: members } } } };
         const options = { new: true };
         const updatedChannel = await ChannelModel.findOneAndUpdate(filter, update, options);
 
@@ -260,24 +264,188 @@ class SocketService {
         } else {
             console.log('Member removed from the channel successfully.');
 
-            const profileUpdate = await ProfileModel.findOneAndUpdate(
-                { _id: memberId },
-                { $pull: { listChannels: channelId } },
-                { new: true }
+            await ProfileModel.updateMany(
+                { _id: { $in: members } },
+                { $pull: { listChannels: channelId } }
             );
 
+        }
 
-            emitProfileId({
-                profileId: memberId,
-                params: 'removedMember',
-                data: {
-                    message: "Bạn đã bị loại khỏi nhóm",
-                    status: 200,
-                    metadata: {
-                        channelId: channelId,
+        return {
+            status: "OK",
+            metadata: {
+                members
+            }
+        }
+    }
+    // send messsage 
+    static sendMessage = async ({ receiverId, typeContent, messageContent }, socket) => {
+        const senderId = socket.auth.profileId
+        const profile = await findProfileById(senderId)
+        if (!profile) {
+            throw new Error('Could not found profile')
+        }
+
+        const saveNewMessage = await MessageModel.create({
+            senderId,
+            receiverId,
+            typeContent,
+            messageContent: messageContent ?? "",
+        })
+
+
+
+        if (!saveNewMessage) {
+            throw new Error('Send message failed')
+        } else {
+            const newMessage = await saveNewMessage.populate({
+                path: 'senderId', // ten field join
+                select: 'avatar fullName' //cac truong duoc chon de lay ra 
+            }).then(result => ({
+                ...result._doc,
+                senderId: result._doc.senderId._id,
+                fullName: result._doc.senderId.fullName,
+                avatar: result._doc.senderId.avatar
+            }))
+            await ChannelModel.findOneAndUpdate(
+                { _id: receiverId },
+                { lastMessage: newMessage._id },
+                { new: true }
+            )
+            console.log("tin nhan duoc luu vao database", newMessage);
+            return newMessage
+        }
+
+        // await socket.to(receiverId).emit("getMessage", newMessage);
+        // await socket.emit("getMessage", newMessage);
+    }
+
+    // load messages
+    static loadMessages = async (socket) => {
+        const profileId = socket.auth.profileId
+        const senderChannelsId = _profileConnected.get(profileId).channels
+        if (senderChannelsId) {
+            senderChannelsId.map(async (channel) => {
+
+                const messages = await MessageModel.find({
+                    receiverId: channel
+                })
+                    .sort({ createdAt: -1 }) //sap xep thu tu tin moi nhat xep truoc 
+                    .limit(10)
+                    .populate({
+                        path: 'senderId', // ten field join
+                        select: 'avatar fullName' //cac truong duoc chon de lay ra 
+                    })
+                    .lean()
+                    .then(result => (
+                        result.map((message) => ({
+                            ...message,
+                            senderId: message.senderId._id,
+                            fullName: message.senderId.fullName,
+                            avatar: message.senderId.avatar
+                        }))
+                    ))
+                console.log("\nChannel:", channel, "\nMessages length:", messages.length);
+                socket.emit('getMessages', {
+                    channelId: channel,
+                    messages: [...messages.reverse()]
+                })
+            })
+        }
+
+    }
+
+    static loadMessagesHistory = async ({ oldMessageId, receiverId }, socket) => {
+
+        const senderId = socket.auth.profileId
+        const senderChannelsId = _profileConnected.get(senderId).channels // Lay duoc danh sach cac kenh hien co cua user nay
+        if (senderChannelsId) {
+            return await MessageModel.aggregate([
+                // 1. Lọc tin nhắn theo receiverId và _id Message
+                {
+                    $match: {
+                        $and: [
+                            { receiverId: mongoose.Types.ObjectId(receiverId) },
+                            { _id: mongoose.Types.ObjectId(oldMessageId) }
+                        ]
+                    }
+                },
+
+                // 2. So sánh createdAt của tin nhắn hiện tại với các tin trong bước trước
+                {
+                    $lookup: {
+                        from: "Messages",
+                        let: { currentCreatedAt: "$createdAt" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $eq: ["$receiverId", mongoose.Types.ObjectId(receiverId)] },
+                                            { $lt: ["$createdAt", "$$currentCreatedAt"] }
+                                        ]
+                                    }
+                                }
+                            },
+                            { $sort: { createdAt: -1 } }, // Sắp xếp theo thứ tự mới nhất - cũ nhất để lấy ra các tin gần với tin nhắn cũ nhất ở client
+                            { $limit: 10 }, // Lấy ra 50 tin gần nhất 
+                            { $sort: { createdAt: 1 } }, // Sắp xếp chúng lại theo thứ tự cũ nhất => mới nhất
+                            // Populate để lấy thông tin cá nhân từ collection Profiles
+                            {
+                                $lookup: {
+                                    from: "Profiles",
+                                    localField: "senderId",
+                                    foreignField: "_id",
+                                    as: "senderInfo"
+                                }
+                            },
+                            // Unwind senderInfo ra để thay thế
+                            { $unwind: "$senderInfo" },
+                            // Thay thế trường senderInfo bằng senderId
+                            {
+                                $addFields: {
+                                    senderId: "$senderInfo._id",
+                                    avatar: "$senderInfo.avatar",
+                                    fullName: "$senderInfo.fullName",
+                                }
+                            },
+                            // Xóa trường senderInfo đi
+                            { $unset: "senderInfo" }
+                        ],
+                        as: "messagesBefore"
+                    }
+                },
+
+                // 3. Định dạng lại thông tin các trường để trả về dữ liệu
+                {
+                    $project: {
+                        channelId: "$receiverId",
+                        messages: {
+                            $map: {
+                                input: "$messagesBefore",
+                                as: "message",
+                                in: {
+                                    _id: "$$message._id",
+                                    senderId: "$$message.senderId",
+                                    avatar: "$$message.avatar",
+                                    fullName: "$$message.fullName",
+                                    receiverId: "$$message.receiverId",
+                                    typeContent: "$$message.typeContent",
+                                    messageContent: "$$message.messageContent",
+                                    isDeleted: "$$message.isDeleted",
+                                    createdAt: "$$message.createdAt",
+                                    updatedAt: "$$message.updatedAt",
+                                    __v: "$$message.__v"
+                                }
+                            }
+                        }
                     }
                 }
-            }, io);
+            ])
+
+
+            // await socket.to(receiverId).emit('getMessagesHistory', listMessages[0].messages)
+
         }
     }
 
@@ -298,20 +466,14 @@ class SocketService {
 
     /* MESSAGE */
 
-    // load messages
-    loadMessages = async ({ profileId }) => {
 
-    }
 
     // load messages history
     loadMessagesHistory = async ({ oldMessageId, receiverId }) => {
 
     }
 
-    // send messsage 
-    sendMessage = async ({ receiverId, typeContent, messageContent, STATUS }) => {
 
-    }
 
     //revoke messasge
     revokeMessage = async ({ messageId }) => {

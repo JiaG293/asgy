@@ -1,6 +1,17 @@
 
 global._profileConnected = new Map();
 
+/* 
+FORM:
+
+["profileId":
+    {
+        socketIds: ["socket.id", "socket.id"],
+        channels: ["channelId", "channelId"]
+    }
+]
+ */
+
 
 //THEM PROFILEID VAO _PROFILECONNECTED 
 const addProfileConnected = async ({ profileId, channels }, socket) => {
@@ -83,7 +94,7 @@ const addNewChannel = async (channelId, socket) => {
     }
 };
 
-const removeChannel = async (channelId, socket) => {
+/* const removeChannel = async (channelId, socket) => {
     const profileId = socket.auth.profileId;
 
     if (_profileConnected.has(profileId)) {
@@ -103,7 +114,42 @@ const removeChannel = async (channelId, socket) => {
             socket.emit('errorSocket', { message: 'Channel ID does not exist in profile', status: 404 });
         }
     }
-};
+}; */
+
+const removeChannel = async (channelId, profileId) => {
+    const profileSocket = _profileConnected.get(profileId)
+    console.log(`\nPROFILEID: ${profileId} \n\nSocket id cua:\n ${profileSocket?.socketIds} \n\n Channels: \n${profileSocket?.channels} `);
+    if (profileSocket?.socketIds) {
+        profileSocket.socketIds.forEach(socketId => {
+
+            const index = profileSocket.channels.indexOf(channelId);
+            if (index !== -1) {
+                profileSocket.channels.splice(index, 1);
+                console.log(`Removed channel of profileId ${profileId}`);
+            }
+
+            const socket = _io.sockets.sockets.get(socketId);
+
+            if (socket) {
+                console.log(`Forcing user ${socket.id} to leave room ${channelId}`);
+                socket.leave(channelId);
+                console.log("\n2. List Online:::", _profileConnected)
+                console.log("\n3. UserId Map<SocketId, Set<Room>>:::", socket.adapter.sids)
+            } else {
+                console.log(`Socket with socketId ${socket.id} not found.`);
+            }
+        });
+        return true
+    } else {
+        console.log(`Socket with profileId ${profileId} not found`)
+        return false
+    }
+
+
+
+
+}
+
 
 
 

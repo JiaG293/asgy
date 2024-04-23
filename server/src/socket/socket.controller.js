@@ -1,7 +1,7 @@
 const { message } = require("../controllers/socket.controller");
 const { SuccessResponse } = require("../utils/responses/success.response");
 const SocketService = require("./socket.service");
-const { addNewChannel, addProfileConnected, removeProfileConnect, emitProfileId } = require("./socket.store");
+const { addNewChannel, addProfileConnected, removeProfileConnect, emitProfileId, removeChannel } = require("./socket.store");
 
 class SocketController {
 
@@ -29,6 +29,7 @@ class SocketController {
             console.log("\n2. List Online:::", _profileConnected)
             // console.log("CHANNELS MAP<Room, Set<SocketId>:::", socket.adapter.rooms);
             console.log("\n3. UserId Map<SocketId, Set<Room>>:::", socket.adapter.sids)
+
         })
 
         // lay ra thong tin cac user hoat dong
@@ -106,6 +107,7 @@ class SocketController {
                 console.log("disbandGroup", disbandGroupChat);
                 disbandGroupChat.metadata.members.forEach((member) => {
                     emitProfileId({ profileId: member.profileId, params: 'disbanedGroup', data: { channelId: channelId, message: "Nhóm đã bị giải tán", status: true } }, _io) //Gui thong tin ve cac profileId co socket.id connect server
+
                     /*
                     
                     Sau do o client hay them xu li nay de tham gia vao channel
@@ -146,8 +148,58 @@ class SocketController {
         })
 
         //Delete members from group
-        socket.on('deleteMembers', async({ channelId, members }) => {
+        socket.on('deleteMembers', async ({ channelId, members }) => {
+            try {
+                const deleteMembers = await SocketService.deleteMembers({ channelId, members }, socket)
 
+
+                deleteMembers.metadata.members.forEach((member) => {
+                    emitProfileId({
+                        profileId: member,
+                        params: 'removedMember',
+                        data: {
+                            message: "Bạn đã bị loại khỏi nhóm",
+                            status: 200,
+                            metadata: {
+                                channelId: channelId,
+                            }
+                        }
+                    }, _io);
+                    removeChannel(channelId, member)
+                })
+            } catch (error) {
+                socket.emit("errorSocket", {
+                    status: error.status,
+                    message: error.message,
+                })
+            }
+        })
+
+
+        //Send message to channel
+        socket.on('sendMessage', async ({ receiverId, typeContent, messageContent }) => {
+            const sendNewMessage = await SocketService.sendMessage({ receiverId, typeContent, messageContent }, socket)
+
+            await _io.to(receiverId).emit("getMessage", {
+                ...sendNewMessage,
+                STATUS: "SUCCESS",
+            });
+        })
+
+        socket.on('loadMessages', async () => {
+            await SocketService.loadMessages(socket)
+        })
+
+        socket.on('loadMessagesHistory', async ({ oldMessageId, receiverId }) => {
+            const listMessages = await SocketService.loadMessagesHistory({ oldMessageId, receiverId }, socket)
+            if (listMessages[0].messages.length == 0) {
+                socket.emit('lastMessage', { info: 'No more older messages' })
+            } else {
+
+                socket.emit('getMessagesHistory', listMessages[0])
+                console.log("\n\nList message:, ", listMessages[0]);
+
+            }
         })
 
 
@@ -208,12 +260,6 @@ loadMessagesHistory = async (req, res, next) => {
 }
 
 // send messsage 
-sendMessage = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Send message success',
-        metadata: await ,
-    }).send(res)
-}
 
 //revoke messasge
 revokeMessage = async (req, res, next) => {

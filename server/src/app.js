@@ -76,8 +76,12 @@ app.use(express.urlencoded({
 app.use(
     helmet.contentSecurityPolicy({
         directives: {
+            defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'", "https://www.google-analytics.com", "https://unpkg.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "'unsafe-inline'", "https://www.google-analytics.com", "https://asgy.s3.ap-southeast-1.amazonaws.com", "https://i.imgur.com"],
+            "script-src-attr": ["'unsafe-inline'"],
         },
     })
 );

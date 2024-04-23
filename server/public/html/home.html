@@ -10,7 +10,7 @@
 
     <script src="https://unpkg.com/socket.io-client@4.7.4/dist/socket.io.min.js"></script>
     <script>
-        function navigateToNewPageWithData() {
+        const navigateToNewPageWithData = () => {
             const userDataSelect = document.getElementById("userDataSelect");
             const userData = userDataSelect.value;
             if (userData) {
@@ -34,7 +34,7 @@
         <!-- TAO user va cac channel roi bo vao day, userId o day la lay _id cua profile id nhe-->
         <!-- Xong thi truy cap http://localhost:5000/api/v1/chats/home -->
         <!-- CHon user login vao  -->
-        <!-- Thuc hien chat --> 
+        <!-- Thuc hien chat -->
         <option value="">Select User Data</option>
         <option
             value='{"profileId": "65f401b7ec07e9ea6c2b457e", "channels": ["66148db6a62692f6d9cf2eb9"], "clientId": "661c9f6fe5221942f0f69b74", "accessToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRJZCI6IjY2MWM5ZjZmZTUyMjE5NDJmMGY2OWI3NCIsInVzZXJJZCI6IjY1ZjQwMWI3ZWMwN2U5ZWE2YzJiNDU3ZCIsInByb2ZpbGVJZCI6IjY1ZjQwMWI3ZWMwN2U5ZWE2YzJiNDU3ZSIsImlhdCI6MTcxMzE1MTg1NSwiZXhwIjoxNzE1NzQzODU1fQ.R9_gpQPMigcHh4mt8MqcgpE3Qtnca2ROlY4KdeV63gJEDHVvskrFfR2azBQx-z9XT6TXJ2sNa69VHeVQVqdwNwRsqZrVNoQhEr1YzeRgUzaqJws5qwXG5HQSNwa4MbnvMJgNrZDoZHhdc7BUJjj531QyITAcPsD0LM_Pto5MxXi09BvkwCs7CkEa5A5jfAaM7bavLR7cRAc_1N986zJdWanVFqxGWz8nljl9Lbb5aoaEajwSYTruuU6fCye_IQiMASMj1M8yOZnF9eblBki2OGSbZ-bY9qqsnsQpCFeyanGIbE6xaZn1PGhqntw5P09s_K2apkowDmKpqs79othDTKSsX3qLbWmDswuI9826hYp0b2Qz_snuVqu8OuoFnLzNMwvzrvIB-tiZ8BxnVV61KhmzU7IMuXM9v01RG4y-u51HIEzOKKy-k2UrO62zGTclmF_skKqCJqp5nNoXW4r_6zVUMp1Surt_kVYTXo6biLDnarlkqzqIeG0Pdb51f8D1YTwfaqWPCpIZHMCJK_U0UvF6MtwziXdV7f4kr-x3Bm2JqpVDH2xs5TL6ruWijN0DrhNgePiZktweM81b0oeBtvze01vVcBppoOMoh2a6tHBNxixrsRw2zP1PPaEN6lLtt7rlA671L29_IQX0WoHv847GwxjbdkO1KqShH6goQNE"}'>
@@ -53,8 +53,14 @@
             User 5: user sai de test auth</option>
         <!-- Thêm các option khác tương ứng với user và room tương ứng -->
     </select>
-    <button onclick="navigateToNewPageWithData()">chuyen trang</button>
+    <button id="btnDirect">chuyen trang</button>
+    <script>
+        document.getElementById("btnDirect").addEventListener("click", () => {
+            navigateToNewPageWithData()
+        });
+    </script>
 </body>
+
 
 
 </html>
