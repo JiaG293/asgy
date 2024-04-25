@@ -183,7 +183,7 @@ listItemGroup.forEach((item, index) => {
 
 
 //XU LI XOA TIN NHAN
-socket.on('messageDeleted', (data) => {
+socket.on('messageRemoved', (data) => {
     if (data.status == true) {
         const channelIndex = storageListMessage.findIndex((channel) => channel.channelId == data.receiverId)
         console.log("channel index:", channelIndex);
@@ -206,7 +206,7 @@ const handleDeleteMsg = (id) => {
     console.log("id tin nhan:", id);
 
     const timeoutId = setTimeout(() => {
-        socket.emit('deleteMessage', { messageId: id })
+        socket.emit('removeMessage', { messageId: id })
 
     }, 1);//chinh thoi gian sau bao nhieu milis se xoa
 
@@ -236,10 +236,11 @@ socket.on('messageRevoked', (data) => {
             console.log("Not found message id:", data.channelId);
         }
         const msg = storageListMessage[channelIndex].messages[messageIndex] //gan bien tu list danh tin nhan local
-        const { _id, senderId, messageContent, updatedAt } = msg // spread msg tu trong local ra
+        const { id, senderId, fullName, avatar, typeContent, messageContent, updatedAt } = msg // spread msg tu trong local ra
+        console.log("_id", id);
         const parentElement = document.getElementById(data.channelId); //khai bao de lay cac thanh phan con
         parentElement.querySelector('.message-content p').textContent = `${messageContent}`
-        parentElement.querySelector('.message-info').textContent = `${senderId._id} / ${senderId.fullName} - ${new Date(updatedAt).toLocaleTimeString()}`
+        parentElement.querySelector('.message-info').textContent = `${senderId} / ${fullName} - ${new Date(updatedAt).toLocaleTimeString()}`
     } else {
         console.log("error revoked msg");
     }

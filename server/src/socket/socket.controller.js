@@ -190,6 +190,8 @@ class SocketController {
             await SocketService.loadMessages(socket)
         })
 
+
+        //Load messages history
         socket.on('loadMessagesHistory', async ({ oldMessageId, receiverId }) => {
             const listMessages = await SocketService.loadMessagesHistory({ oldMessageId, receiverId }, socket)
             if (listMessages[0].messages.length == 0) {
@@ -199,6 +201,46 @@ class SocketController {
                 socket.emit('getMessagesHistory', listMessages[0])
                 console.log("\n\nList message:, ", listMessages[0]);
 
+            }
+        })
+
+        //Forward message from channel
+        socket.on('forwardMessage', async ({ messageId, receiverId }) => {
+
+        })
+
+        //Remove message from channel
+        socket.on('removeMessage', async ({ messageId }) => {
+            try {
+                const removeMessage = await SocketService.removeMessage({ messageId });
+
+                if (removeMessage) {
+                    console.log("remove mess id:", removeMessage, "\n receiver: ", removeMessage.receiverId);
+                    _io.to(String(removeMessage.receiverId)).emit("messageRemoved", { ...removeMessage, status: true });
+                } else {
+                    console.log("error: delete message is not exist");
+
+                }
+            } catch (error) {
+                console.error("Error loading message:", error);
+            }
+        })
+
+        //Revoke messasge
+        socket.on('revokeMessage', async ({ messageId }) => {
+
+            try {
+                const revokeMessage = await SocketService.revokeMessage({messageId});
+
+                if (revokeMessage) {
+                    console.log("revoke mess id", revokeMessage, "\n receiver: ", revokeMessage.receiverId);
+                    _io.to(String(revokeMessage.receiverId)).emit("messageRevoked", { ...revokeMessage, status: true });
+                } else {
+                    console.log("error: revoke message is not exist");
+                    throw new Error("error revoke message")
+                }
+            } catch (error) {
+                console.error("Error loading message:", error);
             }
         })
 

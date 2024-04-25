@@ -450,45 +450,98 @@ class SocketService {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /* MESSAGE */
-
-
-
-    // load messages history
-    loadMessagesHistory = async ({ oldMessageId, receiverId }) => {
-
-    }
-
-
-
     //revoke messasge
-    revokeMessage = async ({ messageId }) => {
-
+    static revokeMessage = async ({ messageId }) => {
+        const revokeMessage = await MessageModel.findOneAndUpdate(
+            { _id: messageId, },
+            {
+                $set: {
+                    messageContent: "Tin nhắn đã được thu hồi",
+                    typeContent: "revoke"
+                }
+            },
+            { new: true, })
+            .populate({
+                path: 'senderId', // ten field join
+                select: 'avatar fullName' //cac truong duoc chon de lay ra 
+            })
+            .lean()
+            .then(result => ({
+                ...result,
+                senderId: result.senderId._id,
+                fullName: result.senderId.fullName,
+                avatar: result.senderId.avatar
+            }))
+        return revokeMessage
     }
 
     //remove message
-    removeMessage = async ({ messageId }) => {
-
+    static removeMessage = async ({ messageId }) => {
+        const deleteMessage = await MessageModel.findOneAndDelete({ _id: messageId }).lean()
+        return deleteMessage
     }
 
     // forward messsage 
-    forwardMessage = async ({ listReceiverId }) => {
+    static forwardMessage = async ({ messageId, receiverId }) => {
+        const senderId = socket.auth.profileId
+        const profile = await findProfileById(senderId)
+        if (!profile) {
+            throw new Error('Could not found profile')
+        }
 
+        const saveNewMessage = await MessageModel.create({
+            senderId,
+            receiverId,
+            typeContent,
+            messageContent: messageContent ?? "",
+        })
+
+
+
+        if (!saveNewMessage) {
+            throw new Error('Send message failed')
+        } else {
+            const newMessage = await saveNewMessage.populate({
+                path: 'senderId', // ten field join
+                select: 'avatar fullName' //cac truong duoc chon de lay ra 
+            }).then(result => ({
+                ...result._doc,
+                senderId: result._doc.senderId._id,
+                fullName: result._doc.senderId.fullName,
+                avatar: result._doc.senderId.avatar
+            }))
+            await ChannelModel.findOneAndUpdate(
+                { _id: receiverId },
+                { lastMessage: newMessage._id },
+                { new: true }
+            )
+            console.log("tin nhan duoc luu vao database", newMessage);
+            return newMessage
+        }
+
+        // await socket.to(receiverId).emit("getMessage", newMessage);
+        // await socket.emit("getMessage", newMessage);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
