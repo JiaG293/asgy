@@ -2,20 +2,21 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useSelector } from 'react-redux';
 
-export default function ChatScreen({ route, navigation }) {
-    const { avatar, sender, message } = route.params; // Lấy thông tin avatar và tên từ props route
+export default function ChatScreen({ navigation }) {
 
     const [space, setSpace] = useState('');
-    const [isInputEmpty, setIsInputEmpty] = useState(true); // State để xác định ô nhập tin nhắn có rỗng hay không
+    const [isInputEmpty, setIsInputEmpty] = useState(true);
+
+    const currentChannel = useSelector((state) => state.currentChannel);
+
 
     const handleMessageSend = () => {
         // Xử lý gửi tin nhắn
         console.log('Sending message:', space);
-        // Code gửi tin nhắn tới máy chủ hoặc xử lý dữ liệu ở đây
-        // Sau đó, bạn có thể cập nhật danh sách tin nhắn hoặc thực hiện các tác vụ khác
-        setSpace(''); // Xóa nội dung tin nhắn sau khi gửi
-        setIsInputEmpty(true); // Đặt trạng thái ô nhập tin nhắn về rỗng
+        setSpace('');
+        setIsInputEmpty(true); 
     };
 
     // ham xu ly nut enter
@@ -32,13 +33,16 @@ export default function ChatScreen({ route, navigation }) {
                     <Text style={styles.backButton}>{'< '}</Text>
                 </TouchableOpacity>
                 <View style={styles.userInfo}>
-                    <Image source={{ uri: avatar }} style={styles.avatar} />
-                    <Text style={styles.senderName}>{sender}</Text>
+                    {currentChannel.typeChannel == 101 ?
+                        <Image source={{ uri: currentChannel?.icon }} style={styles.avatar} />
+                        : <Image source={{ uri: currentChannel?.iconGroup }} style={styles.avatar} />
+                    }
+                    <Text style={styles.senderName}>{currentChannel?.name}</Text>
                 </View>
             </View>
 
 
-            <View style={styles.chatContainer}>
+            {/* <View style={styles.chatContainer}>
                 <FlatList
                     style={styles.chatContainer}
                     data={message}
@@ -53,7 +57,7 @@ export default function ChatScreen({ route, navigation }) {
                         </View>
                     )}
                 />
-            </View>
+            </View> */}
 
             <View style={styles.inputContainer}>
                 <TouchableOpacity style={styles.emojiButton}>
@@ -68,7 +72,7 @@ export default function ChatScreen({ route, navigation }) {
                         setSpace(text);
                         setIsInputEmpty(text.trim().length === 0);
                     }}
-                    
+
                 />
                 {!isInputEmpty && (
                     <TouchableOpacity style={styles.sendButton} onPress={handleMessageSend}>

@@ -1,10 +1,3 @@
-
-// web
-// export const refreshToken = sessionStorage.getItem('refreshToken');
-// export const clientId = sessionStorage.getItem('clientId');
-
-// mobile
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export let refreshToken = ''; 

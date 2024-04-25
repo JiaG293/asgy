@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View, TextInput } from "react-native";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import endpointAPI from "../api/endpointAPI";
 import axios from "axios";
 import statusCode from "../utils/statusCode";
@@ -11,14 +11,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Login = ({ navigation }) => {
   // const { handleLogin } = useLogin();
-  const [usernameOrEmail, setUsernameOrEmail] = useState("asgy2002");
+  const [usernameOrEmail, setUsernameOrEmail] = useState("bedauuu");
   const [password, setPassword] = useState("12344321");
   const [message, setMessage] = useState("");
   const dispatch = useDispatch();
   const handleLogin = async (usernameOrEmail, password) => {
-    console.log(1);
-    console.log(usernameOrEmail);
-    console.log(password);
     try {
       console.log(endpointAPI.login);
       console.log(2);
@@ -48,6 +45,18 @@ const Login = ({ navigation }) => {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    const checkLoggedIn = async () => {
+      const refreshToken = await AsyncStorage.getItem("refreshToken");
+      const clientId = await AsyncStorage.getItem("clientId");
+      if (refreshToken && clientId) {
+        navigation.navigate("home");
+      }
+    };
+  
+    checkLoggedIn();
+  }, []);
 
   return (
     <View style={styles.contaiter}>

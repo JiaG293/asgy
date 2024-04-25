@@ -24,9 +24,7 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>
-        <View style={styles.header}>{
-          console.log(profile.avatar)
-        }
+        <View style={styles.header}>
           <Image source={{uri: profile?.avatar} } style={styles.avatar} />
           <Text style={styles.name}>{profile?.fullName}</Text>
           <Text style={styles.phoneNumber}>{userInfo.tieuSu}</Text>

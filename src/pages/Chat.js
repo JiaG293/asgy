@@ -11,7 +11,7 @@ import {
 import SearchA from "../components/Search";
 
 import endpointAPI from "../api/endpointAPI";
-import { setChannels, setProfile } from "../redux/action";
+import { setChannels, setCurrentChannel, setProfile } from "../redux/action";
 import { useDispatch, useSelector } from "react-redux";
 import { clientId, refreshToken } from "../auth/authStore";
 
@@ -58,6 +58,8 @@ export default function Chat({ navigation }) {
         headers,
       });
 
+
+
       if (response.status === 200) {
         const channelList = response.data.metadata;
         dispatch(setChannels(channelList));
@@ -74,11 +76,24 @@ export default function Chat({ navigation }) {
     fetchDataChannel();
   }, []);
 
-  const rendermessit = ({ item }) => {
+  const handleSelectChannel = (channel) => {
+    console.log(1);
+    // console.log("channel");
+    console.log(channel);
+    dispatch(setCurrentChannel(channel));
+    navigation.navigate("ChatScreen");
+
+  }
+
+  const renderMessages = ({ item }) => {
+    console.log(item);
     // so sánh với profile ID của mình =>
     return (
-      <TouchableOpacity key={item._id} style={styles.messageItem}>
-        <Image source={{ uri: item?.icon }} style={styles.avatar} />
+      <TouchableOpacity key={item._id} style={styles.messageItem} onPress={() => { handleSelectChannel(item) }}>
+        {item.typeChannel === 101 ? <Image source={{ uri: item?.icon }} style={styles.avatar} />
+          : <Image source={{ uri: item?.iconGroup }} style={styles.avatar} />
+
+        }
         <View style={styles.messageContent}>
           <View style={styles.messageText}>
             <Text numberOfLines={1} style={styles.sender}>
@@ -95,23 +110,6 @@ export default function Chat({ navigation }) {
     return <View></View>;
   };
 
-  // const renderMessageItem = ({ item }) => {
-  //   return (
-  //     <TouchableOpacity style={styles.messageItem}>
-  //       <Image source={{ uri: item.background }} style={styles.avatar} />
-  //       <View style={styles.messageContent}>
-  //         <View style={styles.messageText}>
-  //           <Text numberOfLines={1} style={styles.sender}>
-  //             {item.name}
-  //           </Text>
-  //           <Text>da7</Text>
-  //         </View>
-  //         <Text style={styles.time}>2:12pm</Text>
-  //       </View>
-  //     </TouchableOpacity>
-  //   );
-  // };
-
   return (
     <View style={styles.container}>
       <View>
@@ -121,7 +119,7 @@ export default function Chat({ navigation }) {
         style={{ flex: 1 }}
         data={channelList}
         keyExtractor={(item) => item._id}
-        renderItem={rendermessit}
+        renderItem={renderMessages}
       />
     </View>
   );
