@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, FlatList } 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
+import { messages } from '../data/mockChat';
 
 export default function ChatScreen({ navigation }) {
 
@@ -10,13 +11,15 @@ export default function ChatScreen({ navigation }) {
     const [isInputEmpty, setIsInputEmpty] = useState(true);
 
     const currentChannel = useSelector((state) => state.currentChannel);
+    const currentMessages = useSelector((state) => state.currentMessages);
+    const messagesList = useSelector((state) => state.messagesList);
 
 
     const handleMessageSend = () => {
         // Xử lý gửi tin nhắn
         console.log('Sending message:', space);
         setSpace('');
-        setIsInputEmpty(true); 
+        setIsInputEmpty(true);
     };
 
     // ham xu ly nut enter
@@ -25,6 +28,7 @@ export default function ChatScreen({ navigation }) {
             handleMessageSend();
         }
     };
+    
 
     return (
         <View style={styles.container}>
@@ -42,8 +46,11 @@ export default function ChatScreen({ navigation }) {
             </View>
 
 
-            {/* <View style={styles.chatContainer}>
-                <FlatList
+            <FlatList style={styles.chatContainer} data={messages} renderItem={({ item }) => {
+
+            }}    >
+
+                {/* <FlatList
                     style={styles.chatContainer}
                     data={message}
                     keyExtractor={item => item.id}
@@ -56,8 +63,8 @@ export default function ChatScreen({ navigation }) {
                             </View>
                         </View>
                     )}
-                />
-            </View> */}
+                /> */}
+            </FlatList>
 
             <View style={styles.inputContainer}>
                 <TouchableOpacity style={styles.emojiButton}>

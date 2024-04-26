@@ -1,6 +1,6 @@
 // URI components
 const protocol = 'http';
-const IP_Address =  '192.168.0.231'|| 'localhost' ;
+const IP_Address =  '192.168.1.7'|| 'localhost' ;
 // const client_PORT = 3000;
 const server_PORT = 5000;
 const version = 'v1';

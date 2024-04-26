@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import axios from "axios";
 import {
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import SearchA from "../components/Search";
+import socket from '../socket/socket'
 
 import endpointAPI from "../api/endpointAPI";
 import { setChannels, setCurrentChannel, setProfile } from "../redux/action";
@@ -20,19 +21,18 @@ export default function Chat({ navigation }) {
   const profileID = profile?._id;
   const channelList = useSelector((state) => state.channelList);
   const dispatch = useDispatch();
+  const [channelLoaded, setChannelLoaded] = useState(false);
+  const messagesList = useSelector((state) => state.messagesList);
 
   // const { messages } = require('../data/mockChat');
 
   const fetchDataProfile = async () => {
     try {
       const headers = {
+        
         "x-client-id": clientId,
         authorization: refreshToken,
       };
-
-      console.log(clientId);
-
-      console.log(refreshToken);
 
       const response = await axios.get(endpointAPI.getInfoProfile, {
         headers,
@@ -41,6 +41,7 @@ export default function Chat({ navigation }) {
       if (response.status === 200) {
         const profile = response.data.metadata;
         dispatch(setProfile(profile));
+        setChannelLoaded(true);
       } else {
         console.error("Lỗi khi lấy thông tin người dùng");
       }
@@ -48,16 +49,17 @@ export default function Chat({ navigation }) {
       console.error("Lỗi khi lấy thông tin người dùng:", error);
     }
   };
+
   const fetchDataChannel = async () => {
     try {
       const headers = {
         "x-client-id": clientId,
         authorization: refreshToken,
       };
+
       const response = await axios.get(endpointAPI.getListChannels, {
         headers,
       });
-
 
 
       if (response.status === 200) {
@@ -76,17 +78,44 @@ export default function Chat({ navigation }) {
     fetchDataChannel();
   }, []);
 
-  const handleSelectChannel = (channel) => {
-    console.log(1);
-    // console.log("channel");
-    console.log(channel);
+  const handleSelectChannel =async (channel) => {
+    // console.log(channel);
     dispatch(setCurrentChannel(channel));
-    navigation.navigate("ChatScreen");
+    console.log(messagesList);
+    // navigation.navigate("ChatScreen");
+    await messagesList.forEach((item) => {
+      console.log(1);
+      // if (item.channelId === channel._id) {
+        dispatch(setCurrentMessages(item.messages));
+        console.log("message da chon");
+        console.log(item);
+      }
+    // }
+  );
+
 
   }
 
+  // const selectChannel = async (channel) => {
+  //   //hàm này để mất giao diện chờ
+  //   setSelectedMessage(true);
+  //   await IOLoadMessages();
+  //   console.log(channel);
+  //   dispatch(setCurrentChannel(channel));
+  //   await messagesList.forEach((item) => {
+  //     if (item.channelId === channel._id) {
+  //       dispatch(setCurrentMessages(item.messages));
+  //       console.log("message da chon");
+  //       console.log(item);
+  //     }
+  //   });
+
+  //   // console.log("MessageList");
+
+
+  // };
+
   const renderMessages = ({ item }) => {
-    console.log(item);
     // so sánh với profile ID của mình =>
     return (
       <TouchableOpacity key={item._id} style={styles.messageItem} onPress={() => { handleSelectChannel(item) }}>
@@ -109,6 +138,38 @@ export default function Chat({ navigation }) {
     );
     return <View></View>;
   };
+
+  const IOLoadMessages = async () => {
+    await socket.emit("loadMessages", {
+      senderId: profileID,
+    });
+    // console.log("đã load messages:::");
+    // console.log(profileID);
+  };
+
+  useEffect(() => {
+    const reRender = async () => {
+      if (channelLoaded) {
+        console.log(channelLoaded);
+        console.log(profileID);
+        // await IOAddUser();
+        await IOLoadMessages();
+        //hàm nhận tất cả tin nhắn từ lúc đầu
+        
+        socket.on("getMessages", (data) => {
+          console.log(data);
+          dispatch(setMessages(data));
+        });
+
+        socket.on("messageRevoked", data=>{
+          console.log("đã thu hồi", data);
+        })
+      }
+    };
+
+    reRender();
+  }, [ channelLoaded]);
+
 
   return (
     <View style={styles.container}>
