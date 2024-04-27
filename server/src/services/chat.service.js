@@ -336,7 +336,12 @@ const sendImage = async (req) => {
         return saveNewMessage.populate({
             path: 'senderId',
             select: 'avatar fullName'
-        });
+        }).then(result => ({
+            ...result._doc,
+            senderId: result._doc.senderId._id,
+            fullName: result._doc.senderId.fullName,
+            avatar: result._doc.senderId.avatar
+        }))
     }));
 
     if (!newMessages) {
@@ -372,7 +377,12 @@ const sendVideo = async (req) => {
         return saveNewMessage.populate({
             path: 'senderId',
             select: 'avatar fullName'
-        });
+        }).then(result => ({
+            ...result._doc,
+            senderId: result._doc.senderId._id,
+            fullName: result._doc.senderId.fullName,
+            avatar: result._doc.senderId.avatar
+        }))
     }));
 
     if (!newMessages) {
@@ -406,7 +416,12 @@ const sendDocument = async (req) => {
         return saveNewMessage.populate({
             path: 'senderId',
             select: 'avatar fullName'
-        });
+        }).then(result => ({
+            ...result._doc,
+            senderId: result._doc.senderId._id,
+            fullName: result._doc.senderId.fullName,
+            avatar: result._doc.senderId.avatar
+        }))
     }));
     if (!newMessages) {
         throw new BadRequestError('Send document failed')
@@ -415,7 +430,7 @@ const sendDocument = async (req) => {
 }
 
 const sendFiles = async (req) => {
-    const { receiverId } = req.params
+    const { receiverId, typeContent } = req.params
     const { authorization } = req.headers;
     const clientId = req.headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
@@ -423,23 +438,28 @@ const sendFiles = async (req) => {
     if (req?.files == undefined) {
         throw new BadRequestError('Failed upload s3')
     }
-    const documents = req.files.map(file => file.location);
-    console.log("files", documents);
+    const filesLocation = req.files.map(file => file.location);
+    console.log("files", filesLocation);
 
 
-    const newMessages = await Promise.all(documents.map(async (document) => {
+    const newMessages = await Promise.all(filesLocation.map(async (linkFile) => {
         const saveNewMessage = await MessageModel.create({
             senderId: decodeToken.profileId,
             receiverId: mongoose.Types.ObjectId(receiverId),
-            typeContent: "document",
-            messageContent: document,
+            typeContent: typeContent,
+            messageContent: linkFile,
         });
 
 
         return saveNewMessage.populate({
             path: 'senderId',
             select: 'avatar fullName'
-        });
+        }).then(result => ({
+            ...result._doc,
+            senderId: result._doc.senderId._id,
+            fullName: result._doc.senderId.fullName,
+            avatar: result._doc.senderId.avatar
+        }))
     }));
     if (!newMessages) {
         throw new BadRequestError('Send document failed')

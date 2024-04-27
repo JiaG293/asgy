@@ -17,10 +17,7 @@ router.route('/findChannel').post(catchAsync(findChannel));
 
 router.route('/create-group-chat').post(catchAsync(createGroupChat));
 router.route('/create-single-chat').post(catchAsync(createSingleChat));
-/* router.route('/send-image/:receiverId').post(catchAsync(uploadImageChat.array('image', 30)), catchAsync(sendImage))
-router.route('/send-video/:receiverId').post(catchAsync(uploadVideoChat.array('video', 10)), catchAsync(sendVideo))
-router.route('/send-document/:receiverId').post(catchAsync(uploadDocumentChat.array('document', 30)), catchAsync(sendDocument)) */
-router.route('/send-files/:typeContent/:receiverId').post(uploadMiddleware, catchAsync(sendDocument)) //co cac dinh dang image | video | document
+router.route('/send-files/:typeContent/:receiverId').post(uploadMiddleware, catchAsync(sendFiles)) //co cac dinh dang image | video | document
 
 module.exports = router;
 
