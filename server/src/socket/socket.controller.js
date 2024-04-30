@@ -213,7 +213,7 @@ class SocketController {
         socket.on('forwardMessage', async ({ messageData, receiverId }) => {
             try {
                 const forwardMessage = await SocketService.forwardMessage({ messageData, receiverId }, socket)
-
+                
 
                 await _io.to(receiverId).emit("getMessage", {
                     ...forwardMessage,

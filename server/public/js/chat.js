@@ -202,6 +202,16 @@ socket.on('messageRemoved', (data) => {
     }
 })
 
+
+//HANDLE FOWARD
+const handleForwardMsg = (_id, messageContent) => {
+    /*   const { _id, messageContent } = messageData */
+    console.log("\nid tin nhan: ", _id, "\nnoi dung tin nhan: ", messageContent);
+    socket.emit('forwardMessage', { messageData: { _id, messageContent }, receiverId: '6625e5cdac26377772ad96ca' }) // thay doi channelId o day
+
+}
+
+
 const handleDeleteMsg = (id) => {
     console.log("id tin nhan:", id);
 
@@ -265,6 +275,7 @@ const handleRevokeMsg = (id) => {
 
 
 
+
 socket.on('getListDetailsChannels', (data) => {
     console.log("data hien thi ra ", data)
 })
@@ -295,6 +306,7 @@ socket.on('getMessagesHistory', (data) => {
                     <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                     <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
                     <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
+                  <button class="cancel-message" onclick="handleForwardMsg('${_id}', '${messageContent}')">Chuyển tiếp</button>
                 </li>`
         const messageReceiverElement = `<li class="message receiver-message" id="${_id}">
                     <div class="message-avatar">
@@ -307,6 +319,7 @@ socket.on('getMessagesHistory', (data) => {
                     <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                      <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
                      <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
+                   <button class="cancel-message" onclick="handleForwardMsg('${_id}', '${messageContent}')">Chuyển tiếp</button>
                 </li>`
 
 
@@ -354,6 +367,7 @@ function getListMessage() {
                     <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                      <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
                      <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
+                   <button class="cancel-message" onclick="handleForwardMsg('${_id}', '${messageContent}')">Chuyển tiếp</button>
                 </li>`
             const messageReceiverElement = `<li class="message receiver-message" id="${_id}">
                     <div class="message-avatar">
@@ -366,6 +380,7 @@ function getListMessage() {
                     <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                      <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
                      <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
+                    <button class="cancel-message" onclick="handleForwardMsg('${_id}', '${messageContent}')">Chuyển tiếp</button>
                 </li>`
 
 
@@ -402,6 +417,7 @@ function getMessage() {
                 <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                  <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
                  <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
+                <button class="cancel-message" onclick="handleForwardMsg('${_id}', '${messageContent}')">Chuyển tiếp</button>
             </li>`
         const messageReceiverElement = `<li class="message receiver-message" id="${_id}">
                 <div class="message-avatar">
@@ -414,6 +430,7 @@ function getMessage() {
                 <button class="delete-message" onclick="handleDeleteMsg('${_id}')">Xóa</button>
                  <button class="cancel-message" id="cancelButton_${_id}">Hủy</button>
                  <button class="cancel-message" onclick="handleRevokeMsg('${_id}')">Thu hồi</button>
+               <button class="cancel-message" onclick="handleForwardMsg('${_id}', '${messageContent}')">Chuyển tiếp</button>
             </li>`
 
         console.log("tin nhan duoc gui la ", data);
@@ -556,6 +573,8 @@ socket.on('isTyping', ({ channelId, fullName, isTyping }) => {
     console.log("thong bao typing", fullName);
     // flagTyping = isTyping
 })
+
+
 
 function test() {
     console.log("test chuc nang socket:");

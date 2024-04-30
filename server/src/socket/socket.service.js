@@ -1,4 +1,4 @@
-const { default: mongoose } = require("mongoose");
+const { default: mongoose, mongo } = require("mongoose");
 const { message } = require("../controllers/socket.controller");
 const ChannelModel = require("../models/channel.model");
 const MessageModel = require("../models/message.model");
@@ -334,7 +334,6 @@ class SocketService {
                         notificationType = 'MESSAGE_GROUP'
                     }
                     result.members.forEach(member => {
-                        console.log("meme fsdfsfsf", member);
                         let name, fullName, avatar, iconGroup;
                         if (result.typeChannel === 101 || result.typeChannel === 102) {
                             fullName = member.profileId.fullName
@@ -369,6 +368,66 @@ class SocketService {
         // await socket.to(receiverId).emit("getMessage", newMessage);
         // await socket.emit("getMessage", newMessage);
     }
+
+    // forward messsage 
+    static forwardMessage = async ({ messageData, receiverId }, socket) => {
+        const senderId = socket.auth.profileId
+        const profile = await findProfileById(senderId)
+        if (!profile) {
+            throw new Error('Could not found profile')
+        }
+        if (!messageData && !receiverId) {
+            throw new Error('Not exist params for forward message')
+        }
+        const channel = await ChannelModel.findOne({
+            _id: receiverId,
+            members: { $elemMatch: { profileId: senderId } }
+        }).lean()
+        if (channel) {
+            const saveNewMessage = await MessageModel.create({
+                senderId,
+                receiverId,
+                typeContent: 'FORWARD_MESSAGE',
+                messageContent: messageData?.messageContent ?? "",
+                messageOriginalId: messageData._id,
+            })
+
+
+
+            if (!saveNewMessage) {
+                throw new Error('Send message failed')
+            } else {
+                const newMessage = await MessageModel.findById(saveNewMessage._id).populate({
+                    path: 'messageOriginalId',
+                    select: '_id senderId'
+                }).populate({
+                    path: 'senderId', // ten field join
+                    select: '_id avatar fullName' //cac truong duoc chon de lay ra 
+                }).then(result => ({
+                    ...result._doc,
+                    senderId: result._doc.senderId._id,
+                    fullName: result._doc.senderId.fullName,
+                    avatar: result._doc.senderId.avatar
+                })).catch(error => console.log("error foward message:", error))
+                await ChannelModel.findOneAndUpdate(
+                    { _id: receiverId },
+                    { lastMessage: newMessage._id },
+                    { new: true }
+                )
+                console.log("tin nhan duoc luu vao database", newMessage);
+                return newMessage
+            }
+        } else {
+            throw new Error("You not member of channel")
+        }
+
+
+
+        // await socket.to(receiverId).emit("getMessage", newMessage);
+        // await socket.emit("getMessage", newMessage);
+    }
+
+
 
     // load messages
     static loadMessages = async (socket) => {
@@ -564,58 +623,6 @@ class SocketService {
             })
             .catch(error => console.log("error service remove message:", error))
         return deleteMessage
-    }
-
-    // forward messsage 
-    static forwardMessage = async ({ messageData, receiverId }, socket) => {
-        const senderId = socket.auth.profileId
-        const profile = await findProfileById(senderId)
-        if (!profile) {
-            throw new Error('Could not found profile')
-        }
-        if (!messageDat && !receiverId) {
-            throw new Error('Not exist params for forward message')
-        }
-
-        const saveNewMessage = await MessageModel.create({
-            senderId,
-            receiverId,
-            typeContent: 'FOWARD_MESSAGE',
-            messageContent: messageData?.messageContent ?? "",
-            messageOriginalId: messageData._id,
-        })
-
-
-
-        if (!saveNewMessage) {
-            throw new Error('Send message failed')
-        } else {
-            const newMessage = await saveNewMessage
-                .populate({
-                    path: 'messageOriginalId',
-                    select: '_id senderId'
-                })
-                .populate({
-                    path: 'senderId', // ten field join
-                    select: 'avatar fullName' //cac truong duoc chon de lay ra 
-                }).then(result => ({
-                    ...result._doc,
-                    senderId: result._doc.senderId._id,
-                    fullName: result._doc.senderId.fullName,
-                    avatar: result._doc.senderId.avatar
-                }))
-                .catch(error => console.log("error foward message:", error))
-            await ChannelModel.findOneAndUpdate(
-                { _id: receiverId },
-                { lastMessage: newMessage._id },
-                { new: true }
-            )
-            console.log("tin nhan duoc luu vao database", newMessage);
-            return newMessage
-        }
-
-        // await socket.to(receiverId).emit("getMessage", newMessage);
-        // await socket.emit("getMessage", newMessage);
     }
 
 
