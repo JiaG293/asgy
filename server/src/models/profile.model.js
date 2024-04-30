@@ -41,7 +41,6 @@ const profileSchema = new mongoose.Schema({
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Channel',
-            // maxItems: 30,
         }
     ],
     friends: [

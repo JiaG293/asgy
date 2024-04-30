@@ -198,7 +198,7 @@ socket.on('messageRemoved', (data) => {
 
         document.getElementById(data._id).remove()
     } else {
-        console.log("error deleted msg");
+        console.log("error deleted msg: ", data);
     }
 })
 
@@ -369,7 +369,7 @@ function getListMessage() {
                 </li>`
 
 
-            if (senderId=== sessionStorage.getItem('profileId')) {
+            if (senderId === sessionStorage.getItem('profileId')) {
                 document.getElementById(`chat`).scrollTop = document.getElementById(`chat`).scrollHeight
                 document.getElementById(`${data.channelId}-chat`).insertAdjacentHTML('beforeend', messageSenderElement);
             } else {
@@ -389,7 +389,7 @@ function getListMessage() {
 
 function getMessage() {
     socket.on("getMessage", (data) => {
-        const { senderId, messageContent, receiverId, createdAt, updatedAt, _id, avatar, fullName} = data;
+        const { senderId, messageContent, receiverId, createdAt, updatedAt, _id, avatar, fullName } = data;
         console.log("data get message: ", data);
         const messageSenderElement = `<li class="message sender-message" id="${_id}">
                 <div class="message-avatar">
@@ -452,7 +452,7 @@ function sendMessage() {
     const messageContent = document.getElementById("message-input").value
     const senderId = sessionStorage.getItem('profileId'); // Thay thế bằng ID thực sự của người gửi
     const receiverId = document.querySelector('.group.selected').id.split('-')[0] //"65f421456957be1099c49d5f"; // Thay thế bằng ID thực sự của người nhận
-    const typeContent = "text"; // Loại nội dung tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
+    const typeContent = "TEXT_MESSAGE"; // Loại nội dung tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
     // const _id = "1214"; // ID của tin nhắn (có thể thay đổi tùy theo yêu cầu của bạn)
     socket.emit("sendMessage", { senderId, receiverId, typeContent, messageContent });
     messageInput.value = ""; // Xóa nội dung trong ô nhập sau khi gửi tin nhắn
@@ -474,7 +474,7 @@ socket.on('getDetailsChannel', data => {
 })
 socket.on('createdChannel', (channel) => {
     console.log("id room duoc tao gui ve la ", channel);
-    socket.emit('joinChannel', channel._id)
+    // socket.emit('joinChannel', channel._id)
     let templateGroup = `
      <div class="group" id="${channel._id}-group">
          <div class="group-icon prevent-click-event">
@@ -504,17 +504,7 @@ socket.on('disbanedGroup', (data) => {
     console.log("Nhom bi disband ", data);
 })
 
-function test() {
-    console.log("test chuc nang socket:");
-    // socket.emit('disbandGroup', { channelId: '6622674ad0c8de3491c351bc' })
-    // socket.emit('createSingleChat', { receiverId: '65f417a034e9a9f7e2f3cf9f', typeChannel: 101, })
-    // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom ca ca', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
-    // socket.emit('addMembers', { members: ["65f806fe141880574bb04421"], channelId: '6622674ad0c8de3491c351bc' })
-    // socket.emit('deleteMembers', {channelId: '6625e5cdac26377772ad96ca', members: ['65f417a034e9a9f7e2f3cf9f']})
-    storageListMessage[1].messages.map(message => {
-        console.log(message.messageContent);
-    })
-}
+
 
 socket.on('createdRequestFriend', (data) => {
     console.log("Yeu cau ket ban tu profile:", data);
@@ -538,4 +528,45 @@ socket.on('leaveChannel', (data) => {
 socket.on('removedMember', (data) => {
     console.log("member da bi xoa khoi nhom", data);
 })
+
+socket.on('notify', (data) => {
+    console.log("thong bao", data);
+})
+
+let flagTyping = false; // flag typing
+document.getElementById('message-input').addEventListener('input', () => {
+    if (!flagTyping) {
+        const channelId = document.querySelector('.group.selected').id.split('-')[0];
+        const fullName = sessionStorage.getItem('profileId') //dua thong tin ten nguoi dung vao day
+        socket.emit('onTyping', { fullName, channelId, isTyping: true });
+
+        flagTyping = true
+    }
+});
+
+// Gửi sự kiện 'onStopTyping' khi người dùng ngừng nhập
+document.getElementById('message-input').addEventListener('blur', () => {
+    const channelId = document.querySelector('.group.selected').id.split('-')[0];
+    const fullName = sessionStorage.getItem('profileId') //dua thong tin ten nguoi dung vao day
+    socket.emit('onTyping', { fullName, channelId, isTyping: false });
+    flagTyping = false
+});
+
+socket.on('isTyping', ({ channelId, fullName, isTyping }) => {
+    console.log("thong bao typing", fullName);
+    // flagTyping = isTyping
+})
+
+function test() {
+    console.log("test chuc nang socket:");
+    // socket.emit('disbandGroup', { channelId: '6622674ad0c8de3491c351bc' })
+    socket.emit('createSingleChat', { receiverId: '65f417a034e9a9f7e2f3cf9f', typeChannel: 101, })
+    // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom ca ca', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
+    // socket.emit('addMembers', { members: ["65f806fe141880574bb04421"], channelId: '6622674ad0c8de3491c351bc' })
+    // socket.emit('deleteMembers', {channelId: '6625e5cdac26377772ad96ca', members: ['65f417a034e9a9f7e2f3cf9f']})
+    /* storageListMessage[1].messages.map(message => {
+        console.log(message.messageContent);
+    }) */
+
+}
 

@@ -6,7 +6,8 @@ const ProfileModel = require("../models/profile.model");
 const { checkChannelSingleExists } = require("../services/channel.service");
 const { findProfileById } = require("../services/profile.service");
 const { ConflictRequestError, BadRequestError, UnauthorizeError } = require("../utils/responses/error.response");
-const { removeProfileConnect, addProfileConnected } = require("./socket.store");
+const { removeProfileConnect, addProfileConnected, emitProfileId } = require("./socket.store");
+const { pushNotification } = require("../services/notification.service");
 
 
 const HEADER = {
@@ -312,6 +313,55 @@ class SocketService {
                 { lastMessage: newMessage._id },
                 { new: true }
             )
+
+            //Thong bao den user
+            await ChannelModel.findById(receiverId)
+                .select('typeChannel members name')
+                .populate({
+                    path: 'members',
+                    populate: {
+                        path: 'profileId',
+                        select: '_id fullName avatar'
+                    }
+                })
+                .lean()
+                .then(result => {
+                    console.log(result);
+                    let notificationType;
+                    if (result.typeChannel === 101 || result.typeChannel === 102) {
+                        notificationType = 'MESSAGE_SINGLE'
+                    } else if (result.typeChannel === 201 || result.typeChannel === 202) {
+                        notificationType = 'MESSAGE_GROUP'
+                    }
+                    result.members.forEach(member => {
+                        console.log("meme fsdfsfsf", member);
+                        let name, fullName, avatar, iconGroup;
+                        if (result.typeChannel === 101 || result.typeChannel === 102) {
+                            fullName = member.profileId.fullName
+                            avatar = member.profileId.avatar
+                        } else if (result.typeChannel === 201 || result.typeChannel === 202) {
+                            name = result.name;
+                            iconGroup = result.iconGroup;
+                        }
+
+                        pushNotification({
+                            notificationType: notificationType,
+                            notificationSenderId: senderId,
+                            notificationReceiverId: member.profileId._id,
+                            options: {
+                                fullName, //ten cua nguoi gui - neu la message_single
+                                avatar, // anh dai dien - neu la message_single
+
+                                iconGroup, //anh dai dien cua message_group
+                                name, //ten cua group - neu la message_group
+                            }
+                        })
+                    })
+                })
+                .catch(err => console.log(err))
+
+
+
             console.log("tin nhan duoc luu vao database", newMessage);
             return newMessage
         }
@@ -328,10 +378,11 @@ class SocketService {
             senderChannelsId.map(async (channel) => {
 
                 const messages = await MessageModel.find({
-                    receiverId: channel
+                    receiverId: channel,
+                    isRemoved: false,
                 })
                     .sort({ createdAt: -1 }) //sap xep thu tu tin moi nhat xep truoc 
-                    .limit(10)
+                    .limit(50)
                     .populate({
                         path: 'senderId', // ten field join
                         select: 'avatar fullName' //cac truong duoc chon de lay ra 
@@ -366,7 +417,8 @@ class SocketService {
                     $match: {
                         $and: [
                             { receiverId: mongoose.Types.ObjectId(receiverId) },
-                            { _id: mongoose.Types.ObjectId(oldMessageId) }
+                            { _id: mongoose.Types.ObjectId(oldMessageId) },
+                            { isRemoved: false },
                         ]
                     }
                 },
@@ -388,7 +440,7 @@ class SocketService {
                                 }
                             },
                             { $sort: { createdAt: -1 } }, // Sắp xếp theo thứ tự mới nhất - cũ nhất để lấy ra các tin gần với tin nhắn cũ nhất ở client
-                            { $limit: 10 }, // Lấy ra 50 tin gần nhất 
+                            { $limit: 50 }, // Lấy ra 50 tin gần nhất 
                             { $sort: { createdAt: 1 } }, // Sắp xếp chúng lại theo thứ tự cũ nhất => mới nhất
                             // Populate để lấy thông tin cá nhân từ collection Profiles
                             {
@@ -457,7 +509,8 @@ class SocketService {
             {
                 $set: {
                     messageContent: "Tin nhắn đã được thu hồi",
-                    typeContent: "revoke"
+                    typeContent: "REVOKE_MESSAGE",
+                    isRevoked: true,
                 }
             },
             { new: true, })
@@ -477,23 +530,59 @@ class SocketService {
 
     //remove message
     static removeMessage = async ({ messageId }) => {
-        const deleteMessage = await MessageModel.findOneAndDelete({ _id: messageId }).lean()
+        const currentDate = new Date();
+        const twentyFourHoursAgo = new Date(currentDate.getTime() - (24 * 60 * 60 * 1000)); // Trừ 24 giờ
+
+
+        const deleteMessage = await MessageModel.findOneAndUpdate(
+            {
+                _id: messageId,
+                isRemoved: false,
+                createdAt: { $lt: currentDate.toISOString(), $gte: twentyFourHoursAgo.toISOString() },
+            },
+            {
+                $set: {
+                    typeContent: "REMOVE_MESSAGE",
+                    isRemoved: true,
+                }
+            },
+            { new: true, })
+            .populate({
+                path: 'senderId', // ten field join
+                select: 'avatar fullName' //cac truong duoc chon de lay ra 
+            })
+            .lean()
+            .then(result => {
+                if (result) {
+                    return ({
+                        ...result,
+                        senderId: result.senderId._id,
+                        fullName: result.senderId.fullName,
+                        avatar: result.senderId.avatar
+                    })
+                }
+            })
+            .catch(error => console.log("error service remove message:", error))
         return deleteMessage
     }
 
     // forward messsage 
-    static forwardMessage = async ({ messageId, receiverId }) => {
+    static forwardMessage = async ({ messageData, receiverId }, socket) => {
         const senderId = socket.auth.profileId
         const profile = await findProfileById(senderId)
         if (!profile) {
             throw new Error('Could not found profile')
         }
+        if (!messageDat && !receiverId) {
+            throw new Error('Not exist params for forward message')
+        }
 
         const saveNewMessage = await MessageModel.create({
             senderId,
             receiverId,
-            typeContent,
-            messageContent: messageContent ?? "",
+            typeContent: 'FOWARD_MESSAGE',
+            messageContent: messageData?.messageContent ?? "",
+            messageOriginalId: messageData._id,
         })
 
 
@@ -501,15 +590,21 @@ class SocketService {
         if (!saveNewMessage) {
             throw new Error('Send message failed')
         } else {
-            const newMessage = await saveNewMessage.populate({
-                path: 'senderId', // ten field join
-                select: 'avatar fullName' //cac truong duoc chon de lay ra 
-            }).then(result => ({
-                ...result._doc,
-                senderId: result._doc.senderId._id,
-                fullName: result._doc.senderId.fullName,
-                avatar: result._doc.senderId.avatar
-            }))
+            const newMessage = await saveNewMessage
+                .populate({
+                    path: 'messageOriginalId',
+                    select: '_id senderId'
+                })
+                .populate({
+                    path: 'senderId', // ten field join
+                    select: 'avatar fullName' //cac truong duoc chon de lay ra 
+                }).then(result => ({
+                    ...result._doc,
+                    senderId: result._doc.senderId._id,
+                    fullName: result._doc.senderId.fullName,
+                    avatar: result._doc.senderId.avatar
+                }))
+                .catch(error => console.log("error foward message:", error))
             await ChannelModel.findOneAndUpdate(
                 { _id: receiverId },
                 { lastMessage: newMessage._id },
@@ -522,6 +617,36 @@ class SocketService {
         // await socket.to(receiverId).emit("getMessage", newMessage);
         // await socket.emit("getMessage", newMessage);
     }
+
+
+    //Typing message
+    static typingMessage = async ({ channelId, fullName, isTyping }, socket) => {
+        await ChannelModel.findById(channelId).lean().then(result => {
+            if (result) {
+                result.members.forEach(member => {
+                    emitProfileId({
+                        profileId: member.profileId,
+                        params: 'isTyping',
+                        data: {
+                            isTyping,
+                            fullName,
+                            channelId,
+                        }
+                    }, socket)
+                })
+                return
+            } else {
+                throw new Error('Not exist profile')
+            }
+        }).catch(error => {
+            console.log("error typing:", error);
+        })
+
+    }
+
+
+
+
 
 
 

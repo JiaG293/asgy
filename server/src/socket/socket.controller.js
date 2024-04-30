@@ -178,12 +178,17 @@ class SocketController {
 
         //Send message to channel
         socket.on('sendMessage', async ({ receiverId, typeContent, messageContent }) => {
-            const sendNewMessage = await SocketService.sendMessage({ receiverId, typeContent, messageContent }, socket)
+            try {
+                const sendNewMessage = await SocketService.sendMessage({ receiverId, typeContent, messageContent }, socket)
 
-            await _io.to(receiverId).emit("getMessage", {
-                ...sendNewMessage,
-                STATUS: "SUCCESS",
-            });
+
+                await _io.to(receiverId).emit("getMessage", {
+                    ...sendNewMessage,
+                    STATUS: "SUCCESS",
+                });
+            } catch (error) {
+                console.log(error);
+            }
         })
 
         socket.on('loadMessages', async () => {
@@ -205,8 +210,18 @@ class SocketController {
         })
 
         //Forward message from channel
-        socket.on('forwardMessage', async ({ messageId, receiverId }) => {
+        socket.on('forwardMessage', async ({ messageData, receiverId }) => {
+            try {
+                const forwardMessage = await SocketService.forwardMessage({ messageData, receiverId }, socket)
 
+
+                await _io.to(receiverId).emit("getMessage", {
+                    ...forwardMessage,
+                    STATUS: "SUCCESS",
+                });
+            } catch (error) {
+                console.log(error);
+            }
         })
 
         //Remove message from channel
@@ -218,7 +233,7 @@ class SocketController {
                     console.log("remove mess id:", removeMessage, "\n receiver: ", removeMessage.receiverId);
                     _io.to(String(removeMessage.receiverId)).emit("messageRemoved", { ...removeMessage, status: true });
                 } else {
-                    console.log("error: delete message is not exist");
+                    socket.emit("messageRemoved", { message: "Only delete messages sent within 24 hours or message is revoked | removed", status: false })
 
                 }
             } catch (error) {
@@ -230,7 +245,7 @@ class SocketController {
         socket.on('revokeMessage', async ({ messageId }) => {
 
             try {
-                const revokeMessage = await SocketService.revokeMessage({messageId});
+                const revokeMessage = await SocketService.revokeMessage({ messageId });
 
                 if (revokeMessage) {
                     console.log("revoke mess id", revokeMessage, "\n receiver: ", revokeMessage.receiverId);
@@ -242,6 +257,12 @@ class SocketController {
             } catch (error) {
                 console.error("Error loading message:", error);
             }
+        })
+
+
+        //On typing messasge
+        socket.on('onTyping', async ({ channelId, fullName, isTyping }) => {
+            await SocketService.typingMessage({ channelId, fullName, isTyping }, socket)
         })
 
 

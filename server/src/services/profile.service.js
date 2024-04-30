@@ -1,5 +1,4 @@
 const ProfileModel = require('../models/profile.model')
-const FriendModel = require('../models/friend.model');
 const { BadRequestError, ConflictRequestError } = require('../utils/responses/error.response');
 const mongoose = require('mongoose');
 const { decodeTokens } = require('../auth/authUtils');
@@ -133,9 +132,6 @@ const updateInformationProfile = async (req) => {
 
         // Cap nhat thong tin trong bang profile 
         const profileUpdate = await ProfileModel.findOneAndUpdate(filter, update, options).session(session);
-
-        // Cap nhat cac thong tin nhung trong bang friend
-        await FriendModel.updateMany({ profileFriendId: decodeToken.profileId }, { $set: { 'profileFriend.$': update } }, options).session(session);
 
         await session.commitTransaction();
         session.endSession();

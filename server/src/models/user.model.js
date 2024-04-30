@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
             trim: true,
             validate: {
                 validator: function (mail) {
-                    return /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(mail);
+                    return /^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$/.test(mail);
                 },
                 message: props => `${props.value} is not a valid email address!`
             },
@@ -33,7 +33,11 @@ const userSchema = new mongoose.Schema(
             minlength: [8, 'Password must be of minimum 8 characters'],
             select: false, // an di khi truy van du lieu
         },
-        verify: {
+        isVerify: {
+            type: Boolean,
+            default: false,
+        },
+        isAdmin: {
             type: Boolean,
             default: false,
         },
