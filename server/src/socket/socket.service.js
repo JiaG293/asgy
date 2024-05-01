@@ -84,10 +84,7 @@ class SocketService {
                     throw new BadRequestError(`Error updating member on database ${member.profileId}: ${error}`);
                 }
             }
-            return {
-                metadata: newSingleChannel,
-                status: "NEW"
-            }
+            return newSingleChannel
         }
 
     }
@@ -178,10 +175,7 @@ class SocketService {
                 );
             })
 
-            return {
-                status: "OK",
-                metadata: disbandGroup
-            }
+            return disbandGroup
         }
     }
 
@@ -232,11 +226,8 @@ class SocketService {
             }
             console.log('Member added to the channel successfully.');
             return {
-                status: "OK",
-                metadata: {
-                    channel: updatedChannel,
-                    newMembers: membersUpdate,
-                }
+                channel: updatedChannel,
+                newMembers: membersUpdate,
             }
         }
     }

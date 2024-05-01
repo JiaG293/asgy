@@ -47,8 +47,8 @@ class SocketController {
         socket.on("createSingleChat", async ({ receiverId, typeChannel, name }) => {
             try {
                 const newSingleChannel = await SocketService.createSingleChat({ receiverId, typeChannel, name }, socket);
-                addNewChannel(newSingleChannel.metadata._id, socket) //Them group chat vao store server
-                newSingleChannel.metadata.members.forEach((member) => {
+                addNewChannel(newSingleChannel._id, socket) //Them group chat vao store server
+                newSingleChannel.members.forEach((member) => {
                     emitProfileId({ profileId: member.profileId, params: 'createdChannel', data: newSingleChannel }, _io)  //Gui thong tin ve cac profileId co socket.id connect server
                     /*
                     
@@ -62,6 +62,7 @@ class SocketController {
                     */
                 });
             } catch (error) {
+                console.log("error create single chat:", error);
                 socket.emit("errorSocket", {
                     status: error.status,
                     message: error.message,
@@ -74,8 +75,8 @@ class SocketController {
             try {
                 const newGroupChat = await SocketService.createGroupChat({ members, typeChannel, name, iconGroup }, socket);
 
-                addNewChannel(String(newGroupChat.metadata._id), socket) //Them group chat vao store server
-                newGroupChat.metadata.members.forEach((member) => {
+                addNewChannel(String(newGroupChat._id), socket) //Them group chat vao store server
+                newGroupChat.members.forEach((member) => {
                     emitProfileId({ profileId: member.profileId, params: 'createdChannel', data: newGroupChat }, _io)  //Gui thong tin ve cac profileId co socket.id connect server
                     /*
                     
@@ -89,6 +90,7 @@ class SocketController {
                     */
                 });
             } catch (error) {
+                console.log("error create group chat:", error);
                 socket.emit("errorSocket", {
                     status: error.status,
                     message: error.message,
@@ -105,7 +107,7 @@ class SocketController {
             try {
                 const disbandGroupChat = await SocketService.disbandGroup({ channelId }, socket)
                 console.log("disbandGroup", disbandGroupChat);
-                disbandGroupChat.metadata.members.forEach((member) => {
+                disbandGroupChat.members.forEach((member) => {
                     emitProfileId({ profileId: member.profileId, params: 'disbanedGroup', data: { channelId: channelId, message: "Nhóm đã bị giải tán", status: true } }, _io) //Gui thong tin ve cac profileId co socket.id connect server
 
                     /*
@@ -120,6 +122,7 @@ class SocketController {
                     */
                 });
             } catch (error) {
+                console.log("error disband group:", error);
                 socket.emit("errorSocket", {
                     status: error.status,
                     message: error.message,
@@ -131,15 +134,16 @@ class SocketController {
         socket.on('addMembers', async ({ channelId, members }) => {
             try {
                 const addNewMembers = await SocketService.addMembers({ channelId, members }, socket)
-                addNewMembers.metadata.newMembers.forEach((newMember) => {
+                addNewMembers.newMembers.forEach((newMember) => {
                     emitProfileId({
                         profileId: newMember.profileId,
                         params: 'addedMembers',
-                        data: addNewMembers.metadata.channel
+                        data: addNewMembers.channel
                     }, _io);
                 });
-                socket.emit("addMembers", { status: "OK", message: "Added members successfully" })
+                socket.emit("addMembers", { status: true, message: "Added members successfully" })
             } catch (error) {
+                console.log("error add members:", error);
                 socket.emit("errorSocket", {
                     status: error.status,
                     message: error.message,
@@ -153,21 +157,20 @@ class SocketController {
                 const deleteMembers = await SocketService.deleteMembers({ channelId, members }, socket)
 
 
-                deleteMembers.metadata.members.forEach((member) => {
+                deleteMembers.members.forEach((member) => {
                     emitProfileId({
                         profileId: member,
                         params: 'removedMember',
                         data: {
                             message: "Bạn đã bị loại khỏi nhóm",
-                            status: 200,
-                            metadata: {
-                                channelId: channelId,
-                            }
+                            status: true,
+                            channelId: channelId,
                         }
                     }, _io);
                     removeChannel(channelId, member)
                 })
             } catch (error) {
+                console.log("error delete members:", error);
                 socket.emit("errorSocket", {
                     status: error.status,
                     message: error.message,
@@ -184,10 +187,14 @@ class SocketController {
 
                 await _io.to(receiverId).emit("getMessage", {
                     ...sendNewMessage,
-                    STATUS: "SUCCESS",
+                    status: true,
                 });
             } catch (error) {
                 console.log(error);
+                socket.emit("errorSocket", {
+                    status: error?.status,
+                    message: error?.message,
+                })
             }
         })
 
@@ -198,14 +205,18 @@ class SocketController {
 
         //Load messages history
         socket.on('loadMessagesHistory', async ({ oldMessageId, receiverId }) => {
-            const listMessages = await SocketService.loadMessagesHistory({ oldMessageId, receiverId }, socket)
-            if (listMessages[0].messages.length == 0) {
-                socket.emit('lastMessage', { info: 'No more older messages' })
-            } else {
+            try {
+                const listMessages = await SocketService.loadMessagesHistory({ oldMessageId, receiverId }, socket)
+                if (listMessages[0].messages.length == 0) {
+                    socket.emit('lastMessage', { info: 'No more older messages' })
+                } else {
 
-                socket.emit('getMessagesHistory', listMessages[0])
-                console.log("\n\nList message:, ", listMessages[0]);
+                    socket.emit('getMessagesHistory', listMessages[0])
+                    console.log("\n\nList message:, ", listMessages[0]);
 
+                }
+            } catch (error) {
+                console.log("error load messages history:", error);
             }
         })
 
@@ -213,14 +224,14 @@ class SocketController {
         socket.on('forwardMessage', async ({ messageData, receiverId }) => {
             try {
                 const forwardMessage = await SocketService.forwardMessage({ messageData, receiverId }, socket)
-                
+
 
                 await _io.to(receiverId).emit("getMessage", {
                     ...forwardMessage,
                     STATUS: "SUCCESS",
                 });
             } catch (error) {
-                console.log(error);
+                console.log("error forward message:", error);
             }
         })
 
