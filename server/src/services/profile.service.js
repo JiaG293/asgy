@@ -448,16 +448,21 @@ const rejectFriendRequest = async (req) => {
         await session.commitTransaction();
         session.endSession();
 
-        //4. Them phan thong bao socket
-        const profileSocket = await _profileConnected.get(profileIdSend)
-        if (profileSocket !== undefined) {
-            profileSocket.socketIds.forEach(elem => {
-                //Day la profileId cua nguoi gui ket ban,
-                _io.to(elem).emit('declineRequestFriend', {profileIdReceive: decodeToken.profileId, isRejected: true})
-            });
-        } else{
-           console.error("Failed send socket")
-        }
+       //4. Them phan thong bao socket
+       const profileIdSender = await _profileConnected.get(profileIdSend)
+       const profileIdReceiver = await _profileConnected.get(decodeToken.profileId)
+       if (profileIdSender !== undefined) {
+           profileIdSender.socketIds.forEach(elem => {
+               //Day la profileId cua nguoi gui ket ban, nghia la neu chap nhan thi se thong bao voi nguoi gui yeu cau ket ban
+               _io.to(elem).emit('rejectedRequestFriend', {profileIdReceive: decodeToken.profileId, isRejected: true})
+           });
+           profileIdReceiver.socketIds.forEach(elem => {
+               //Day la profileId cua nguoi gui ket ban, nghia la neu chap nhan thi se thong bao voi nguoi gui yeu cau ket ban
+               _io.to(elem).emit('rejectedRequestFriend', {profileIdReceive: decodeToken.profileId, isRejected: true})
+           });
+       } else{
+          console.error("Failed send socket")
+       }
 
         return true;
     } catch (error) {

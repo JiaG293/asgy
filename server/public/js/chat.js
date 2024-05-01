@@ -531,6 +531,10 @@ socket.on('acceptedRequestFriend', (data) => {
     console.log("Ket ban da duoc chap nhan:", data);
     //Them ban be vao redux
 })
+socket.on('rejectedRequestFriend', (data) => {
+    console.log("Ket ban da bi tu choi:", data);
+    //Them ban be vao redux
+})
 socket.on('addedMembers', (data) => {
     console.log("Member da duoc them vao:", data);
     socket.emit("joinChannel", { channelId: data.metadata._id })

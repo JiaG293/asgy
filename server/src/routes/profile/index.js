@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const catchAsync = require('../../middlewares/catchAsync.middleware');
 const { authentication } = require('../../auth/authUtils');
-const { getInformationProfile, updateInformationProfile, getListFriendsPrivate, getListFriendsPublic, sendFriendRequest, acceptFriendRequest, findProfilePublic } = require('../../controllers/profile.controller');
+const { getInformationProfile, updateInformationProfile, getListFriendsPrivate, getListFriendsPublic, sendFriendRequest, acceptFriendRequest, findProfilePublic, rejectFriendRequest } = require('../../controllers/profile.controller');
 const { uploadAvatar } = require('../../services/s3.service')
 
 
@@ -29,7 +29,7 @@ router.route('/friends').get(catchAsync(getListFriendsPrivate));
 
 router.route('/send-request').post(catchAsync(sendFriendRequest));
 router.route('/accept-request').post(catchAsync(acceptFriendRequest));
-
+router.route('/reject-request').post(catchAsync(rejectFriendRequest));
 
 
 module.exports = router;
