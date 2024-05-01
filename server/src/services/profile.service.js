@@ -380,11 +380,80 @@ const acceptFriendRequest = async (req) => {
         session.endSession();
 
         //4. Them phan thong bao socket
+        const profileIdSender = await _profileConnected.get(profileIdSend)
+        const profileIdReceiver = await _profileConnected.get(decodeToken.profileId)
+        if (profileIdSender !== undefined) {
+            profileIdSender.socketIds.forEach(elem => {
+                //Day la profileId cua nguoi gui ket ban, nghia la neu chap nhan thi se thong bao voi nguoi gui yeu cau ket ban
+                _io.to(elem).emit('acceptedRequestFriend', {profileIdReceive: decodeToken.profileId, isAccepted: true})
+            });
+            profileIdReceiver.socketIds.forEach(elem => {
+                //Day la profileId cua nguoi gui ket ban, nghia la neu chap nhan thi se thong bao voi nguoi gui yeu cau ket ban
+                _io.to(elem).emit('acceptedRequestFriend', {profileIdReceive: decodeToken.profileId, isAccepted: true})
+            });
+        } else{
+           console.error("Failed send socket")
+        }
+
+        return true;
+    } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        throw new BadRequestError('Error accepting friend request');
+    }
+
+}
+
+//CHAP NHAN KET BAN
+const rejectFriendRequest = async (req) => {
+    //temp
+    const { authorization } = req.headers;
+    const clientId = req.headers[HEADER.X_CLIENT_ID]
+    const decodeToken = await decodeTokens(clientId, authorization);
+
+    const { profileIdSend } = req.body
+
+    //DUNG TRANSACTION
+    console.log("profileID send ", profileIdSend);
+
+    //1. Lay ra yeu cau ket ban
+    const friendRequest = await ProfileModel.findOne({
+        _id: decodeToken.profileId,
+        'friendsRequest': { $elemMatch: { profileIdRequest: profileIdSend } }
+    })
+
+    if (!friendRequest) {
+        throw new BadRequestError('Friend request not found');
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+
+        console.log("1. xoa yeu cau ket ban o hang doi");
+        //xoa yeu cau ket ban o hang doi
+        await ProfileModel.findOneAndUpdate(
+            { _id: decodeToken.profileId },
+            {
+                $pull: {
+                    friendsRequest: {
+                        profileIdRequest: profileIdSend
+                    }
+                }
+            },
+            { new: true }
+        ).session(session);
+        // Commit transaction nếu không có lỗi xảy ra
+        await session.commitTransaction();
+        session.endSession();
+
+        //4. Them phan thong bao socket
         const profileSocket = await _profileConnected.get(profileIdSend)
         if (profileSocket !== undefined) {
             profileSocket.socketIds.forEach(elem => {
-                //Day la profileId cua nguoi gui ket ban, nghia la neu chap nhan thi se thong bao voi nguoi gui yeu cau ket ban
-                _io.to(elem).emit('acceptedRequestFriend', {profileIdReceive: decodeToken.profileId})
+                //Day la profileId cua nguoi gui ket ban,
+                _io.to(elem).emit('declineRequestFriend', {profileIdReceive: decodeToken.profileId, isRejected: true})
             });
         } else{
            console.error("Failed send socket")
@@ -493,5 +562,6 @@ module.exports = {
     //test
     sendFriendRequest,
     acceptFriendRequest,
+    rejectFriendRequest,
 
 }
