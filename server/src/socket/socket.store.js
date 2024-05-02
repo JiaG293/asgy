@@ -144,10 +144,15 @@ const removeChannel = async (channelId, profileId) => {
         console.log(`Socket with profileId ${profileId} not found`)
         return false
     }
+}
 
 
-
-
+const getOnlineProfile = async () => {
+    try {
+        return Array.from(_profileConnected.keys())
+    } catch (error) {
+        console.log("error get Online profile:", error);
+    }
 }
 
 
@@ -159,5 +164,6 @@ module.exports = {
     removeChannel,
     addNewChannel,
     emitProfileId,
+    getOnlineProfile,
 
 }

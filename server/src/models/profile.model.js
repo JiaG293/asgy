@@ -85,7 +85,11 @@ const profileSchema = new mongoose.Schema({
             },
             _id: false,
         }
-    ]
+    ],
+    isOnline: {
+        type: Boolean,
+        default: false,
+    }
 
 
 },

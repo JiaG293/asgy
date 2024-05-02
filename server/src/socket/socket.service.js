@@ -6,7 +6,7 @@ const ProfileModel = require("../models/profile.model");
 const { checkChannelSingleExists } = require("../services/channel.service");
 const { findProfileById } = require("../services/profile.service");
 const { ConflictRequestError, BadRequestError, UnauthorizeError } = require("../utils/responses/error.response");
-const { removeProfileConnect, addProfileConnected, emitProfileId } = require("./socket.store");
+const { removeProfileConnect, addProfileConnected, emitProfileId, getOnlineProfile } = require("./socket.store");
 const { pushNotification } = require("../services/notification.service");
 
 
@@ -640,6 +640,56 @@ class SocketService {
             console.log("error typing:", error);
         })
 
+    }
+
+    //Offline status
+    static listFriendSocket = async (socket) => {
+        let data;
+        await ProfileModel.findById(socket.auth.profileId)
+            .select('friends')
+            .lean()
+            .then(result => {
+                console.log("data profile friend:", result);
+                data = result.friends
+            })
+            .catch(error => console.log("error online status", error))
+        return data
+    }
+
+
+    //online status
+    static statusProfile = async ({ status }, socket) => {
+        await this.updateStatus({ status }, socket)
+
+        const listFriend = await ProfileModel.findById(socket.auth.profileId)
+            .select('friends')
+            .lean()
+            .then(result => result.friends)
+            .catch(error => console.log("error online status", error))
+        const activeProfile = await getOnlineProfile(socket)
+
+        const listFriendOnline = activeProfile.filter(elem1 => listFriend.some(elem2 => elem1 == elem2.profileIdFriend))
+        listFriendOnline.forEach(friend => {
+            emitProfileId({ profileId: friend, params: 'profileStatus', data: { profileId: socket.auth.profileId, isOnline: status } }, _io)
+        })
+
+
+    }
+
+
+
+
+    //Update status profile
+    static updateStatus = async ({ status }, socket) => {
+        try {
+            await ProfileModel.findOneAndUpdate(
+                { _id: socket.auth.profileId },
+                { isOnline: status },
+                { new: true })
+                .catch(error => console.log("error profile update status:", error))
+        } catch (error) {
+            console.log("error updating status:", error)
+        }
     }
 
 

@@ -1,7 +1,6 @@
-const { message } = require("../controllers/socket.controller");
-const { SuccessResponse } = require("../utils/responses/success.response");
+
 const SocketService = require("./socket.service");
-const { addNewChannel, addProfileConnected, removeProfileConnect, emitProfileId, removeChannel } = require("./socket.store");
+const { addNewChannel, addProfileConnected, removeProfileConnect, emitProfileId, removeChannel, getOnlineProfile } = require("./socket.store");
 
 class SocketController {
 
@@ -20,6 +19,7 @@ class SocketController {
             const channels = socket.channels
             console.log("channel", channels);
             addProfileConnected({ profileId: profileId, channels: channels }, socket);
+            SocketService.statusProfile({ status: true }, socket)
             socket.emit('authorized', { message: "authorized", status: 200, metadata: { channels: channels } })
         }
 
@@ -27,19 +27,19 @@ class SocketController {
         socket.on("test", () => {
             console.log("\n1. Socket id connected:::", socket.id)
             console.log("\n2. List Online:::", _profileConnected)
-            // console.log("CHANNELS MAP<Room, Set<SocketId>:::", socket.adapter.rooms);
+            console.log("CHANNELS MAP<Room, Set<SocketId>:::", socket.adapter.rooms);
             console.log("\n3. UserId Map<SocketId, Set<Room>>:::", socket.adapter.sids)
-
         })
 
         // lay ra thong tin cac user hoat dong
-        socket.on("userActiveRoom", (data) => {
+        /* socket.on("userActiveRoom", (data) => {
             console.log("CHANNELS MAP<Room, Set<SocketId>:::", socket.adapter.rooms)
         })
-
+ */
         //ngat ket noi socket
         socket.on("disconnect", () => {
             const profileId = socket.auth.profileId
+            SocketService.statusProfile({ status: false }, socket) //cap nhat trang thai online
             removeProfileConnect(profileId, socket)
             console.log(`A ${profileId} - ${socket.id} disconnected!`);
         });
@@ -289,72 +289,16 @@ class SocketController {
 
 
 
+
+
+
+
+
+
     }
-
-
-
 
 
 }
 
 
 module.exports = new SocketController()
-
-
-/*
-
-
-
-
-
-
-
-
-
-
-
-
-
-//  MESSAGE 
-
-// load messages
-loadMessages = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Get sucessfully channel list',
-        metadata: await ,
-    }).send(res)
-}
-
-// load messages history
-loadMessagesHistory = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Get detail channel',
-        metadata: await ,
-    }).send(res)
-}
-
-// send messsage 
-
-//revoke messasge
-revokeMessage = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Send document success',
-        metadata: await ,
-    }).send(res)
-}
-
-//remove message
-removeMessage = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Send file success',
-        metadata: ,
-    }).send(res)
-}
-
-// forward messsage 
-forwardMessage = async (req, res, next) => {
-    new SuccessResponse({
-        message: 'Send message success',
-        metadata: await ,
-    }).send(res)
-} */

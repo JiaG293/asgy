@@ -558,14 +558,14 @@ let flagTyping = false; // flag typing
 document.getElementById('message-input').addEventListener('input', () => {
     if (!flagTyping) {
         const channelId = document.querySelector('.group.selected').id.split('-')[0];
-        const fullName = sessionStorage.getItem('profileId') //dua thong tin ten nguoi dung vao day
+        const fullName = sessionStorage.getItem('profileId') //dua thong tin ten nguoi dung vao day tu luu o coookie storage
         socket.emit('onTyping', { fullName, channelId, isTyping: true });
 
         flagTyping = true
     }
 });
 
-// Gửi sự kiện 'onStopTyping' khi người dùng ngừng nhập
+//
 document.getElementById('message-input').addEventListener('blur', () => {
     const channelId = document.querySelector('.group.selected').id.split('-')[0];
     const fullName = sessionStorage.getItem('profileId') //dua thong tin ten nguoi dung vao day
@@ -574,8 +574,9 @@ document.getElementById('message-input').addEventListener('blur', () => {
 });
 
 socket.on('isTyping', ({ channelId, fullName, isTyping }) => {
-    console.log("thong bao typing", fullName);
+    console.log("thong bao typing:", "\nfulName: ", fullName, "\nchannelId:", channelId, "\nisTyping:", isTyping);
     // flagTyping = isTyping
+     //update profile status o day redux
 })
 
 
@@ -583,7 +584,7 @@ socket.on('isTyping', ({ channelId, fullName, isTyping }) => {
 function test() {
     console.log("test chuc nang socket:");
     // socket.emit('disbandGroup', { channelId: '6622674ad0c8de3491c351bc' })
-    socket.emit('createSingleChat', { receiverId: '65f417a034e9a9f7e2f3cf9f', typeChannel: 101, })
+    // socket.emit('createSingleChat', { receiverId: '65f417a034e9a9f7e2f3cf9f', typeChannel: 101, })
     // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom ca ca', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
     // socket.emit('addMembers', { members: ["65f806fe141880574bb04421"], channelId: '6622674ad0c8de3491c351bc' })
     // socket.emit('deleteMembers', {channelId: '6625e5cdac26377772ad96ca', members: ['65f417a034e9a9f7e2f3cf9f']})
@@ -593,3 +594,7 @@ function test() {
 
 }
 
+socket.on('profileStatus', data =>{
+    console.log("socket profile status:", data);
+    //update profile status o day redux
+})
