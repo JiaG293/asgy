@@ -580,7 +580,6 @@ socket.on('isTyping', ({ channelId, fullName, isTyping }) => {
 })
 
 
-
 function test() {
     console.log("test chuc nang socket:");
     // socket.emit('disbandGroup', { channelId: '6622674ad0c8de3491c351bc' })
@@ -594,7 +593,3 @@ function test() {
 
 }
 
-socket.on('profileStatus', data =>{
-    console.log("socket profile status:", data);
-    //update profile status o day redux
-})
