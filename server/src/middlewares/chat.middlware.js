@@ -4,11 +4,11 @@ exports.uploadMiddleware = (req, res, next) => {
     const { typeContent } = req.params;
 
     switch (typeContent) {
-        case 'IMAGE_FILE':
+        case 'image':
             return uploadImageChat.array('image', 30)(req, res, next);
-        case 'VIDEO_FILE':
+        case 'video':
             return uploadVideoChat.array('video', 10)(req, res, next);
-        case 'DOCUMENT_FILE':
+        case 'document':
             return uploadDocumentChat.array('document', 30)(req, res, next);
         default:
             return res.status(401).json({

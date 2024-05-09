@@ -434,7 +434,6 @@ const sendFiles = async (req) => {
     const { authorization } = req.headers;
     const clientId = req.headers[HEADER.X_CLIENT_ID]
     const decodeToken = await decodeTokens(clientId, authorization);
-
     if (req?.files == undefined) {
         throw new BadRequestError('Failed upload s3')
     }
@@ -446,7 +445,7 @@ const sendFiles = async (req) => {
         const saveNewMessage = await MessageModel.create({
             senderId: decodeToken.profileId,
             receiverId: mongoose.Types.ObjectId(receiverId),
-            typeContent: typeContent,
+            typeContent: typeContent.toUpperCase() + "_FILE",
             messageContent: linkFile,
         });
 
