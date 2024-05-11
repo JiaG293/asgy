@@ -27,7 +27,8 @@ const authenticationSocket = async (socket, next) => {
             .then((profile) => profile.listChannels.map((channel) => String(channel)))
 
     } catch (error) {
-        return next(error)
+        console.error("Error authenticate socker", error);
+        return next()
     }
     return next()
 };

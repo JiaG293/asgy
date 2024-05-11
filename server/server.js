@@ -1,5 +1,4 @@
 require('dotenv').config();
-const { Server } = require('socket.io');
 const app = require('./src/app');
 const SocketController = require('./src/socket/socket.controller');
 const authenticationSocket = require('./src/socket/socket.auth');
@@ -23,7 +22,7 @@ const server = require('http').createServer(app);
 socketService.io.attach(server); */
 
 //C2
-const server = require('http').createServer(app);
+const server = require('http').Server(app);
 const io = require('socket.io')(server, {
     cors: {
         origin: [URL_CLIENT, "https://admin.socket.io"],
@@ -43,18 +42,22 @@ instrument(_io, {
     },
     namespaceName: "/admin",
     mode: "development",
-    /* auth: false,
-    mode: "development", */
+    // auth: false,
+    // mode: "development",
 });
 global._io.use(authenticationSocket)
 global._io.on('connection', SocketController.connection)
 
 
+//test server
+setInterval(() => {
+    io.sockets.emit('time-msg', "socket nhu con cac");
+}, 2000);
 
 
 
 server.listen(PORT, () => {
-    console.log(`server start with  http://locahost:${PORT}`);
+    console.log(`\nserver start with  http://locahost:${PORT}`);
 })
 
 process.on('SIGINT', () => {

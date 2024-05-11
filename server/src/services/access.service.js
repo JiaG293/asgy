@@ -1,6 +1,7 @@
 const UserModel = require('../models/user.model');
 const ProfileModel = require('../models/profile.model');
 const KeyTokenModel = require('../models/keyToken.model');
+const OtpModel = require('../models/otp.model');
 
 const bcrypt = require('bcryptjs'); //const bcrypt = require('bcrypt'); //THAY DOI THANH CAI NAY SAU KHI DEPLOYMENT DO BCRYPT PERFOMANCE HON
 const crypto = require('crypto');
@@ -11,11 +12,15 @@ const { BadRequestError, ConflictRequestError, UnauthorizeError, ForbiddenError 
 const { getInfoData } = require('../utils/getInfoModel.util');
 const { findByUserID, findByEmail, findByUsername, findUserById, getResetPasswordToken } = require('./user.service');
 const { findByPhoneNumber, findProfileByUserId } = require('./profile.service');
+const otpGenerator = require('otp-generator')
 require('dotenv').config()
 const { URL_CLIENT } = process.env
+const { copyToClipboard } = require('../utils/temp.util');
+const { sendSmsOtp } = require('../utils/sendOtp.util');
+const { insertOtp, validOtp } = require('./otp.service');
+const ValidAccountModel = require('../models/validAccount.model');
+const { createTokenValidAccount, verifyTokenValidAccount } = require('./validAccount.service');
 
-
-const { copyToClipboard } = require('../utils/temp.util')
 
 const HEADER = {
     API_KEY: 'x-api-key',
@@ -261,105 +266,70 @@ class AccessService {
 
     }
 
-    static signUpUser = async ({ email, username, password, fullName, gender, birthday, phoneNumber }) => {
-        /* //tim kiem user co ton tai trong database khong?
-        const user = await UserModel.findOne({
-            $or: [{ email }, { username }]
-        }).lean(); //using tra ve kieu object thay vi json
- */
-        const checkUsername = await findByUsername(username);
-        const checkEmail = await findByEmail(email);
-        const checkPhoneNumber = await findByPhoneNumber(phoneNumber);
+    static signUpUser = async ({ email, username, password, fullName, gender, birthday, phoneNumber, verifyOtp }) => {
+        let session;
+        try {
+            session = await startSession();
+            session.startTransaction();
 
-        //bat loi truong hop ton tai tra ve ma loi
-        if (checkUsername?.username === username) {
-            throw new ConflictRequestError('Username already exists');
-        }
-        if (checkEmail?.email === email) {
-            throw new ConflictRequestError('Email already exists');
-        }
-        if (checkPhoneNumber?.phoneNumber === phoneNumber) {
-            throw new ConflictRequestError('Phone Number already exists')
-        }
+            const checkUsername = await findByUsername(username); 
+            const checkEmail = await findByEmail(email);
+            const checkPhoneNumber = await findByPhoneNumber(phoneNumber);
+            const validAccount = await verifyTokenValidAccount(verifyOtp);
+            if (!validAccount) {
+                throw new UnauthorizeError("Please verify email before signing up or otp expired");
+            }
 
-        //Khoi tao model cho USER va PROFILE
-        const dataUser = await new UserModel({
-            email,
-            username,
-            password,
-        });
-        const dataProfile = await new ProfileModel({
-            userId: dataUser._id,
-            fullName,
-            gender,
-            birthday,
-            phoneNumber,
-        });
+            if (checkUsername?.username === username) {
+                throw new ConflictRequestError('Username already exists');
+            }
+            if (checkEmail?.email === email) {
+                throw new ConflictRequestError('Email already exists');
+            }
+            if (checkPhoneNumber?.phoneNumber === phoneNumber) {
+                throw new ConflictRequestError('Phone Number already exists');
+            }
 
-        //Xac thuc du lieu trong model co hop le hay khong
-        if (dataUser.validateSync() !== undefined) {
-            throw new BadRequestError(dataUser.validateSync())
-        }
-        if (dataProfile.validateSync() !== undefined) {
-            throw new BadRequestError(dataProfile.validateSync())
-        }
+            const dataUser = new UserModel({
+                email,
+                username,
+                password,
+            });
+            const dataProfile = new ProfileModel({
+                userId: dataUser._id,
+                fullName,
+                gender,
+                birthday,
+                phoneNumber,
+            });
 
+            // Validate data before saving
+            if (dataUser.validateSync() !== undefined) {
+                throw new BadRequestError(dataUser.validateSync());
+            }
+            if (dataProfile.validateSync() !== undefined) {
+                throw new BadRequestError(dataProfile.validateSync());
+            }
 
-        //Luu model len database
-        const newUser = await dataUser.save();
-        const newProfile = await dataProfile.save();
+            // Save user and profile data
+            const newUser = await dataUser.save({ session });
+            const newProfile = await dataProfile.save({ session });
 
-        //Kiem tra USER xem tao co thanh cong hay khong
-        if (newUser) {
+            await session.commitTransaction();
+            session.endSession();
 
-            // /* 
-            //     tao ma privateKey va publicKey theo RSA
-            //     privateKey: luu o server dung de sign jwt
-            //     publicKey: luc o database cho nguoi su dung, dung de decode jwt
-            // */
-            // const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-            //     modulusLength: 4096,
-            //     publicKeyEncoding: {
-            //         type: 'pkcs1',
-            //         format: 'pem',
-            //     },
-            //     privateKeyEncoding: {
-            //         type: 'pkcs1',
-            //         format: 'pem',
-            //     }
-            // })
-
-            // //create token tao ra access va refresh token
-            // const tokens = await createTokenPair({ userId: newUser._id, email, username }, publicKey, privateKey);
-            // console.log("Created tokens success:", tokens);
-            // if (!tokens) {
-            //     throw new UnauthorizeError("Tokens must init")
-            // }
-
-            // //tao publicKeyString de luu vao database
-            // const publicKeyString = await KeyTokenService.createKeyToken({
-            //     userId: newUser._id,
-            //     refreshToken: tokens.refreshToken,
-            //     publicKey,
-            //     privateKey,
-            // })
-            // if (!publicKeyString) {
-            //     throw new UnauthorizeError("Public key string invalid")
-            // }
-            // console.log("publicKeyString:", publicKeyString);
-
-            //tao publicKeyObject de verify tao token cho user
-            // const publicKeyObject = crypto.createPublicKey(publicKeyString.publicKey);
-            // console.log("publicKeyObject:", publicKeyObject);
-            //tra ve thong tin tao cho body
             return {
                 user: getInfoData({ fields: ['_id', 'username', 'email',], object: newUser }),
                 profile: getInfoData({ fields: ['_id', 'userId', 'fullName', 'gender', 'birthday', 'phoneNumber'], object: newProfile })
+            };
+        } catch (error) {
+            if (session) {
+                await session.abortTransaction();
+                session.endSession();
             }
+            console.log("signUpUser service error:", error);
+            throw error;
         }
-
-
-
     }
 
     //
@@ -392,6 +362,56 @@ class AccessService {
         }
 
         throw new BadRequestError("Please enter field check prompt")
+    }
+
+    //send sms otp
+    static createOtp = async (req) => {
+        const { email } = req.body
+        const { ip } = req
+        console.log("ip nguoi dung :::", req.connection.remoteAddress);
+
+        const checkUser = await UserModel.findOne({ email });
+        console.log("check usre", checkUser);
+        if (checkUser) {
+            throw new ConflictRequestError("This email is already in user!!")
+        }
+        const OTP = otpGenerator.generate(6, {
+            digits: true,
+            lowerCaseAlphabets: false,
+            upperCaseAlphabets: false,
+            specialChars: false,
+        })
+        console.log("otp la", OTP);
+        return await insertOtp({
+            email,
+            otp: OTP
+        })
+    }
+
+    //Verify OTP
+    static verifyOtp = async ({ email, otp }) => {
+
+        const otpUser = await OtpModel.find({ email });
+        console.log("list otp:", otpUser);
+        if (!otpUser.length) {
+            throw new BadRequestError("OTP expired!!!")
+        }
+
+
+        const lastOtp = otpUser[otpUser.length - 1]
+        const isValid = await validOtp({ otp, hashOtp: lastOtp.otp })
+        if (!isValid) {
+            throw new BadRequestError("Invalid OTP")
+        }
+
+        if (isValid && email === lastOtp.email) {
+            await OtpModel.deleteMany({ email })
+        }
+
+        return {
+            email,
+            token: await createTokenValidAccount({ email })
+        }
     }
 }
 

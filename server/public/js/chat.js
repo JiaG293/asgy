@@ -81,7 +81,7 @@ async function loginUser() {
     //Dung cho binh thuong
     const channels = JSON.parse(sessionStorage.getItem('channels'))
     addGroup(channels, profileId)
-    socket.emit('addUser', { profileId, channels })
+    // socket.emit('addUser', { profileId, channels })
 
     //fetch api
     // addGroup(sessionStorage.getItem('channels'), profileId)
@@ -576,8 +576,9 @@ document.getElementById('message-input').addEventListener('blur', () => {
 socket.on('isTyping', ({ channelId, fullName, isTyping }) => {
     console.log("thong bao typing:", "\nfulName: ", fullName, "\nchannelId:", channelId, "\nisTyping:", isTyping);
     // flagTyping = isTyping
-     //update profile status o day redux
+    //update profile status o day redux
 })
+
 
 
 function test() {

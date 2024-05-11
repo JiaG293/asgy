@@ -13,7 +13,7 @@ class SocketController {
         console.log("\n### socket user sau khi da xac thuc: \n", socket.auth);
         if (socket.auth === undefined) {
             socket.emit('errorAuthenticate', { message: "authorization failed", status: 401 });
-            socket.disconnect(socket.id)
+            socket.disconnect()
         } else {
             const profileId = socket.auth.profileId
             const channels = socket.channels

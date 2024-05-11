@@ -16,6 +16,7 @@ router.route('/user/:username').get(isAuthenticated, getUserInfo)
 router.route("/password/update").patch(isAuthenticated, updatePassword);
 router.route("/search").get(searchUser); */
 
+router.route('/test').post(catchAsync(AccessController.test))
 
 //PUBLIC
 //test data
@@ -27,6 +28,8 @@ router.route('/login').post(catchAsync(AccessController.loginUser));
 
 router.route('/check').get(catchAsync(AccessController.checkPromptSignUp))
 
+router.route('/create-otp').post(catchAsync(AccessController.createOtp))
+router.route('/verify-otp').post(catchAsync(AccessController.verifyOtp))
 
 //PRIVATE
 //Luon luon su dung router duoi authentication

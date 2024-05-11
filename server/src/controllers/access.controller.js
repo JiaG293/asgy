@@ -1,4 +1,5 @@
 const AccessService = require("../services/access.service");
+const { verifyTokenValidAccount } = require("../services/validAccount.service");
 const { CREATED, SuccessResponse } = require("../utils/responses/success.response");
 
 class AccessController {
@@ -43,7 +44,7 @@ class AccessController {
         }).send(res)
     }
 
-
+    //signupUser
     signupUser = async (req, res, next) => {
 
         //Cach cu khong dung utils handler response
@@ -70,6 +71,31 @@ class AccessController {
         new SuccessResponse({
             message: 'Details information users',
             metadata: await AccessService.getInformationDetails(req.headers)
+        }).send(res)
+    }
+
+    //create OTP
+    createOtp = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Create OTP success',
+            metadata: await AccessService.createOtp(req)
+        }).send(res)
+    }
+
+    //verify OTP
+    verifyOtp = async (req, res, next) => {
+        new SuccessResponse({
+            message: 'Details information users',
+            metadata: await AccessService.verifyOtp(req.body)
+        }).send(res)
+    }
+
+    //verify OTP
+    test = async (req, res, next) => {
+
+        new SuccessResponse({
+            message: 'Details information users',
+            metadata: await verifyTokenValidAccount(req.body.token)
         }).send(res)
     }
 
