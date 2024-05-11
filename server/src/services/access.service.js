@@ -5,7 +5,7 @@ const OtpModel = require('../models/otp.model');
 
 const bcrypt = require('bcryptjs'); //const bcrypt = require('bcrypt'); //THAY DOI THANH CAI NAY SAU KHI DEPLOYMENT DO BCRYPT PERFOMANCE HON
 const crypto = require('crypto');
-const { sendEmail } = require('../utils/sendEmail.util');
+const { sendEmail, sendEmailOTP } = require('../utils/sendEmail.util');
 const { createTokenPair, verifyJWT, decodeTokens } = require('../auth/authUtils');
 const KeyTokenService = require('../services/keyToken.service');
 const { BadRequestError, ConflictRequestError, UnauthorizeError, ForbiddenError } = require('../utils/responses/error.response');
@@ -272,7 +272,7 @@ class AccessService {
             session = await startSession();
             session.startTransaction();
 
-            const checkUsername = await findByUsername(username); 
+            const checkUsername = await findByUsername(username);
             const checkEmail = await findByEmail(email);
             const checkPhoneNumber = await findByPhoneNumber(phoneNumber);
             const validAccount = await verifyTokenValidAccount(verifyOtp);
@@ -371,7 +371,7 @@ class AccessService {
         console.log("ip nguoi dung :::", req.connection.remoteAddress);
 
         const checkUser = await UserModel.findOne({ email });
-        console.log("check usre", checkUser);
+        console.log("check user", checkUser);
         if (checkUser) {
             throw new ConflictRequestError("This email is already in user!!")
         }
@@ -381,7 +381,8 @@ class AccessService {
             upperCaseAlphabets: false,
             specialChars: false,
         })
-        console.log("otp la", OTP);
+        console.log("OTP CODE:", OTP);
+        await sendEmailOTP({ email, subject: "Asgy: OTP code to verify email", content: OTP })
         return await insertOtp({
             email,
             otp: OTP
