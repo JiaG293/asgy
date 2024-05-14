@@ -585,7 +585,7 @@ function test() {
     console.log("test chuc nang socket:");
     // socket.emit('disbandGroup', { channelId: '6622674ad0c8de3491c351bc' })
     // socket.emit('createSingleChat', { receiverId: '65f417a034e9a9f7e2f3cf9f', typeChannel: 101, })
-    // socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom ca ca', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
+    socket.emit('createGroupChat', { typeChannel: 202, name: 'Nhom ca 1', members: ["65f417a034e9a9f7e2f3cf9f", "660aa562ad0cd7f7d5a2d8f2"] })
     // socket.emit('addMembers', { members: ["65f806fe141880574bb04421"], channelId: '6622674ad0c8de3491c351bc' })
     // socket.emit('deleteMembers', {channelId: '6625e5cdac26377772ad96ca', members: ['65f417a034e9a9f7e2f3cf9f']})
     /* storageListMessage[1].messages.map(message => {

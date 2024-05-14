@@ -14,7 +14,7 @@ const otpSchema = new mongoose.Schema({
         type: Date,
         default: Date.now(),
         index: {
-            expires: 10 // bị xóa sau 10p
+            expires: 10 * 60// bị xóa sau 10p
         }
 
     }
