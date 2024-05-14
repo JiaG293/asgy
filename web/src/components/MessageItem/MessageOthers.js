@@ -10,12 +10,36 @@ function MessageOthers({ message }) {
       </div>
       <div className="message-others-info">
         <div className="message-others-name">{message?.fullName}</div>
-        <div className="message-others-content">
-          <p>{message?.messageContent}</p>
-          <p className="message-others-time">
-            {convertISOToFullDateTime(message?.createdAt)}
-          </p>
-        </div>
+
+        {message.typeContent === "REVOKE_MESSAGE" ? (
+          <div className="message-others-item-revoke">
+            <p>{message?.messageContent}</p>
+            <p className="message-others-time">
+              {convertISOToFullDateTime(message?.createdAt)}
+            </p>
+          </div>
+        ) : message.typeContent === "IMAGE_FILE" ? (
+          <div className="message-others-item">
+            <img src={message?.messageContent} />
+            <p className="message-others-time">
+              {convertISOToFullDateTime(message?.createdAt)}
+            </p>
+          </div>
+        ) : message.typeContent === "DOCUMENT_FILE" ? (
+          <div className="message-others-item">
+            <a href={message?.messageContent} target="_blank">{message?.messageContent}</a>
+            <p className="message-others-time">
+              {convertISOToFullDateTime(message?.createdAt)}
+            </p>
+          </div>
+        ) : (
+          <div className="message-others-item">
+            <p>{message?.messageContent}</p>
+            <p className="message-others-time">
+              {convertISOToFullDateTime(message?.createdAt)}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
