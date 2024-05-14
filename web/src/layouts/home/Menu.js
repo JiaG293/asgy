@@ -5,21 +5,20 @@ import "../homeStyle/Menu.scss";
 import { AiOutlineMessage as MessageIcon } from "react-icons/ai";
 import { RiContactsBookFill as ContactIcon } from "react-icons/ri";
 import { IoSettingsOutline as SettingsIcon } from "react-icons/io5";
-import axios from "axios";
 import Cookies from "js-cookie";
-import jwtDecode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import UpdateModal from "./UpdateModal";
 import LogoutModal from "./LogoutModal";
 import InfoPopup from "./InfoPopup";
 import SettingsPopup from "./SettingsPopup";
 import { useSelector } from "react-redux";
-import {toast} from 'react-toastify'
+import { toast } from "react-toastify";
 import socket from "socket/socket";
+import statusCode from "utils/statusCode";
+import { fetchLogout } from "api/callAPI";
 
 function Menu({ onSelectMenuItem }) {
   const profile = useSelector((state) => state.profile);
-
   const [showFormInfo, setShowFormInfo] = useState(false);
   const [showFormSettings, setShowFormSettings] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -39,40 +38,28 @@ function Menu({ onSelectMenuItem }) {
   };
 
   const handleLogout = async () => {
-    const refreshToken = Cookies.get("refreshToken");
-
-    if (!refreshToken) {
-      console.error("Refresh token is missing.");
-      return;
-    }
-
-    const decodedToken = jwtDecode(refreshToken);
-    const clientID = decodedToken.clientId;
-
-    const headers = {
-      "X-Client-Id": clientID,
-      Authorization: refreshToken,
-    };
-
-    try {
-      const response = await axios.post(
-        "http://localhost:5000/api/v1/users/logout",
-        null,
-        { headers }
-      );
-      if (response.status === 200) {
+    fetchLogout().then((data) => {
+      if (data.status === statusCode.OK) {
         Cookies.remove("refreshToken");
         Cookies.remove("clientId");
-        Cookies.remove("profileId")
-        localStorage.removeItem('isAuthenticated');
-        toast.success('Đăng xuất thành công');
+        Cookies.remove("profileId");
+        toast.success("Đăng xuất thành công");
+        socket.disconnect();
+        navigate("/login");
+      } else {
+        Cookies.remove("refreshToken");
+        Cookies.remove("clientId");
+        Cookies.remove("profileId");
         socket.disconnect();
         navigate("/login");
       }
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast.error('Có lỗi xảy ra')
-    }
+    }).catch((err)=>{
+      Cookies.remove("refreshToken");
+      Cookies.remove("clientId");
+      Cookies.remove("profileId");
+      socket.disconnect();
+      navigate("/login");
+    });
   };
 
   const handleMenuItemClick = (menuItem) => {

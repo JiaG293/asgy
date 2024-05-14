@@ -7,10 +7,14 @@ import socket from "socket/socket";
 import { setCurrentMessages, setMessages } from "../../redux/action";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import "react-perfect-scrollbar/dist/css/styles.css";
-import { convertISOToFullDateTime } from "utils/formatDate";
-import MessageDropdown from "../../components/DropdownMenu/MessageDropdown";
+import { MdInsertEmoticon as EmotionIcon } from "react-icons/md";
+import { ImAttachment as FileIcon } from "react-icons/im";
+import { CiImageOn as ImageIcon } from "react-icons/ci";
+
 import MessageYou from "components/MessageItem/MessageYou";
 import MessageOthers from "components/MessageItem/MessageOthers";
+import axios from "axios";
+import { clientID, refreshToken } from "env/env";
 
 function Conversation() {
   const profile = useSelector((state) => state.profile);
@@ -20,16 +24,17 @@ function Conversation() {
   const dispatch = useDispatch();
   const currentMessages = useSelector((state) => state.currentMessages);
   const messagesList = useSelector((state) => state.messagesList);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   // Render danh sách tin nhắn
   const messages = currentMessages.map((message) =>
-    message.senderId._id === profileID ? (
+    message?.senderId === profileID ? (
       <MessageYou key={message?._id} message={message} />
     ) : (
       <MessageOthers key={message?._id} message={message} />
     )
   );
-  
+
   // Xử lý sự kiện nhấn phím Enter để gửi tin nhắn
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
@@ -51,18 +56,68 @@ function Conversation() {
     scrollToBottom();
   }, [currentChannel, currentMessages]);
 
-  // Gửi tin nhắn từ máy khách tới máy chủ
+  // Gửi tin nhắn text từ máy khách tới máy chủ
   const IOSendMessage = () => {
     // Kiểm tra xem đã có đủ thông tin để gửi tin nhắn chưa
     if (profile && currentChannel && messageContent) {
       socket.emit("sendMessage", {
         senderId: profile._id,
         receiverId: currentChannel._id,
-        typeContent: "text",
+        typeContent: "TEXT_MESSAGE",
         messageContent: messageContent,
       });
       setMessageContent("");
       scrollToBottom();
+    }
+  };
+
+  //gửi tin nhắn file từ máy khách tới máy chủ
+  const sendImageMessage = async (file) => {
+    const headers = {
+      "x-client-id": clientID,
+      authorization: refreshToken,
+    };
+
+    const formData = new FormData();
+    formData.append("image", file);
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/v1/chats/send-files/image/${currentChannel._id}`,
+        formData,
+        { headers }
+      );
+      console.log("success");
+      const newMessage = response.data.metadata[0];
+      dispatch(setCurrentMessages([...currentMessages, newMessage]));
+      // scrollToBottom();
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //gửi tin nhắn file từ máy khách tới máy chủ
+  const sendFileMessage = async (file) => {
+    const headers = {
+      "x-client-id": clientID,
+      authorization: refreshToken,
+    };
+
+    const formData = new FormData();
+    formData.append("document", file);
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/v1/chats/send-files/document/${currentChannel._id}`,
+        formData,
+        { headers }
+      );
+      console.log("success");
+      const newMessage = response.data.metadata[0];
+      dispatch(setCurrentMessages([...currentMessages, newMessage]));
+      // scrollToBottom();
+      return response;
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -74,6 +129,25 @@ function Conversation() {
     if (messagesContainer) {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
+  };
+
+  //saukhi chọn file xong
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+    console.log("file hiện tại là: ");
+    console.log(file?.name);
+    sendImageMessage(file);
+    setSelectedFile(null);
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+    console.log("file hiện tại là: ");
+    console.log(file?.name);
+    sendFileMessage(file);
+    setSelectedFile(null);
   };
 
   return (
@@ -95,6 +169,39 @@ function Conversation() {
             onChange={(e) => setMessageContent(e.target.value)}
             onKeyPress={handleKeyPress}
           />
+          <div className="conversation-group-icon">
+            <EmotionIcon className="conversation-icon" />
+            {/* Input ẩn để chọn tập tin */}
+            <input
+              type="file"
+              id="image-input"
+              style={{ display: "none" }}
+              accept=".jpg, .jpeg, .png, .gif" // Chấp nhận các định dạng JPG, JPEG, PNG và GIF
+              onChange={handleImageChange}
+            />
+
+            <input
+              type="file"
+              id="file-input"
+              style={{ display: "none" }}
+              accept=".pdf, .doc, .docx, .ppt, .pptx, .xls, .xlsx, .csv, .epub, .mobi, .txt, .bat"
+              onChange={handleFileChange}
+            />
+
+            {/* Nhãn tùy chỉnh cho việc chọn tập tin, khi nhấp vào nó sẽ kích hoạt sự kiện chọn tập tin */}
+            <FileIcon
+              className="conversation-icon"
+              onClick={() => {
+                document.getElementById("file-input").click();
+              }}
+            />
+            <ImageIcon
+              className="conversation-icon"
+              onClick={() => {
+                document.getElementById("image-input").click();
+              }}
+            />
+          </div>
           <button className="conversation-button" onClick={IOSendMessage}>
             <span style={{ marginRight: 10 }}>Gửi</span>
             <SendIcon />

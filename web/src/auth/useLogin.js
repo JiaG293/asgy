@@ -2,9 +2,9 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import { setProfile, setUser } from "../redux/action";
-import callAPI from "api/callAPI";
 import statusCode from "utils/statusCode";
 import { useDispatch } from "react-redux";
+import { fetchLogin } from "api/callAPI";
 
 const useLogin = () => {
   const dispatch = useDispatch();
@@ -50,7 +50,7 @@ const useLogin = () => {
   const handleLogin = async (usernameOrEmail, password, setLoading, navigate) => {
     setLoading(true);
     try {
-      const response = await callAPI.login(usernameOrEmail, password);
+      const response = await fetchLogin(usernameOrEmail, password);
       if (response.status === statusCode.OK) {
         handleLoginSuccess(response, navigate);
       } else {

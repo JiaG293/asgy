@@ -5,11 +5,12 @@ import "./MessageYou.scss";
 import socket from "socket/socket";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentMessages, setMessages } from "../../redux/action";
+import DocViewer, { DocViewerRenderers } from "@cyntler/react-doc-viewer";
 
 function MessageYou({ message }) {
   const currentMessages = useSelector((state) => state.currentMessages);
   const dispatch = useDispatch();
-  const [form, setForm] = useState(false)
+  const [form, setForm] = useState(false);
 
   const revokeMessage = () => {
     socket.emit("revokeMessage", { messageId: message._id });
@@ -58,7 +59,7 @@ function MessageYou({ message }) {
         //fix sau
         if (indexMessage !== -1) {
           console.log(currentMessages.length);
-          currentMessages.splice(indexMessage, 1)
+          currentMessages.splice(indexMessage, 1);
           dispatch(setCurrentMessages([...currentMessages]));
           console.log(currentMessages);
         }
@@ -67,26 +68,51 @@ function MessageYou({ message }) {
 
     reRender();
   }, [currentMessages]);
-  console.log(currentMessages.length);
+
   return (
     <div className="message-you-container">
-      <div className="message-you-item">
-        <div className="message-you-top">
-          <div className="message-you-content">
-            <p>{message?.messageContent}</p>
+      {message.typeContent === "REVOKE_MESSAGE" ? (
+        <div className="message-you-item-revoke">
+          <div className="message-you-top">
+          <div className="message-you-content-revoke">
+                <p>{message?.messageContent}</p>
+              </div>
           </div>
-          <div className="message-you-more">
-            <MessageDropdown
-              messageId={message?._id}
-              revokeHandler={revokeMessage}
-              deleteHandler={deleteMessage}
-            />
-          </div>
+          <p className="message-you-time">
+            {convertISOToFullDateTime(message.createdAt)}
+          </p>
         </div>
-        <p className="message-you-time">
-          {convertISOToFullDateTime(message.createdAt)}
-        </p>
-      </div>
+      ) : (
+        <div className="message-you-item">
+          <div className="message-you-top">
+            {message.typeContent === "IMAGE_FILE" ? (
+              <div className="message-you-content">
+                <img src={message?.messageContent} alt="Image" />
+              </div>
+            ) : message.typeContent === "DOCUMENT_FILE" ? (
+              <div className="message-you-content">
+                <a href={message?.messageContent} target="_blank">
+                  {message?.messageContent}
+                </a>
+              </div>
+            ) : (
+              <div className="message-you-content">
+                <p>{message?.messageContent}</p>
+              </div>
+            )}
+            <div className="message-you-more">
+              <MessageDropdown
+                messageId={message?._id}
+                revokeHandler={revokeMessage}
+                deleteHandler={deleteMessage}
+              />
+            </div>
+          </div>
+          <p className="message-you-time">
+            {convertISOToFullDateTime(message.createdAt)}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

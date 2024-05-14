@@ -11,20 +11,62 @@
   padding: 10px;
   border-top: 1px solid #ddd;
   background-color: white;
+  position: relative; // Thêm position: relative để xác định vị trí tương đối cho .conversation-group-icon
 
   .conversation-input-with-button {
     display: flex;
     flex-grow: 1;
 
     .conversation-input {
-      flex: 10;
+      flex: 15;
       padding: 12px;
       border: 1px solid #ededed;
       border-radius: 50px 0 0 50px;
       outline: none;
       background-color: #ededed;
+      font-size: 16px;
+      color: #333;
+
+      &::placeholder {
+        color: #999;
+        font-style: italic;
+      }
+
     }
 
+    .conversation-group-icon {
+      flex: 3;
+      display: flex; // Sử dụng flexbox để căn chỉnh các icon
+      justify-content: center; // Căn giữa các icon theo chiều ngang
+      align-items: center; // Căn giữa các icon theo chiều dọc
+      cursor: pointer;
+      z-index: 1;
+      transition: transform 0.3s;
+
+      border: 1px solid #ededed;
+      outline: none;
+      background-color: #ededed;
+      font-size: 16px;
+      color: #333;
+
+      .conversation-icon {
+        width: 60%; // Đảm bảo ảnh sẽ đầy đủ kích thước trong container
+        height: 60%;
+        transition: transform 0.1s; // Hiệu ứng hover
+        opacity: 0.6;
+        margin-right: 15px;
+
+        &:hover{
+          opacity: 0.9;
+          
+        }
+
+      }
+    
+      
+
+    }
+    
     .conversation-button {
       flex: 1;
       padding: 10px;

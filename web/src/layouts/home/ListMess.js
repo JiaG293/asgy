@@ -77,8 +77,6 @@ function ListMess({ setSelectedMessage }) {
     await socket.emit("loadMessages", {
       senderId: profileID,
     });
-    // console.log("đã load messages:::");
-    // console.log(profileID);
   };
 
   //hàm chọn channel
@@ -108,11 +106,11 @@ function ListMess({ setSelectedMessage }) {
   useEffect(() => {
     const reRender = async () => {
       if (profileID && channelLoaded) {
-        // await IOAddUser();
         await IOLoadMessages();
         //hàm nhận tất cả tin nhắn từ lúc đầu
         socket.on("getMessages", (data) => {
           dispatch(setMessages(data));
+          console.log(data);
         });
         socket.on("messageRevoked", data=>{
           console.log("đã thu hồi", data);

@@ -1,7 +1,4 @@
 import React, { useState, useEffect, useLayoutEffect } from "react";
-import axios from "axios";
-import Cookies from "js-cookie";
-
 import "./Home.scss";
 import ListMess from "../../layouts/home/ListMess";
 import Conversation from "../../layouts/home/Conversation";
@@ -11,66 +8,33 @@ import Contacts from "../../layouts/home/Contacts";
 import ListFriend from "../../layouts/home/ListFriend";
 import ListGroup from "../../layouts/home/ListGroup";
 import ListRequest from "../../layouts/home/ListRequest";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   setFriends,
   setFriendsRequest,
-  setMessages,
   setProfile,
 } from "../../redux/action";
 import SplashScreen from "layouts/home/SplashScreen";
-import io from "socket.io-client";
-import { serverURL } from "api/endpointAPI";
-import { clientID, refreshToken } from "env/env";
-import socket from "socket/socket";
+import { fetchProfileInfo } from "api/callAPI";
 
 function Home() {
   const dispatch = useDispatch();
   const [selectedMenuItem, setSelectedMenuItem] = useState("messages");
   const [currentComponent, setCurrentComponent] = useState(null);
   const [isSelectMessage, setSelectMessage] = useState(false);
-  const currentMessages = useSelector((state) => state.currentMessages); // Lấy danh sách tin nhắn hiện tại từ Redux store
 
-  const fetchData = async () => {
-    try {
-      const refreshToken = Cookies.get("refreshToken");
-      const clientID = Cookies.get("clientId");
-
-      if (!refreshToken) {
-        console.error("refreshToken không tồn tại");
-        return;
-      }
-      const headers = {
-        "x-client-id": clientID,
-        authorization: refreshToken,
-      };
-
-      const response = await axios.get("http://localhost:5000/api/v1/profile", {
-        headers,
-      });
-
-      if (response.status === 200) {
-        const profile = response.data.metadata;
-        const friends = response.data.metadata.friends;
-        const friendsRequest = response.data.metadata.friendsRequest;
-        dispatch(setProfile(profile));
-        dispatch(setFriends(friends));
-        dispatch(setFriendsRequest(friendsRequest));
-
-        console.log(response.data.metadata.friendsRequest);
-        console.log(response.data.metadata.friends);
-      } else {
-        console.error("Lỗi khi lấy thông tin người dùng");
-      }
-    } catch (error) {
-      console.error("Lỗi khi lấy thông tin người dùng:", error);
-    }
-  };
+  // gọi fetch API bên api/callAPI
+  fetchProfileInfo().then((data)=>{
+        dispatch(setProfile(data.profile));
+        dispatch(setFriends(data.friends));
+        dispatch(setFriendsRequest(data.friendsRequest));
+  }).catch((err)=>console.log(err));
 
   useLayoutEffect(() => {
-    fetchData();
+    fetchProfileInfo();
   }, []);
 
+  //chuyển các component tương ứng khi chọn menu
   useEffect(() => {
     switch (selectedMenuItem) {
       case "messages":

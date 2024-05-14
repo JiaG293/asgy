@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import callAPI from "api/callAPI";
+import { fetchRegister } from "api/callAPI";
 import statusCode from "utils/statusCode";
 import useValidate from "utils/useValidate";
 
@@ -126,7 +126,7 @@ const useRegister = () => {
         toast.error("Vui lòng kiểm tra lại thông tin");
         return;
       }
-      const response = await callAPI.register(formData);
+      const response = await fetchRegister(formData);
       if (response.status === statusCode.CREATED) {
         handleSuccess();
       } else {
