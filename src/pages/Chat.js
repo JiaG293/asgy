@@ -9,12 +9,18 @@ import {
   TouchableOpacity,
 } from "react-native";
 import SearchA from "../components/Search";
-import socket from '../socket/socket'
 
-import endpointAPI from "../api/endpointAPI";
-import { setChannels, setCurrentChannel, setProfile } from "../redux/action";
+import endpointAPI, { serverURL } from "../api/endpointAPI";
+import {
+  setChannels,
+  setCurrentChannel,
+  setMessages,
+  setProfile,
+  setCurrentMessages,
+} from "../redux/action";
 import { useDispatch, useSelector } from "react-redux";
 import { clientId, refreshToken } from "../auth/authStore";
+import { socket } from "../socket/socket";
 
 export default function Chat({ navigation }) {
   const profile = useSelector((state) => state.profile);
@@ -23,13 +29,17 @@ export default function Chat({ navigation }) {
   const dispatch = useDispatch();
   const [channelLoaded, setChannelLoaded] = useState(false);
   const messagesList = useSelector((state) => state.messagesList);
-
+  const [checkSocket, setCheckSocket] = useState(false);
   // const { messages } = require('../data/mockChat');
+
+  // connectSocket().then(socket => {
+  // }).catch(error => {
+  //   console.error('Lỗi kết nối socket:', error);
+  // });
 
   const fetchDataProfile = async () => {
     try {
       const headers = {
-        
         "x-client-id": clientId,
         authorization: refreshToken,
       };
@@ -61,7 +71,6 @@ export default function Chat({ navigation }) {
         headers,
       });
 
-
       if (response.status === 200) {
         const channelList = response.data.metadata;
         dispatch(setChannels(channelList));
@@ -78,51 +87,58 @@ export default function Chat({ navigation }) {
     fetchDataChannel();
   }, []);
 
-  const handleSelectChannel =async (channel) => {
-    // console.log(channel);
+  const handleSelectChannel = async (channel) => {
     dispatch(setCurrentChannel(channel));
-    console.log(messagesList);
-    // navigation.navigate("ChatScreen");
     await messagesList.forEach((item) => {
-      console.log(1);
-      // if (item.channelId === channel._id) {
+      if (item.channelId === channel._id) {
         dispatch(setCurrentMessages(item.messages));
-        console.log("message da chon");
-        console.log(item);
       }
-    // }
-  );
+    });
+    navigation.navigate("ChatScreen");
+  };
 
+  const IOLoadMessages = async () => {
 
-  }
+    await socket.emit("loadMessages", {
+      senderId: profileID,
+    });
+    if (socket.connected) {
+      setCheckSocket(true);
+    }
+  };
 
-  // const selectChannel = async (channel) => {
-  //   //hàm này để mất giao diện chờ
-  //   setSelectedMessage(true);
-  //   await IOLoadMessages();
-  //   console.log(channel);
-  //   dispatch(setCurrentChannel(channel));
-  //   await messagesList.forEach((item) => {
-  //     if (item.channelId === channel._id) {
-  //       dispatch(setCurrentMessages(item.messages));
-  //       console.log("message da chon");
-  //       console.log(item);
-  //     }
-  //   });
+  useEffect(() => {
+    const reRender = async () => {
+      if (channelLoaded) {
+        // await IOAddUser();
+        IOLoadMessages();
+        //hàm nhận tất cả tin nhắn từ lúc đầu
+        socket.on("getMessages", (data) => {
+          dispatch(setMessages(data));
+        });
+        socket.on("messageRevoked", (data) => {
+        });
+      }
+    };
 
-  //   // console.log("MessageList");
-
-
-  // };
+    reRender();
+  }, [channelLoaded]);
 
   const renderMessages = ({ item }) => {
     // so sánh với profile ID của mình =>
     return (
-      <TouchableOpacity key={item._id} style={styles.messageItem} onPress={() => { handleSelectChannel(item) }}>
-        {item.typeChannel === 101 ? <Image source={{ uri: item?.icon }} style={styles.avatar} />
-          : <Image source={{ uri: item?.iconGroup }} style={styles.avatar} />
-
-        }
+      <TouchableOpacity
+        key={item._id}
+        style={styles.messageItem}
+        onPress={() => {
+          handleSelectChannel(item);
+        }}
+      >
+        {item.typeChannel === 101 ? (
+          <Image source={{ uri: item?.icon }} style={styles.avatar} />
+        ) : (
+          <Image source={{ uri: item?.iconGroup }} style={styles.avatar} />
+        )}
         <View style={styles.messageContent}>
           <View style={styles.messageText}>
             <Text numberOfLines={1} style={styles.sender}>
@@ -138,38 +154,6 @@ export default function Chat({ navigation }) {
     );
     return <View></View>;
   };
-
-  const IOLoadMessages = async () => {
-    await socket.emit("loadMessages", {
-      senderId: profileID,
-    });
-    // console.log("đã load messages:::");
-    // console.log(profileID);
-  };
-
-  useEffect(() => {
-    const reRender = async () => {
-      if (channelLoaded) {
-        console.log(channelLoaded);
-        console.log(profileID);
-        // await IOAddUser();
-        await IOLoadMessages();
-        //hàm nhận tất cả tin nhắn từ lúc đầu
-        
-        socket.on("getMessages", (data) => {
-          console.log(data);
-          dispatch(setMessages(data));
-        });
-
-        socket.on("messageRevoked", data=>{
-          console.log("đã thu hồi", data);
-        })
-      }
-    };
-
-    reRender();
-  }, [ channelLoaded]);
-
 
   return (
     <View style={styles.container}>

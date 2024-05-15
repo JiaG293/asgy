@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import endpointAPI from "../api/endpointAPI";
 import axios from "axios";
 import statusCode from "../utils/statusCode";
-import { setProfile, setUser } from "../redux/action";
+import {  setClient, setProfile, setTokens, setUser } from "../redux/action";
 import { useDispatch } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -36,6 +36,10 @@ const Login = ({ navigation }) => {
         
         await AsyncStorage.setItem("refreshToken", refreshToken);
         await AsyncStorage.setItem("clientId", clientId);
+
+        dispatch(setTokens(refreshToken));
+        dispatch(setClient(clientId));
+
 
         navigation.navigate("home");
       } else {

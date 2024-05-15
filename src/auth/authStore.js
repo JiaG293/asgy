@@ -13,4 +13,3 @@ const getAsyncStorageData = async () => {
 };
 
 getAsyncStorageData(); 
-
