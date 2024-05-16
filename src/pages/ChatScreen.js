@@ -77,7 +77,7 @@ export default function ChatScreen({ navigation }) {
         )}
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.chatContainer}
-        // inverted
+        inverted
       />
 
 
@@ -175,27 +175,29 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
-    marginLeft: 10, 
-    alignSelf: "flex-start", 
+    marginLeft: 10,
+    alignSelf: "flex-start",
     flexWrap: "wrap",
   },
   rightMessageContainer: {
     flexDirection: "row-reverse",
     alignItems: "center",
     marginBottom: 10,
-    marginRight: 10, 
+    marginRight: 10,
     alignSelf: "flex-end",
     flexWrap: "wrap",
   },
   leftMessage: {
-    backgroundColor: "#F0F0F0",
-    borderRadius: 10,
+    maxWidth: '70%', 
+    backgroundColor: "#e1ffc7",
     padding: 10,
+    borderRadius: 10,
   },
   rightMessage: {
-    backgroundColor: "#007BFF",
-    borderRadius: 10,
+    maxWidth: '80%',
+    backgroundColor: "#c7e1ff",
     padding: 10,
+    borderRadius: 10,
   },
   avatar1: {
     width: 30,
