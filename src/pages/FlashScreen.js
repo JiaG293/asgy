@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function FlashScreen({ navigation }) {
     const showImage = () => {
@@ -7,17 +8,6 @@ export default function FlashScreen({ navigation }) {
             navigation.navigate('auth')
         }, 2000);
     }
-    /* const translateY = useRef(new Animated.Value(-1500)).current;
-
-    useEffect(() => {
-        Animated.spring(translateY, {
-            toValue: 0,
-            tension: 2,
-            friction: 4,
-            useNativeDriver: true,
-        }).start();
-    }, []); */
-
     const transt = useRef(new Animated.Value(-200)).current;
     useEffect(() => {
         Animated.timing(transt, {
@@ -26,6 +16,7 @@ export default function FlashScreen({ navigation }) {
             useNativeDriver: true
         }).start();
     }, [transt]);
+    
 
     return (
         <View style={styles.container}>

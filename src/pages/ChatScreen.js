@@ -11,7 +11,6 @@ import {
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useSelector } from "react-redux";
-import { messages } from "../data/mockChat";
 
 export default function ChatScreen({ navigation }) {
   const [space, setSpace] = useState("");
@@ -19,6 +18,9 @@ export default function ChatScreen({ navigation }) {
 
   const currentChannel = useSelector((state) => state.currentChannel);
   const currentMessages = useSelector((state) => state.currentMessages);
+
+  const profile = useSelector((state) => state.profile);
+  const profileID = profile?._id;
 
   const handleMessageSend = () => {
     // Xử lý gửi tin nhắn
@@ -34,7 +36,7 @@ export default function ChatScreen({ navigation }) {
     }
   };
 
-  console.log(currentMessages[0]);
+  console.table(currentMessages[0]);
 
   return (
     <View style={styles.container}>
@@ -59,16 +61,25 @@ export default function ChatScreen({ navigation }) {
       </View>
 
       <FlatList
-        data={currentMessages}
+        data={currentMessages/* .slice().reverse() */}
         renderItem={({ item }) => (
-          <Text>
-            {item.messageContent}
-          </Text>
+          <View style={item.senderId === profileID ? styles.rightMessageContainer : styles.leftMessageContainer}>
+            {item.senderId !== profileID && (
+              <Image
+                source={{ uri: item.avatar }}
+                style={styles.avatar1}
+              />
+            )}
+            <View style={item.senderId === profileID ? styles.rightMessage : styles.leftMessage}>
+              <Text style={styles.messageText}>{item.messageContent}</Text>
+            </View>
+          </View>
         )}
-        keyExtractor={(item) => item?._id}
+        keyExtractor={(item) => item._id}
         contentContainerStyle={styles.chatContainer}
-        inverted
+        // inverted
       />
+
 
       <View style={styles.inputContainer}>
         <TouchableOpacity style={styles.emojiButton}>
@@ -159,5 +170,40 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     paddingHorizontal: 10,
+  },
+  leftMessageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    marginLeft: 10, 
+    alignSelf: "flex-start", 
+    flexWrap: "wrap",
+  },
+  rightMessageContainer: {
+    flexDirection: "row-reverse",
+    alignItems: "center",
+    marginBottom: 10,
+    marginRight: 10, 
+    alignSelf: "flex-end",
+    flexWrap: "wrap",
+  },
+  leftMessage: {
+    backgroundColor: "#F0F0F0",
+    borderRadius: 10,
+    padding: 10,
+  },
+  rightMessage: {
+    backgroundColor: "#007BFF",
+    borderRadius: 10,
+    padding: 10,
+  },
+  avatar1: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 5,
+  },
+  messageText: {
+    color: "#000",
   },
 });

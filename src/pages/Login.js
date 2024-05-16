@@ -49,19 +49,19 @@ const Login = ({ navigation }) => {
       console.error(error);
     }
   };
-
   useEffect(() => {
     const checkLoggedIn = async () => {
-      const refreshToken = await AsyncStorage.getItem("refreshToken");
-      const clientId = await AsyncStorage.getItem("clientId");
-      if (refreshToken && clientId) {
-        navigation.navigate("home");
-      }
+        const refreshToken = await AsyncStorage.getItem("refreshToken");
+        const clientId = await AsyncStorage.getItem("clientId");
+        if (refreshToken && clientId) {
+            navigation.navigate("home");
+        }
     };
-  
-    checkLoggedIn();
-  }, []);
 
+    checkLoggedIn();
+}, []);
+
+  
   return (
     <View style={styles.contaiter}>
       <View style={styles.header}>
