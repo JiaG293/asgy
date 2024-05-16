@@ -167,3 +167,46 @@ body {
     max-width: 100%;
   }
 }
+
+.register-group-otp {
+  display: flex;
+  justify-content: center;
+
+  .register-otp-input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 0px 5px 5px 0px;
+    margin-right: 10px;
+    transition: border-color 0.3s ease;
+
+    &:focus {
+      border-color: #0fbd98;
+      outline: none;
+    }
+
+    &::placeholder {
+      color: #999;
+    }
+  }
+
+  .register-otp-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px 0px 0px 5px;
+    background-color: #3cd9b6;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #2db2a1;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}

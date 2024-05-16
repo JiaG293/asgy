@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { fetchRegister } from "api/callAPI";
 import statusCode from "utils/statusCode";
 import useValidate from "utils/useValidate";
+import axios from "axios";
+import { clientID, refreshToken } from "env/env";
 
 const useRegister = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +18,7 @@ const useRegister = () => {
     password: "",
     repassword: "",
     isAgree: false,
+    otp: "",
   });
 
   const [visible, setVisible] = useState(false);
@@ -93,6 +96,7 @@ const useRegister = () => {
       birthdate: "",
       password: "",
       repassword: "",
+      otp: "",
       isAgree: false,
     });
     setWarningMessages({
@@ -120,13 +124,25 @@ const useRegister = () => {
   };
 
   const handleSubmit = async () => {
+    const token = await verifyOTP(formData.email, formData.otp);
+    console.log(token);
     try {
+      const body = {
+        username: formData.username,
+        email: formData.email,
+        fullName: formData.fullName,
+        phoneNumber: formData.phoneNumber,
+        gender: formData.gender,
+        birthdate: formData.birthdate,
+        password: formData.password,
+        verifyOtp: token,
+      };
       setWarningMessages(errors);
       if (Object.values(errors).some((error) => error !== "")) {
         toast.error("Vui lòng kiểm tra lại thông tin");
         return;
       }
-      const response = await fetchRegister(formData);
+      const response = await fetchRegister(body);
       if (response.status === statusCode.CREATED) {
         handleSuccess();
       } else {
@@ -161,6 +177,52 @@ const useRegister = () => {
     console.error("Error registering user:", error);
   };
 
+  const sendOTP = async (email) => {
+    const headers = {
+      "x-client-id": clientID,
+      authorization: refreshToken,
+    };
+
+    if (!email) {
+      toast.error("Vui lòng nhập email");
+      return;
+    }
+
+    const body = {
+      email: email,
+    };
+
+    try {
+      await axios.post(`http://localhost:5000/api/v1/users/create-otp`, body, {
+        headers,
+      });
+      toast.success("Đã gửi email đến " + email);
+    } catch (error) {
+      toast.error("Email đã được sử dụng");
+      console.log(error);
+    }
+  };
+
+  const verifyOTP = async (email, otp) => {
+    const body = {
+      email: email,
+      otp: otp,
+    };
+
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/v1/users/verify-otp`,
+        body,
+        null
+      );
+      console.log(res);
+      return res.data.metadata.token;
+    } catch (error) {
+      toast.error("Sai mã OTP, vui lòng tạo lại");
+      console.log(error);
+    }
+  };
+
   return {
     formData,
     handleChange,
@@ -172,6 +234,8 @@ const useRegister = () => {
     visible,
     visible2,
     warningMessages,
+    sendOTP,
+    verifyOTP,
   };
 };
 

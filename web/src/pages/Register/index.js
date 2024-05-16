@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { BiSolidUserRectangle as UserIcon } from "react-icons/bi";
 import { IoMdLock as PasswordIcon } from "react-icons/io";
@@ -10,6 +10,9 @@ import { IoEyeOffSharp as HidePasswordIcon } from "react-icons/io5";
 import "react-toastify/dist/ReactToastify.css";
 import "./Register.scss";
 import useRegister from "auth/useRegister";
+import { toast } from "react-toastify";
+import { clientID, refreshToken } from "env/env";
+import axios from "axios";
 
 function Register() {
   const {
@@ -23,6 +26,8 @@ function Register() {
     visible,
     visible2,
     warningMessages,
+    sendOTP,
+    verifyOTP,
   } = useRegister();
 
   const {
@@ -35,7 +40,78 @@ function Register() {
     password,
     repassword,
     isAgree,
+    otp,
   } = formData;
+
+  // const [otp, setOtp] = useState("");
+  // const [otpSent, setOtpSent] = useState(false);
+
+  // const sendOTP = async (email) => {
+  //   const headers = {
+  //     "x-client-id": clientID,
+  //     authorization: refreshToken,
+  //   };
+
+  //   if (!email) {
+  //     toast.error("Vui lòng nhập email");
+  //     return;
+  //   }
+
+  //   const body = {
+  //     email: email,
+  //   };
+
+  //   try {
+  //     await axios.post(`http://localhost:5000/api/v1/users/create-otp`, body, {
+  //       headers,
+  //     });
+  //     toast.success("Đã gửi email đến " + email);
+  //   } catch (error) {
+  //     toast.error("Email đã được sử dụng");
+  //     console.log(error);
+  //   }
+  // };
+
+  // const verifyOTP = async (email, otp) => {
+  //   const headers = {
+  //     "x-client-id": clientID,
+  //     authorization: refreshToken,
+  //   };
+
+  //   const body = {
+  //     email: email,
+  //     otp: otp,
+  //   };
+
+  //   console.log("send to");
+  //   console.log(email);
+  //   console.log(otp);
+
+  //   try {
+  //     const res = await axios.post(
+  //       `http://localhost:5000/api/v1/users/verify-otp`,
+  //       body,
+  //       { headers }
+  //     );
+  //     console.log(res);
+  //     // toast.success("Mã OTP chính xác");
+  //   } catch (error) {
+  //     console.log(otp);
+  //     console.log(email);
+  //     console.log(error);
+  //   }
+  // };
+
+  // const handleVerifyOtp = (e) => {
+  //   const value = e.target.value;
+  //   console.log(value);
+  //   if (value.length === 6) {
+  //     if (!email) {
+  //       return;
+  //     }
+  //     verifyOTP(email, value);
+  //   }
+  // };
 
   return (
     <div className="register-container">
@@ -206,6 +282,27 @@ function Register() {
           )}
           <p className="register-warning-text">{warningMessages.repassword}</p>
         </div>
+        {/* OTP*/}
+        <div className="register-group-otp">
+          <button
+            type="button"
+            className="register-otp-button"
+            onClick={() => {
+              sendOTP(email);
+            }}
+          >
+            Gửi OTP
+          </button>
+          <input
+            type="text"
+            className="register-otp-input"
+            placeholder="OTP"
+            name="otp"
+            onChange={handleChange}
+            value={otp}
+          />
+        </div>
+
         {/* Chính sách */}
         <div className="register-policy">
           <input
