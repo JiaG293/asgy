@@ -114,6 +114,7 @@ export default function Chat({ navigation }) {
         IOLoadMessages();
         //hàm nhận tất cả tin nhắn từ lúc đầu
         socket.on("getMessages", (data) => {
+          console.log(data);
           dispatch(setMessages(data));
         });
         socket.on("messageRevoked", (data) => {

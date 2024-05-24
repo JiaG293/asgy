@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,33 +10,55 @@ import {
 } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { socket } from "../socket/socket";
+import { setCurrentMessages, setMessages } from "../redux/action";
 
 export default function ChatScreen({ navigation }) {
-  const [space, setSpace] = useState("");
   const [isInputEmpty, setIsInputEmpty] = useState(true);
+  const [inputValue, setInputValue] = useState("");
+  const dispatch = useDispatch();
 
   const currentChannel = useSelector((state) => state.currentChannel);
   const currentMessages = useSelector((state) => state.currentMessages);
+  const messagesList = useSelector((state) => state.messagesList);
 
   const profile = useSelector((state) => state.profile);
   const profileID = profile?._id;
 
-  const handleMessageSend = () => {
-    // Xử lý gửi tin nhắn
-    console.log("Sending message:", space);
-    setSpace("");
-    setIsInputEmpty(true);
-  };
-
   // ham xu ly nut enter
   const handleSendMessageOnEnter = () => {
     if (!isInputEmpty) {
-      handleMessageSend();
+      handleMessageSend(inputValue);
     }
   };
 
-  console.table(currentMessages[0]);
+  const handleMessageSend = (value) => {
+    // Kiểm tra xem đã có đủ thông tin để gửi tin nhắn chưa
+    if (profile && currentChannel && value) {
+      socket.emit("sendMessage", {
+        senderId: profile._id,
+        receiverId: currentChannel._id,
+        typeContent: "TEXT_MESSAGE",
+        messageContent: value,
+      });
+      // dispatch(setCurrentMessages());
+      setInputValue("");
+    }
+  };
+
+  console.table(currentMessages);
+
+  useEffect(() => {
+    socket.on("getMessage", (newMessage) => {
+      const message = {
+        channelId: currentChannel,
+        messages: newMessage,
+      };
+      dispatch(setMessages([...messagesList, message]));
+      dispatch(setCurrentMessages([...currentMessages, newMessage]));
+    });
+  }, [currentMessages]);
 
   return (
     <View style={styles.container}>
@@ -61,24 +83,32 @@ export default function ChatScreen({ navigation }) {
       </View>
 
       <FlatList
-        data={currentMessages/* .slice().reverse() */}
-        renderItem={({ item }) => (
-          <View style={item.senderId === profileID ? styles.rightMessageContainer : styles.leftMessageContainer}>
-            {item.senderId !== profileID && (
-              <Image
-                source={{ uri: item.avatar }}
-                style={styles.avatar1}
-              />
-            )}
-            <View style={item.senderId === profileID ? styles.rightMessage : styles.leftMessage}>
-              <Text style={styles.messageText}>{item.messageContent}</Text>
-            </View>
-          </View>
+  data={currentMessages}
+  renderItem={({ item }) => (
+    <View style={item.senderId === profileID ? styles.rightMessageContainer : styles.leftMessageContainer}>
+      {item.senderId !== profileID && (
+        <Image
+          source={{ uri: item.avatar }}
+          style={styles.avatar1}
+        />
+      )}
+      <View style={item.senderId === profileID ? styles.rightMessage : styles.leftMessage}>
+        {item.typeContent === "IMAGE_FILE" ? (
+          <Image
+            source={{ uri: item.messageContent }}
+            style={styles.imageMessage}
+          />
+        ) : item.typeContent === "DOCUMENT_FILE" ? (
+          <Text style={styles.documentLink} onPress={() => handleDocumentPress(item.messageContent)}>View Document</Text>
+        ) : (
+          <Text style={styles.messageText}>{item.messageContent}</Text>
         )}
-        keyExtractor={(item) => item._id}
-        contentContainerStyle={styles.chatContainer}
-        inverted
-      />
+      </View>
+    </View>
+  )}
+  keyExtractor={(item) => item._id}
+  contentContainerStyle={styles.chatContainer}
+/>
 
 
       <View style={styles.inputContainer}>
@@ -88,17 +118,16 @@ export default function ChatScreen({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Type your message..."
-          value={space}
-          onSubmitEditing={handleSendMessageOnEnter}
+          value={inputValue}
           onChangeText={(text) => {
-            setSpace(text);
+            setInputValue(text);
             setIsInputEmpty(text.trim().length === 0);
           }}
         />
         {!isInputEmpty && (
           <TouchableOpacity
             style={styles.sendButton}
-            onPress={handleMessageSend}
+            onPress={handleSendMessageOnEnter}
           >
             <Ionicons name="send-sharp" size={20} color="#000" />
           </TouchableOpacity>
@@ -173,31 +202,30 @@ const styles = StyleSheet.create({
   },
   leftMessageContainer: {
     flexDirection: "row",
-    alignItems: "center",
     marginBottom: 10,
     marginLeft: 10,
     alignSelf: "flex-start",
-    flexWrap: "wrap",
   },
   rightMessageContainer: {
     flexDirection: "row-reverse",
-    alignItems: "center",
     marginBottom: 10,
     marginRight: 10,
     alignSelf: "flex-end",
-    flexWrap: "wrap",
+  },
+  avatarWrapper: {
+    marginRight: 5,
   },
   leftMessage: {
-    maxWidth: '70%', 
     backgroundColor: "#e1ffc7",
     padding: 10,
     borderRadius: 10,
+    maxWidth: 250,
   },
   rightMessage: {
-    maxWidth: '80%',
     backgroundColor: "#c7e1ff",
     padding: 10,
     borderRadius: 10,
+    maxWidth: 250,
   },
   avatar1: {
     width: 30,
@@ -205,7 +233,20 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginRight: 5,
   },
+
   messageText: {
     color: "#000",
   },
+
+  imageMessage: {
+    width: 200, // hoặc bất kỳ giá trị nào phù hợp
+    height: 200, // hoặc bất kỳ giá trị nào phù hợp
+    borderRadius: 10,
+  },
+
+  documentLink: {
+    color: 'blue',
+    textDecorationLine: 'underline',
+  },
+  
 });
