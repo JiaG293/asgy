@@ -21,7 +21,7 @@
       flex: 15;
       padding: 12px;
       border: 1px solid #ededed;
-      border-radius: 50px 0 0 50px;
+      border-radius: 0px 0 0 px;
       outline: none;
       background-color: #ededed;
       font-size: 16px;
@@ -40,7 +40,6 @@
       justify-content: center; // Căn giữa các icon theo chiều ngang
       align-items: center; // Căn giữa các icon theo chiều dọc
       cursor: pointer;
-      z-index: 1;
       transition: transform 0.3s;
 
       border: 1px solid #ededed;
@@ -83,5 +82,60 @@
         background-color: #169a7d;
       }
     }
+
+
+    .conversation-group-icon-emoji {
+      flex: 1;
+      display: flex; // Sử dụng flexbox để căn chỉnh các icon
+      justify-content: center; // Căn giữa các icon theo chiều ngang
+      align-items: center; // Căn giữa các icon theo chiều dọc
+      cursor: pointer;
+      transition: transform 0.3s;
+      border-radius: 50px 0 0 50px;
+      padding-left: 10px;
+      border: 1px solid #ededed;
+      outline: none;
+      background-color: #ededed;
+      font-size: 16px;
+      color: #333;
+
+      .conversation-icon {
+        width: 60%; // Đảm bảo ảnh sẽ đầy đủ kích thước trong container
+        height: 60%;
+        transition: transform 0.1s; // Hiệu ứng hover
+        opacity: 0.6;
+        margin-right: 15px;
+
+        &:hover{
+          opacity: 0.9;
+          
+        }
+
+      }
+    
+      
+
+    }
+    
+    .conversation-button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 0 50px 50px 0;
+      background-color: #3cd9b6;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      &:hover {
+        background-color: #169a7d;
+      }
+    }
+
   }
+
+  
 }
+

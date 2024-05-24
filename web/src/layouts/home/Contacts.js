@@ -96,19 +96,12 @@ function Contacts({ onSelectMenuItem }) {
             headers,
           }
         );
-        if (response.status === statusCode.OK) {
-          toast.success("Đã gửi yêu cầu kết bạn");
-        }
+        toast.success("Đã gửi yêu cầu kết bạn");
       } else {
       }
     } catch (error) {
       console.error("Lỗi khi gửi yêu cầu:", error);
     }
-  };
-
-  //Tạo single chat
-  const IOCreateSingleChat = (receiverId) => {
-    socket.emit("createSingleChat", { receiverId, typeChannel: 101 });
   };
 
   const sendFirstMessage = (receiver) => {
@@ -155,13 +148,13 @@ function Contacts({ onSelectMenuItem }) {
             <FriendListIcon className="menu-icon" />
             <span className="menu-text">Danh sách bạn bè</span>
           </div>
-          <div
+          {/* <div
             className="contact-menu-item"
             onClick={() => onSelectMenuItem("groupList")}
           >
             <GroupListIcon className="menu-icon" />
             <span className="menu-text">Danh sách nhóm</span>
-          </div>
+          </div> */}
           <div
             className="contact-menu-item"
             onClick={() => onSelectMenuItem("requestList")}

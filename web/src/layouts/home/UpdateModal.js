@@ -6,6 +6,7 @@ import jwtDecode from "jwt-decode";
 import { useDispatch, useSelector } from "react-redux";
 import { setProfile } from "../../redux/action";
 import { toast } from "react-toastify";
+import { clientID, refreshToken } from "env/env";
 
 function UpdateModal({ setShowUpdateModal }) {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ function UpdateModal({ setShowUpdateModal }) {
         gender: gender,
         birthday: dob.toISOString().split("T")[0],
       };
+      console.log(profileData.birthday);
       const response = await handleUpdateProfile(profileData);
       if (response.status === 200) {
         dispatch(setProfile(profileData)); // Cập nhật state trong Redux
@@ -59,11 +61,6 @@ function UpdateModal({ setShowUpdateModal }) {
 
   const handleUpdateProfile = async (profileData) => {
     try {
-      const refreshToken = Cookies.get("refreshToken");
-      const decodedToken = jwtDecode(refreshToken);
-      console.log(decodedToken);
-      const clientID = decodedToken.clientId;
-
       const response = await axios.put(
         "http://localhost:5000/api/v1/profile/update",
         profileData,

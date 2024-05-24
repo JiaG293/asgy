@@ -9,6 +9,7 @@ import axios from "axios";
 import statusCode from "utils/statusCode";
 import { toast } from "react-toastify";
 import { calculateTimeAgo } from "utils/formatDate";
+import socket from "socket/socket";
 
 function ListRequest() {
   const friendsRequestList = useSelector((state) => state.friendsRequestList);
@@ -30,12 +31,22 @@ function ListRequest() {
       );
       if (response.status === statusCode.OK) {
         toast.success("Đã chấp nhận lời mời kết bạn");
+        IOCreateSingleChat(profileIdSend,101,'Bạn bè');
+        console.log("đã create single chat");
         window.location.reload();
       }
     } catch (error) {
       console.error("Lỗi khi gửi yêu cầu:", error);
     }
   };
+
+  const IOCreateSingleChat = async(receiverId, typeChannel, name)=>{
+    socket.emit("createSingleChat", {
+      receiverId: receiverId,
+      typeChannel: typeChannel,
+      name: name
+    });
+  }
 
   return (
     <div className="listrequests-container">

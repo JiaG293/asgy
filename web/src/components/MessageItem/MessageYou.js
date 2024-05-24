@@ -18,7 +18,7 @@ function MessageYou({ message }) {
   };
 
   const deleteMessage = () => {
-    socket.emit("deleteMessage", { messageId: message._id });
+    socket.emit("removeMessage", { messageId: message._id });
     console.log("đã xóa");
   };
 
@@ -51,7 +51,7 @@ function MessageYou({ message }) {
 
       /////////////////////
 
-      socket.on("messageDeleted", (data) => {
+      socket.on("messageRemoved", (data) => {
         const indexMessage = currentMessages.findIndex((message) => {
           return message._id === data._id;
         });

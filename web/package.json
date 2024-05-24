@@ -12,6 +12,7 @@
     "clsx": "^2.1.0",
     "cors": "^2.8.5",
     "customize-cra": "^1.0.0",
+    "emoji-picker-react": "^4.9.3",
     "esm": "^3.2.25",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^3.1.2",

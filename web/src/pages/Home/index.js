@@ -25,6 +25,7 @@ function Home() {
 
   // gọi fetch API bên api/callAPI
   fetchProfileInfo().then((data)=>{
+    console.log(data.profile);
         dispatch(setProfile(data.profile));
         dispatch(setFriends(data.friends));
         dispatch(setFriendsRequest(data.friendsRequest));
@@ -61,14 +62,14 @@ function Home() {
           </>
         );
         break;
-      case "groupList":
-        setCurrentComponent(
-          <>
-            <Contacts onSelectMenuItem={setSelectedMenuItem} />
-            <ListGroup />
-          </>
-        );
-        break;
+      // case "groupList":
+      //   setCurrentComponent(
+      //     <>
+      //       <Contacts onSelectMenuItem={setSelectedMenuItem} />
+      //       <ListGroup />
+      //     </>
+      //   );
+      //   break;
       case "requestList":
         setCurrentComponent(
           <>

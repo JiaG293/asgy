@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../homeStyle/Conversation.scss";
+
 import Header from "./Header";
 import { FiSend as SendIcon } from "react-icons/fi";
 import { useSelector, useDispatch } from "react-redux";
@@ -16,6 +17,8 @@ import MessageOthers from "components/MessageItem/MessageOthers";
 import axios from "axios";
 import { clientID, refreshToken } from "env/env";
 
+import EmojiPicker from "emoji-picker-react";
+
 function Conversation() {
   const profile = useSelector((state) => state.profile);
   const profileID = profile?._id;
@@ -25,6 +28,8 @@ function Conversation() {
   const currentMessages = useSelector((state) => state.currentMessages);
   const messagesList = useSelector((state) => state.messagesList);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [chosenEmoji, setChosenEmoji] = useState(null);
+  const [showPicker, setShowPicker] = useState(false);
 
   // Render danh sách tin nhắn
   const messages = currentMessages.map((message) =>
@@ -34,6 +39,19 @@ function Conversation() {
       <MessageOthers key={message?._id} message={message} />
     )
   );
+
+  //chọn emoji
+  const togglePicker = () => {
+    setShowPicker(!showPicker);
+  };
+
+const onEmojiClick = (emojiData, event) => {
+  const emoji = emojiData.emoji;
+  setMessageContent(prevContent => prevContent + emoji);
+  setChosenEmoji(emojiData);
+};
+
+  
 
   // Xử lý sự kiện nhấn phím Enter để gửi tin nhắn
   const handleKeyPress = (event) => {
@@ -159,8 +177,16 @@ function Conversation() {
       >
         {messages}
       </PerfectScrollbar>
+
+      {showPicker && (
+        <EmojiPicker style={{ height: "1500px" }} onEmojiClick={onEmojiClick} />
+      )}
+
       <div className="conversation-input-container">
         <div className="conversation-input-with-button">
+          <div className="conversation-group-icon-emoji">
+            <EmotionIcon className="conversation-icon" onClick={togglePicker} />
+          </div>
           <input
             className="conversation-input"
             type="text"
@@ -170,8 +196,6 @@ function Conversation() {
             onKeyPress={handleKeyPress}
           />
           <div className="conversation-group-icon">
-            <EmotionIcon className="conversation-icon" />
-            {/* Input ẩn để chọn tập tin */}
             <input
               type="file"
               id="image-input"

@@ -12,16 +12,18 @@ function App() {
 
   useEffect(() => {
     const refreshToken = Cookies.get("refreshToken");
+    
     if (refreshToken) {
-      // Kiểm tra refreshToken nếu còn hiệu lực
-      // Ví dụ: Gửi yêu cầu đến máy chủ để xác thực refreshToken
-      // Nếu refreshToken hết hạn hoặc không hợp lệ, xử lý ở đây
       setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
-      // Thông báo cho người dùng biết rằng họ cần đăng nhập
+      const currentPath = window.location.pathname;
+      if (!publicRoutes.some(route => route.path === currentPath)) {
+        navigate("/login"); 
+      }
     }
-  }, []);
+    
+  }, [navigate]);
 
   return (
     <div className="App">

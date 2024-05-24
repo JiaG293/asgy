@@ -5,10 +5,12 @@ import { useSelector } from "react-redux";
 import { MdOutlineGroupAdd as AddMemberIcon } from "react-icons/md";
 import { CiSettings as SettingsIcon } from "react-icons/ci";
 import { IoMdNotificationsOutline as NotificationIcon } from "react-icons/io";
-import { MdOutlinePushPin as PinIcon} from "react-icons/md";
+import { MdOutlinePushPin as PinIcon } from "react-icons/md";
 
 function Detail() {
   const currentChannel = useSelector((state) => state.currentChannel);
+  console.log("currentChannel");
+  console.log(currentChannel);
 
   return (
     <div className="detail-container">
@@ -27,10 +29,7 @@ function Detail() {
               </>
             ) : (
               <>
-                <img
-                  src={currentChannel.iconGroup}
-                  className="detail-avatar"
-                />
+                <img src={currentChannel.iconGroup} className="detail-avatar" />
                 <div className="detail-group-name">{currentChannel.name}</div>
               </>
             )}
@@ -41,6 +40,12 @@ function Detail() {
             <AddMemberIcon className="detail-icon"></AddMemberIcon>
             <SettingsIcon className="detail-icon"></SettingsIcon>
           </div>
+          {currentChannel.typeChannel === 202 ? (
+            <>
+            <div className="detail-storage-files">Thành viên nhóm</div>
+            
+            </>
+          ) : null}
           <div className="detail-storage-images">Nơi lưu trữ hình ảnh</div>
           <div className="detail-storage-files">Nơi lưu trữ file</div>
         </>

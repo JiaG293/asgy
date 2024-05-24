@@ -137,6 +137,7 @@ const useRegister = () => {
         password: formData.password,
         verifyOtp: token,
       };
+      console.log(body.birthdate);
       setWarningMessages(errors);
       if (Object.values(errors).some((error) => error !== "")) {
         toast.error("Vui lòng kiểm tra lại thông tin");
