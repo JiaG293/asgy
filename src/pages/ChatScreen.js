@@ -13,6 +13,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useDispatch, useSelector } from "react-redux";
 import { socket } from "../socket/socket";
 import { setCurrentMessages, setMessages } from "../redux/action";
+import ImagePicker from "react-native-image-picker";
 
 export default function ChatScreen({ navigation }) {
   const [isInputEmpty, setIsInputEmpty] = useState(true);
@@ -46,6 +47,7 @@ export default function ChatScreen({ navigation }) {
       setInputValue("");
     }
   };
+
 
   console.table(currentMessages);
 
@@ -83,37 +85,60 @@ export default function ChatScreen({ navigation }) {
       </View>
 
       <FlatList
-  data={currentMessages}
-  renderItem={({ item }) => (
-    <View style={item.senderId === profileID ? styles.rightMessageContainer : styles.leftMessageContainer}>
-      {item.senderId !== profileID && (
-        <Image
-          source={{ uri: item.avatar }}
-          style={styles.avatar1}
-        />
-      )}
-      <View style={item.senderId === profileID ? styles.rightMessage : styles.leftMessage}>
-        {item.typeContent === "IMAGE_FILE" ? (
-          <Image
-            source={{ uri: item.messageContent }}
-            style={styles.imageMessage}
-          />
-        ) : item.typeContent === "DOCUMENT_FILE" ? (
-          <Text style={styles.documentLink} onPress={() => handleDocumentPress(item.messageContent)}>View Document</Text>
-        ) : (
-          <Text style={styles.messageText}>{item.messageContent}</Text>
+        data={currentMessages}
+        style={{ marginBottom: 25, marginTop: 25, flexGrow: 1 }}
+        renderItem={({ item }) => (
+          <View
+            style={
+              item.senderId === profileID
+                ? styles.rightMessageContainer
+                : styles.leftMessageContainer
+            }
+          >
+            {item.senderId !== profileID && (
+              <Image source={{ uri: item.avatar }} style={styles.avatar1} />
+            )}
+            <View
+              style={
+                item.senderId === profileID
+                  ? styles.rightMessage
+                  : styles.leftMessage
+              }
+            >
+              {item.typeContent === "IMAGE_FILE" ? (
+                <Image
+                  source={{ uri: item.messageContent }}
+                  style={styles.imageMessage}
+                />
+              ) : item.typeContent === "DOCUMENT_FILE" ? (
+                <Text
+                  style={styles.documentLink}
+                  onPress={() => handleDocumentPress(item.messageContent)}
+                >
+                  View Document
+                </Text>
+              ) : item.typeContent === "VIDEO_FILE" ? (
+                <View>
+                  <Image source={{ uri: item.messageContent }} 
+                  style={styles.imageMessage}
+                  />
+                </View>
+              ) : (
+                <Text style={styles.messageText}>{item.messageContent}</Text>
+              )}
+            </View>
+          </View>
         )}
-      </View>
-    </View>
-  )}
-  keyExtractor={(item) => item._id}
-  contentContainerStyle={styles.chatContainer}
-/>
-
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={styles.chatContainer}
+      />
 
       <View style={styles.inputContainer}>
         <TouchableOpacity style={styles.emojiButton}>
-          <MaterialCommunityIcons name="emoticon" size={20} color="#000" />
+          <MaterialCommunityIcons name="emoticon" size={30} color="#000" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.emojiButton}>
+          <MaterialCommunityIcons name="image" size={30} color="#000" />
         </TouchableOpacity>
         <TextInput
           style={styles.input}
@@ -174,7 +199,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 10,
+    padding: 10,
     borderTopWidth: 1,
     borderTopColor: "#CCCCCC",
   },
@@ -245,8 +270,7 @@ const styles = StyleSheet.create({
   },
 
   documentLink: {
-    color: 'blue',
-    textDecorationLine: 'underline',
+    color: "blue",
+    textDecorationLine: "underline",
   },
-  
 });

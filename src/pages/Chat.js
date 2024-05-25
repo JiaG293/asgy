@@ -17,6 +17,7 @@ import {
   setMessages,
   setProfile,
   setCurrentMessages,
+  setFriends,
 } from "../redux/action";
 import { useDispatch, useSelector } from "react-redux";
 import { clientId, refreshToken } from "../auth/authStore";
@@ -50,7 +51,9 @@ export default function Chat({ navigation }) {
 
       if (response.status === 200) {
         const profile = response.data.metadata;
+        console.log(profile);
         dispatch(setProfile(profile));
+        dispatch(setFriends(profile.friends))
         setChannelLoaded(true);
       } else {
         console.error("Lỗi khi lấy thông tin người dùng");
@@ -162,7 +165,7 @@ export default function Chat({ navigation }) {
         <SearchA />
       </View>
       <FlatList
-        style={{ flex: 1 }}
+        style={{ flex: 1 , marginTop: 45}}
         data={channelList}
         keyExtractor={(item) => item._id}
         renderItem={renderMessages}

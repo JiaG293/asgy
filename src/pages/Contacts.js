@@ -1,102 +1,48 @@
-import React, { useState, useMemo } from 'react';
-import { StyleSheet, Text, View, SectionList, Image, TouchableOpacity } from 'react-native';
-import SearchA from '../components/Search';
-import { FlatList } from 'react-native';
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
+import SearchA from "../components/Search";
+import { useSelector } from "react-redux";
 
 export default function Contacts({ navigation }) {
-  const { messages } = require('../data/mockChat');
+  const friendList = useSelector((state) => state.friendsList);
+  console.log(friendList);
 
-  const [activeList, setActiveList] = useState('contacts');
+  const [activeList, setActiveList] = useState("contacts");
 
-  /* const groupsData = useMemo(() => {
-    // Sẽ xử lý các groups dữ liệu tại đây...
-    return []; // Trả về mảng các nhóm đã được xử lý
-  }, [groups]);
-
-  const renderGroupItem = ({ item }) => (
-    // Xử lý sự kiện nhấn vào nhóm tại đây...
-  ); */
-
-
-  //nhom du lieu cung ten thanh 1 nhom
-  const sectionsData = useMemo(() => {
-    const groups = {};
-
-    messages.forEach(message => {
-      // Lấy chữ cái đầu của tên để làm key cho nhóm
-      const groupName = message.sender[0].toUpperCase();
-      if (!groups[groupName]) {
-        groups[groupName] = [];
-      }
-      groups[groupName].push(message);
-    });
-
-    return Object.keys(groups).sort().map(letter => ({
-      title: letter,
-      data: groups[letter].sort((a, b) => a.sender.localeCompare(b.sender))
-    }));
-  }, [messages]);
-
-  const renderSectionHeader = ({ section: { title } }) => (
-    <Text style={styles.sectionHeader}>{title}</Text>
-  );
-  // render contacts
+  // Render contacts
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.item}
       onPress={() => {
         // Xử lý sự kiện nhấn vào liên hệ tại đây
-        // Ví dụ: navigation.navigate('ChatScreen', { userId: item.id }); 
+        // Ví dụ: navigation.navigate('ChatScreen', { userId: item.id });
       }}
     >
       <Image source={{ uri: item.avatar }} style={styles.avatar} />
-      <Text style={styles.name}>{item.sender}</Text>
-    </TouchableOpacity>
-  );
-
-  //render group
-  const renderGroupItem = ({ item }) => (
-    <TouchableOpacity style={styles.groupItem} onPress={() => {
-      // Xử lý sự kiện nhấn vào nhóm
-      // Ví dụ: navigation.navigate('GroupChatScreen', { groupId: item.id });
-    }}>
-      <Image source={{ uri: item.image }} style={styles.groupAvatar} />
-      <Text style={styles.groupName}>{item.name}</Text>
+      <View style={{ flexDirection: "column" }}>
+        <Text style={styles.name}>{item.fullName}</Text>
+        <Text style={styles.username}>{item.username}</Text>
+      </View>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <View>
-        <SearchA />
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={{ height: '100%', width: '50%', justifyContent: 'center', alignItems: 'center' }}
-            title="Contacts"
-            onPress={() => setActiveList('contacts')}  >
-            <Text>Contacts</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{ height: '100%', width: '50%', justifyContent: 'center', alignItems: 'center' }}
-            title="Groups"
-            onPress={() => setActiveList('groups')} >
-            <Text>Groups</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      {activeList === 'contacts' ? (
-        <SectionList
-          sections={sectionsData}
-          renderItem={renderItem}
-          renderSectionHeader={renderSectionHeader}
-          keyExtractor={item => item.id.toString()}
-        />
-      ) : (
-        <FlatList
-          data={groups}
-          renderItem={renderGroupItem}
-          keyExtractor={item => item.id.toString()}
-        />
-      )}
-
+      <SearchA />
+      {/* Hiển thị FlatList ở dưới */}
+      <FlatList
+        data={friendList}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.profileIdFriend}
+        style={{marginTop:40}}
+      />
     </View>
   );
 }
@@ -104,21 +50,14 @@ export default function Contacts({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  sectionHeader: {
-    fontWeight: 'bold',
-    fontSize: 18,
-    color: '#000',
-    backgroundColor: '#f7f7f7',
-    padding: 10,
+    backgroundColor: "#fff",
   },
   item: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#cccccc',
-    alignItems: 'center',
+    borderBottomColor: "#cccccc",
+    alignItems: "center",
   },
   avatar: {
     width: 50,
@@ -128,11 +67,23 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 18,
+    fontWeight: "bold",
+  },
+  username: {
+    fontSize: 16,
+    color: "#555555",
   },
   buttonsContainer: {
+    marginTop: 45,
     height: 50,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     paddingVertical: 10,
+  },
+  button: {
+    height: "100%",
+    width: "50%",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
