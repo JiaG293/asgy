@@ -28,6 +28,7 @@ function ListMess({ setSelectedMessage }) {
   const currentMessages = useSelector((state) => state.currentMessages); // Lấy danh sách tin nhắn hiện tại từ Redux store
   const [showAddGroupModal, setShowAddGroupModal] = useState(false);
   //fecth data api
+
   const fetchData = async () => {
     try {
       const refreshToken = Cookies.get("refreshToken");

@@ -134,7 +134,7 @@ const useRegister = () => {
         fullName: formData.fullName,
         phoneNumber: formData.phoneNumber,
         gender: formData.gender,
-        birthdate: formData.birthdate,
+        birthday: formData.birthdate.replace(/-/g, '/'),
         password: formData.password,
         verifyOtp: token,
       };
