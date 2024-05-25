@@ -160,7 +160,6 @@ function Detail() {
         <DisbandModal
           isOpen={isDisbandModalOpen}
           onClose={() => setDisbandModalOpen(false)}
-          currentChannel={currentChannel}
         />
       )}
     </div>
