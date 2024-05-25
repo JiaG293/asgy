@@ -84,13 +84,10 @@ function ListMess({ setSelectedMessage }) {
     //hàm này để mất giao diện chờ
     setSelectedMessage(true);
     await IOLoadMessages();
-    console.log(channel);
     dispatch(setCurrentChannel(channel));
     await messagesList.forEach((item) => {
       if (item.channelId === channel._id) {
         dispatch(setCurrentMessages(item.messages));
-        console.log("message da chon");
-        console.log(item);
       }
     });
 
@@ -110,10 +107,8 @@ function ListMess({ setSelectedMessage }) {
         //hàm nhận tất cả tin nhắn từ lúc đầu
         socket.on("getMessages", (data) => {
           dispatch(setMessages(data));
-          console.log(data);
         });
         socket.on("messageRevoked", data=>{
-          console.log("đã thu hồi", data);
         })
       }
     };
@@ -123,8 +118,6 @@ function ListMess({ setSelectedMessage }) {
 
   const handleToggleAddGroupModal = () => {
     setShowAddGroupModal(!showAddGroupModal);
-    console.log("đã click");
-
   };
 
   return (

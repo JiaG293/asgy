@@ -73,6 +73,7 @@ function ListRequest() {
               className="listrequest-icon accept"
               onClick={() => {
                 acceptFriendRequest(element.profileIdRequest);
+                toast.success("Đã trở thành bạn bè")
                 setTimeout(() => {
                   window.location.reload();
                 }, 1500);

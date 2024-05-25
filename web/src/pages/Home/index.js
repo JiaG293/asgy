@@ -25,7 +25,6 @@ function Home() {
 
   // gọi fetch API bên api/callAPI
   fetchProfileInfo().then((data)=>{
-    console.log(data.profile);
         dispatch(setProfile(data.profile));
         dispatch(setFriends(data.friends));
         dispatch(setFriendsRequest(data.friendsRequest));
