@@ -2,7 +2,6 @@
 node_modules/
 
 # dot env
-.env
 .env.giau
 .env.sang
 .env.production
