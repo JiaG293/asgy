@@ -24,11 +24,11 @@ socketService.io.attach(server); */
 //C2
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {
-    cors: {
-        origin: [URL_WEB, URL_MOBILE, "https://admin.socket.io", "ec2-13-229-182-168.ap-southeast-1.compute.amazonaws.com", "13.229.182.168"],
+   /*  cors: {
+        origin: [URL_WEB, URL_MOBILE, "https://admin.socket.io", "http:/ec2-13-229-182-168.ap-southeast-1.compute.amazonaws.com", "13.229.182.168"],
         allowedHeaders: ["x-client-id", "authorization"],
         credentials: true,
-    },
+    }, */
     transports: ["websocket", "polling"],
     maxHttpBufferSize: 1e8, // 100 MB we can upload to server (By Default = 1MB)
     pingTimeout: 60000, // increase the ping timeout
