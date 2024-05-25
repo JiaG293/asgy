@@ -20,14 +20,23 @@ function MessageOthers({ message }) {
           </div>
         ) : message.typeContent === "IMAGE_FILE" ? (
           <div className="message-others-item">
-            <img src={message?.messageContent} />
+            <img src={message?.messageContent} alt="Image" />
+            <p className="message-others-time">
+              {convertISOToFullDateTime(message?.createdAt)}
+            </p>
+          </div>
+        ) : message.typeContent === "VIDEO_FILE" ? (
+          <div className="message-others-item">
+            <video src={message?.messageContent} controls />
             <p className="message-others-time">
               {convertISOToFullDateTime(message?.createdAt)}
             </p>
           </div>
         ) : message.typeContent === "DOCUMENT_FILE" ? (
           <div className="message-others-item">
-            <a href={message?.messageContent} target="_blank">{message?.messageContent}</a>
+            <a href={message?.messageContent} target="_blank" rel="noopener noreferrer">
+              {message?.messageContent}
+            </a>
             <p className="message-others-time">
               {convertISOToFullDateTime(message?.createdAt)}
             </p>

@@ -28,18 +28,16 @@ function Detail() {
     console.log("đã click");
     const channelId = currentChannel._id;
     const members = [id];
-  
-    socket.emit('deleteMembers', { channelId, members });
-    
-    socket.on('deleteMembers', (response) => {
-        console.log(response.message);
-        console.log(currentChannel);
+
+    socket.emit("deleteMembers", { channelId, members });
+
+    socket.on("deleteMembers", (response) => {
+      console.log(response.message);
+      console.log(currentChannel);
     });
 
-    window.location.reload(); 
-
+    window.location.reload();
   };
-  
 
   return (
     <div className="detail-container">
@@ -109,19 +107,20 @@ function Detail() {
             </>
           ) : null}
           <>
-            <div className="detail-storage-images">Nơi lưu trữ hình ảnh</div>
+            <div className="detail-storage-files">Nơi lưu trữ hình ảnh & Video</div>
             <PerfectScrollbar className="detail-storage-image">
-              {currentMessages.map((message) => {
-                if (message.typeContent === "IMAGE_FILE") {
-                  return (
-                    <div key={message._id} className="detail-image-item">
-                      <img src={message.messageContent}></img>
-                    </div>
-                  );
-                } else {
-                  return null; 
-                }
-              })}
+              {currentMessages.map((message) =>
+                message.typeContent === "IMAGE_FILE" ||
+                message.typeContent === "VIDEO_FILE" ? (
+                  <div key={message._id} className="detail-image-item">
+                    {message.typeContent === "IMAGE_FILE" ? (
+                      <img src={message.messageContent} alt="Content" />
+                    ) : (
+                      <video src={message.messageContent} controls />
+                    )}
+                  </div>
+                ) : null
+              )}
             </PerfectScrollbar>
           </>
         </>

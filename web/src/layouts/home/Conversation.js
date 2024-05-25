@@ -11,6 +11,7 @@ import "react-perfect-scrollbar/dist/css/styles.css";
 import { MdInsertEmoticon as EmotionIcon } from "react-icons/md";
 import { ImAttachment as FileIcon } from "react-icons/im";
 import { CiImageOn as ImageIcon } from "react-icons/ci";
+import { FaPhotoVideo as VideoIcon } from "react-icons/fa";
 
 import MessageYou from "components/MessageItem/MessageYou";
 import MessageOthers from "components/MessageItem/MessageOthers";
@@ -46,13 +47,11 @@ function Conversation() {
     setShowPicker(!showPicker);
   };
 
-const onEmojiClick = (emojiData, event) => {
-  const emoji = emojiData.emoji;
-  setMessageContent(prevContent => prevContent + emoji);
-  setChosenEmoji(emojiData);
-};
-
-  
+  const onEmojiClick = (emojiData, event) => {
+    const emoji = emojiData.emoji;
+    setMessageContent((prevContent) => prevContent + emoji);
+    setChosenEmoji(emojiData);
+  };
 
   // Xử lý sự kiện nhấn phím Enter để gửi tin nhắn
   const handleKeyPress = (event) => {
@@ -140,6 +139,31 @@ const onEmojiClick = (emojiData, event) => {
     }
   };
 
+  //gửi tin nhắn video từ máy khách tới máy chủ
+  const sendVideoMessage = async (file) => {
+    const headers = {
+      "x-client-id": clientID,
+      authorization: refreshToken,
+    };
+
+    const formData = new FormData();
+    formData.append("video", file);
+    try {
+      const response = await axios.post(
+        `${endpointAPI.sendVideoMessage}${currentChannel._id}`,
+        formData,
+        { headers }
+      );
+      console.log("success");
+      const newMessage = response.data.metadata[0];
+      dispatch(setCurrentMessages([...currentMessages, newMessage]));
+      // scrollToBottom();
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // Cuộn xuống dòng mới nhất
   const scrollToBottom = () => {
     const messagesContainer = document.getElementById(
@@ -166,6 +190,15 @@ const onEmojiClick = (emojiData, event) => {
     console.log("file hiện tại là: ");
     console.log(file?.name);
     sendFileMessage(file);
+    setSelectedFile(null);
+  };
+
+  const handleVideoChange = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+    console.log("file hiện tại là: ");
+    console.log(file?.name);
+    sendVideoMessage(file);
     setSelectedFile(null);
   };
 
@@ -213,6 +246,14 @@ const onEmojiClick = (emojiData, event) => {
               onChange={handleFileChange}
             />
 
+            <input
+              type="file"
+              id="video-input"
+              style={{ display: "none" }}
+              accept=".mp4, .webm"
+              onChange={handleVideoChange}
+            />
+
             {/* Nhãn tùy chỉnh cho việc chọn tập tin, khi nhấp vào nó sẽ kích hoạt sự kiện chọn tập tin */}
             <FileIcon
               className="conversation-icon"
@@ -226,6 +267,11 @@ const onEmojiClick = (emojiData, event) => {
                 document.getElementById("image-input").click();
               }}
             />
+            <VideoIcon className="conversation-icon" 
+            onClick={() => {
+              document.getElementById("video-input").click();
+            }}
+            ></VideoIcon>
           </div>
           <button className="conversation-button" onClick={IOSendMessage}>
             <span style={{ marginRight: 10 }}>Gửi</span>

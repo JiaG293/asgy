@@ -74,9 +74,9 @@ function MessageYou({ message }) {
       {message.typeContent === "REVOKE_MESSAGE" ? (
         <div className="message-you-item-revoke">
           <div className="message-you-top">
-          <div className="message-you-content-revoke">
-                <p>{message?.messageContent}</p>
-              </div>
+            <div className="message-you-content-revoke">
+              <p>{message?.messageContent}</p>
+            </div>
           </div>
           <p className="message-you-time">
             {convertISOToFullDateTime(message.createdAt)}
@@ -94,6 +94,10 @@ function MessageYou({ message }) {
                 <a href={message?.messageContent} target="_blank">
                   {message?.messageContent}
                 </a>
+              </div>
+            ) : message.typeContent === "VIDEO_FILE" ? (
+              <div className="message-you-content">
+                <video src={message?.messageContent} controls style={{ width: 400, height: "auto" }} />
               </div>
             ) : (
               <div className="message-you-content">

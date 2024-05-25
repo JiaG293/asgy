@@ -3,7 +3,6 @@ const protocol = 'http';
 const IP_Address = 'localhost';
 const server_PORT = 5000;
 const version = 'v1';
-const tokenEmail = '';
 
 const baseURL = `${protocol}://${IP_Address}:${server_PORT}/api/${version}`;
 
@@ -30,7 +29,8 @@ const endpointAPI = {
   findChannel: `${baseURL}/chats/findChannel/`,
   getListChannels: `${baseURL}/chats/channels/`,
   sendImageMessage: `${baseURL}/chats/send-files/image/`,
-  sendDocumentMessage: `${baseURL}/chats/send-files/document/`
+  sendDocumentMessage: `${baseURL}/chats/send-files/document/`,
+  sendVideoMessage: `${baseURL}/chats/send-files/video/`
 
 };
 
