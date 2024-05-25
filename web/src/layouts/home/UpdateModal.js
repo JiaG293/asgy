@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setProfile } from "../../redux/action";
 import { toast } from "react-toastify";
 import { clientID, refreshToken } from "env/env";
+import endpointAPI from "api/endpointAPI";
 
 function UpdateModal({ setShowUpdateModal }) {
   const dispatch = useDispatch();
@@ -62,7 +63,7 @@ function UpdateModal({ setShowUpdateModal }) {
   const handleUpdateProfile = async (profileData) => {
     try {
       const response = await axios.put(
-        "http://localhost:5000/api/v1/profile/update",
+        endpointAPI.updateProfile,
         profileData,
         {
           headers: {

@@ -19,6 +19,7 @@ import socket from "socket/socket";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentChannel, setCurrentMessages } from "../../redux/action";
 import { FaUserFriends as FriendIcon} from "react-icons/fa";
+import endpointAPI from "api/endpointAPI";
 
 function Contacts({ onSelectMenuItem }) {
   const [stringFind, setStringFind] = useState("");
@@ -90,7 +91,7 @@ function Contacts({ onSelectMenuItem }) {
 
       if (stringFind.trim() !== "") {
         const response = await axios.post(
-          `http://localhost:5000/api/v1/profile/send-request`,
+          endpointAPI.sendFriendRequest,
           { profileIdReceive: profileIdReceive },
           {
             headers,
@@ -191,6 +192,10 @@ function Contacts({ onSelectMenuItem }) {
                             onClick={() => {
                               console.log(item?._id);
                               sendFriendRequest(item?._id);
+                              toast.success("Đã gửi lời mời");
+                              setTimeout(() => {
+                                window.location.reload(); 
+                              }, 500);
                             }}
                           />
                         ) : (

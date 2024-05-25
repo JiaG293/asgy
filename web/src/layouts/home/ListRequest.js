@@ -10,6 +10,7 @@ import statusCode from "utils/statusCode";
 import { toast } from "react-toastify";
 import { calculateTimeAgo } from "utils/formatDate";
 import socket from "socket/socket";
+import endpointAPI from "api/endpointAPI";
 
 function ListRequest() {
   const friendsRequestList = useSelector((state) => state.friendsRequestList);
@@ -23,7 +24,7 @@ function ListRequest() {
       };
 
       const response = await axios.post(
-        `http://localhost:5000/api/v1/profile/accept-request`,
+        endpointAPI.acceptFriendRequest,
         { profileIdSend: profileIdSend },
         {
           headers,

@@ -18,6 +18,7 @@ import axios from "axios";
 import { clientID, refreshToken } from "env/env";
 
 import EmojiPicker from "emoji-picker-react";
+import endpointAPI from "api/endpointAPI";
 
 function Conversation() {
   const profile = useSelector((state) => state.profile);
@@ -100,14 +101,14 @@ const onEmojiClick = (emojiData, event) => {
     formData.append("image", file);
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/v1/chats/send-files/image/${currentChannel._id}`,
+        `${endpointAPI.sendImageMessage}${currentChannel._id}`,
         formData,
         { headers }
       );
       console.log("success");
       const newMessage = response.data.metadata[0];
       dispatch(setCurrentMessages([...currentMessages, newMessage]));
-      // scrollToBottom();
+      scrollToBottom();
       return response;
     } catch (error) {
       console.log(error);
@@ -125,7 +126,7 @@ const onEmojiClick = (emojiData, event) => {
     formData.append("document", file);
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/v1/chats/send-files/document/${currentChannel._id}`,
+        `${endpointAPI.sendDocumentMessage}${currentChannel._id}`,
         formData,
         { headers }
       );

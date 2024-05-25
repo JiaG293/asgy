@@ -15,6 +15,7 @@ import {
   setCurrentMessages,
   setMessages,
 } from "../../redux/action";
+import endpointAPI from "api/endpointAPI";
 
 function ListMess({ setSelectedMessage }) {
   const profile = useSelector((state) => state.profile);
@@ -40,7 +41,7 @@ function ListMess({ setSelectedMessage }) {
         authorization: refreshToken,
       };
       const response = await axios.get(
-        "http://localhost:5000/api/v1/chats/channels",
+        endpointAPI.getListChannels,
         {
           headers,
         }

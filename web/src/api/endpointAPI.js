@@ -15,7 +15,9 @@ const endpointAPI = {
   login: `${baseURL}/users/login/`,
   logout: `${baseURL}/users/logout/`,
   forgotPassword: `${baseURL}/users/forgot-password/`,
-  resetPassword: `${baseURL}/users/reset-password/${tokenEmail}`,
+  resetPassword: `${baseURL}/users/reset-password/`,
+  createOTP: `${baseURL}/users/create-otp`,
+  verifyOTP: `${baseURL}/users/verify-otp`,
   // Profile
   getInfoProfile: `${baseURL}/profile/`,
   updateProfile: `${baseURL}/profile/update/`,
@@ -27,6 +29,9 @@ const endpointAPI = {
   createChannelChat: `${baseURL}/chats/create-channel-chat/`,
   findChannel: `${baseURL}/chats/findChannel/`,
   getListChannels: `${baseURL}/chats/channels/`,
+  sendImageMessage: `${baseURL}/chats/send-files/image/`,
+  sendDocumentMessage: `${baseURL}/chats/send-files/document/`
+
 };
 
 export default endpointAPI;

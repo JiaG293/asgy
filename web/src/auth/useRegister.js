@@ -6,6 +6,7 @@ import statusCode from "utils/statusCode";
 import useValidate from "utils/useValidate";
 import axios from "axios";
 import { clientID, refreshToken } from "env/env";
+import endpointAPI from "api/endpointAPI";
 
 const useRegister = () => {
   const [formData, setFormData] = useState({
@@ -194,7 +195,7 @@ const useRegister = () => {
     };
 
     try {
-      await axios.post(`http://localhost:5000/api/v1/users/create-otp`, body, {
+      await axios.post(endpointAPI.createOTP, body, {
         headers,
       });
       toast.success("Đã gửi email đến " + email);
@@ -212,7 +213,7 @@ const useRegister = () => {
 
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/v1/users/verify-otp`,
+        endpointAPI.verifyOTP,
         body,
         null
       );
