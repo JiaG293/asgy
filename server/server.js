@@ -49,13 +49,6 @@ global._io.use(authenticationSocket)
 global._io.on('connection', SocketController.connection)
 
 
-//test server
-setInterval(() => {
-    io.sockets.emit('time-msg', "socket nhu con cac");
-}, 2000);
-
-
-
 server.listen(PORT, () => {
     console.log(`\nserver start with  http://locahost:${PORT}`);
 })

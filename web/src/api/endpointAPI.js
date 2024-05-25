@@ -1,6 +1,6 @@
 // URI components
 const protocol = 'http';
-const IP_Address = 'ec2-13-229-182-168.ap-southeast-1.compute.amazonaws.com';
+const IP_Address = 'localhost';
 const server_PORT = 5000;
 const version = 'v1';
 
