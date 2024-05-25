@@ -14,12 +14,10 @@ function MessageYou({ message }) {
 
   const revokeMessage = () => {
     socket.emit("revokeMessage", { messageId: message._id });
-    console.log("đã thu hồi");
   };
 
   const deleteMessage = () => {
     socket.emit("removeMessage", { messageId: message._id });
-    console.log("đã xóa");
   };
 
   useEffect(() => {
@@ -28,10 +26,7 @@ function MessageYou({ message }) {
         dispatch(setMessages(data));
       });
       socket.on("messageRevoked", (data) => {
-        console.log("tin nhắn đã được thu hồi là");
-        console.log(
-          currentMessages.filter((message) => message._id === data._id)
-        );
+
 
         const indexMessage = currentMessages.findIndex((message) => {
           return message._id === data._id;
@@ -39,12 +34,10 @@ function MessageYou({ message }) {
 
         //fix sau
         if (indexMessage !== -1) {
-          console.log(currentMessages.length);
           const newMsg = currentMessages[indexMessage];
           newMsg.messageContent = data.messageContent;
           newMsg.typeContent = data.typeContent;
           dispatch(setCurrentMessages([...currentMessages]));
-          console.log(currentMessages);
           setForm(true);
         }
       });
@@ -58,10 +51,8 @@ function MessageYou({ message }) {
 
         //fix sau
         if (indexMessage !== -1) {
-          console.log(currentMessages.length);
           currentMessages.splice(indexMessage, 1);
           dispatch(setCurrentMessages([...currentMessages]));
-          console.log(currentMessages);
         }
       });
     };

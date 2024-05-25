@@ -8,8 +8,6 @@ function ListFriend() {
 
   const friendsList = useSelector((state) => state.friendsList);
 
-  console.log(friendsList);
-
   // Sắp xếp danh sách bạn bè theo tên và phân loại vào đối tượng theo bảng chữ cái
   const friendsByAlphabet = {};
 

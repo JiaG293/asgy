@@ -20,6 +20,7 @@ import { clientID, refreshToken } from "env/env";
 
 import EmojiPicker from "emoji-picker-react";
 import endpointAPI from "api/endpointAPI";
+import { toast } from "react-toastify";
 
 function Conversation() {
   const profile = useSelector((state) => state.profile);
@@ -63,9 +64,9 @@ function Conversation() {
   // Lắng nghe thay đổi trong danh sách tin nhắn và thực hiện các hành động cần thiết
   useEffect(() => {
     socket.on("getMessage", (newMessage) => {
-      console.log("Nhận về từ server", newMessage);
+      // console.log("Nhận về từ server", newMessage);
       dispatch(setCurrentMessages([...currentMessages, newMessage]));
-      console.log(currentMessages);
+      // console.log(currentMessages);
       scrollToBottom();
     });
   }, [currentMessages]);
@@ -104,13 +105,13 @@ function Conversation() {
         formData,
         { headers }
       );
-      console.log("success");
       const newMessage = response.data.metadata[0];
       dispatch(setCurrentMessages([...currentMessages, newMessage]));
       scrollToBottom();
       return response;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
+      toast.error("Có lỗi xảy ra")
     }
   };
 
@@ -129,13 +130,14 @@ function Conversation() {
         formData,
         { headers }
       );
-      console.log("success");
       const newMessage = response.data.metadata[0];
       dispatch(setCurrentMessages([...currentMessages, newMessage]));
       // scrollToBottom();
       return response;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
+      toast.error("Có lỗi xảy ra")
+
     }
   };
 
@@ -154,13 +156,14 @@ function Conversation() {
         formData,
         { headers }
       );
-      console.log("success");
       const newMessage = response.data.metadata[0];
       dispatch(setCurrentMessages([...currentMessages, newMessage]));
       // scrollToBottom();
       return response;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
+      toast.error("Có lỗi xảy ra")
+
     }
   };
 
@@ -178,8 +181,6 @@ function Conversation() {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
-    console.log("file hiện tại là: ");
-    console.log(file?.name);
     sendImageMessage(file);
     setSelectedFile(null);
   };
@@ -187,8 +188,7 @@ function Conversation() {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
-    console.log("file hiện tại là: ");
-    console.log(file?.name);
+
     sendFileMessage(file);
     setSelectedFile(null);
   };
@@ -196,8 +196,6 @@ function Conversation() {
   const handleVideoChange = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
-    console.log("file hiện tại là: ");
-    console.log(file?.name);
     sendVideoMessage(file);
     setSelectedFile(null);
   };

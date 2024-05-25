@@ -6,35 +6,33 @@ import { MdOutlineGroupAdd as AddMemberIcon } from "react-icons/md";
 import { CiSettings as SettingsIcon } from "react-icons/ci";
 import { IoMdNotificationsOutline as NotificationIcon } from "react-icons/io";
 import { MdOutlinePushPin as PinIcon } from "react-icons/md";
+import { MdOutlineGroupRemove as DisbandIcon } from "react-icons/md";
+
 import PerfectScrollbar from "react-perfect-scrollbar";
 import socket from "socket/socket";
 // import PreviewModal from "react-media-previewer";
 import { PiXCircleLight as DeleteIcon } from "react-icons/pi";
 import { profileID } from "env/env";
 import AddMemberModal from "./AddMemberModal";
+import DisbandModal from "./DisbandModal";
 
 function Detail() {
   const currentChannel = useSelector((state) => state.currentChannel);
-  console.log(currentChannel);
   const currentMessages = useSelector((state) => state.currentMessages);
-  // const [visible, setVisible] = useState(false);
   const [isAddMemberModalOpen, setAddMemberModalOpen] = useState(false);
+  const [isDisbandModalOpen, setDisbandModalOpen] = useState(false); // State for DisbandModal
 
   const handleAddMember = () => {
     setAddMemberModalOpen(true);
   };
 
   const handleDeleteMember = (id) => {
-    console.log("đã click");
     const channelId = currentChannel._id;
     const members = [id];
 
     socket.emit("deleteMembers", { channelId, members });
 
-    socket.on("deleteMembers", (response) => {
-      console.log(response.message);
-      console.log(currentChannel);
-    });
+    socket.on("deleteMembers", (response) => {});
 
     window.location.reload();
   };
@@ -62,15 +60,30 @@ function Detail() {
             )}
           </div>
           <div className="detail-group-icon">
-            <NotificationIcon className="detail-icon"></NotificationIcon>
-            <PinIcon className="detail-icon"></PinIcon>
+            <NotificationIcon
+              className="detail-icon"
+              title="Thông báo"
+            ></NotificationIcon>
+            <PinIcon className="detail-icon" title="Ghim trò chuyện"></PinIcon>
             {currentChannel.typeChannel === 202 ? (
-              <AddMemberIcon
-                className="detail-icon"
-                onClick={handleAddMember}
-              ></AddMemberIcon>
+              <>
+                <AddMemberIcon
+                  className="detail-icon"
+                  onClick={handleAddMember}
+                  title="Thêm thành viên"
+                ></AddMemberIcon>
+                <DisbandIcon
+                  className="detail-icon"
+                  onClick={setDisbandModalOpen}
+
+                  title="Giải tán nhóm"
+                ></DisbandIcon>
+              </>
             ) : null}
-            <SettingsIcon className="detail-icon"></SettingsIcon>
+            <SettingsIcon
+              className="detail-icon"
+              title="Cài đặt"
+            ></SettingsIcon>
           </div>
           {currentChannel.typeChannel === 202 ? (
             <>
@@ -97,6 +110,7 @@ function Detail() {
                       currentChannel.owner !== member.profileId && (
                         <DeleteIcon
                           color="red"
+                          title="Xóa thành viên này"
                           className="detail-member-button"
                           onClick={() => handleDeleteMember(member.profileId)}
                         />
@@ -107,7 +121,9 @@ function Detail() {
             </>
           ) : null}
           <>
-            <div className="detail-storage-files">Nơi lưu trữ hình ảnh & Video</div>
+            <div className="detail-storage-files">
+              Nơi lưu trữ hình ảnh & Video
+            </div>
             <PerfectScrollbar className="detail-storage-image">
               {currentMessages.map((message) =>
                 message.typeContent === "IMAGE_FILE" ||
@@ -137,6 +153,13 @@ function Detail() {
         <AddMemberModal
           isOpen={isAddMemberModalOpen}
           onClose={() => setAddMemberModalOpen(false)}
+          currentChannel={currentChannel}
+        />
+      )}
+      {isDisbandModalOpen && (
+        <DisbandModal
+          isOpen={isDisbandModalOpen}
+          onClose={() => setDisbandModalOpen(false)}
           currentChannel={currentChannel}
         />
       )}
