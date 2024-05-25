@@ -1,0 +1,44 @@
+// SettingsPopup.scss
+
+.settings-popup-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  position: fixed;
+  z-index: 1001;
+  width: 17.5%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  bottom: 5vh;
+  margin-left: 40px;
+}
+
+.settings-popup-content ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.settings-popup-content li {
+  margin-bottom: 10px;
+}
+
+.settings-popup-content button {
+  background-color: #297d6b;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+
+.settings-popup-content button:hover {
+  background-color: #61dec3;
+}
+
+.settings-popup-content button:active {
+  background-color: #169a7d;
+}

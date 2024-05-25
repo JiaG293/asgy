@@ -1,0 +1,65 @@
+.Toastify__toast--error {
+    border: 1px solid #EB5757;
+    border-radius: 10px !important;
+    background: #FAE1E2 !important;
+    position: relative;
+    transition: opacity 0.5s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Thêm hiệu ứng bóng đổ */
+}
+
+.Toastify__toast--success {
+    border: 1px solid #3A9EA5 !important;
+    border-radius: 10px !important;
+    background: #F0F9FA !important;
+    position: relative;
+    transition: opacity 0.5s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Thêm hiệu ứng bóng đổ */
+}
+
+.Toastify__toast--warning {
+    border: 1px solid #E78326  !important;
+    border-radius: 10px !important;
+    background: #FADFC5 !important;
+    position: relative;
+    transition: opacity 0.5s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Thêm hiệu ứng bóng đổ */
+}
+
+.Toastify__toast:hover {
+    transform: scale(1.05); /* Phóng to từ từ khi hover */
+    transition: transform 0.3s ease; /* Hiệu ứng chuyển động */
+}
+
+
+.Toastify__toast-body {
+    color: #444C63;
+    font-size: 16px;
+    line-height: 20px;
+    padding: 20px 5px;
+    font-weight: 400;
+    margin-left: auto;
+    margin-right: auto;
+    white-space: normal;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+}
+
+.Toastify__toast {
+    min-width: 100%;
+    position: relative;
+}
+
+.Toastify__close-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.Toastify__close-button svg {
+    display: block;
+    margin-left: auto;
+}

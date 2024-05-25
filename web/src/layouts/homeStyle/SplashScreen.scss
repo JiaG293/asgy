@@ -1,0 +1,27 @@
+// SplashScreen.scss
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.splash-screen-container {
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Thêm thuộc tính này để căn giữa theo chiều ngang */
+  flex-direction: column;
+  height: 100vh;
+  width: 75vw;
+  margin: auto; 
+
+  .splash-screen-title {
+    text-align: center;
+    font-size: 30px;
+    font-weight: 400;
+  }
+  
+  .splash-screen-subtitle {
+    text-align: center;
+    font-size: 18px;
+    color: #000;
+    text-align: center;
+  }
+}

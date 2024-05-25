@@ -1,0 +1,148 @@
+.contacts-panel {
+  width: 20vw;
+  height: 100vh;
+  border: 1px solid #ddd;
+  overflow-y: auto;
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .contact-search-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    background-color: white;
+
+    .contact-menu-input {
+      flex-grow: 1;
+      height: 40px;
+      padding: 15px;
+      padding-left: 35px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 15px;
+      outline: none;
+      color: #555;
+      position: relative;
+      font-size: 14px;
+
+      &:focus {
+        border-color: #3cd9b6;
+      }
+    }
+
+    .contact-menu-search-icon {
+      width: 20px;
+      height: 20px;
+      fill: #555;
+      position: absolute;
+      margin-left: 10px;
+      cursor: pointer;
+
+      &:hover {
+        fill: #85e78a;
+      }
+
+      &:active {
+        fill: #2c5c2d;
+      }
+    }
+  }
+
+  .contacts-menu {
+    display: flex;
+    flex-direction: column;
+
+    .contact-menu-item {
+      display: flex;
+      background-color: #fff;
+      align-items: center;
+      padding: 10px 15px;
+      color: #333;
+      text-decoration: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      height: 60px;
+      margin: 5px;
+
+      &:hover {
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      &:active {
+        background-color: #ddd;
+      }
+
+      .menu-icon {
+        font-size: 20px;
+        margin-right: 10px;
+      }
+
+      .menu-text {
+        font-weight: bold;
+      }
+
+      .contact-menu-avatar-container {
+        width: 50px;
+        height: 50px;
+        overflow: hidden;
+        border-radius: 50%;
+        margin-right: 10px;
+
+        img {
+          width: 50px;
+          height: 50px;
+          object-fit: cover;
+          border-radius: 50%;
+        }
+      }
+
+      .contact-menu-information {
+        flex-grow: 1; // Thêm vào để thông tin liên lạc nằm bên trái
+        .contact-menu-fullname {
+          font-weight: bold;
+          font-size: 16px;
+        }
+        .contact-menu-username {
+          margin-top: 10px;
+          font-size: 13px;
+          color: #555;
+        }
+      }
+
+      .contact-icons {
+        display: flex;
+        align-items: center;
+      }
+
+      .contact-add-friend-icon,
+      .contact-send-message-icon {
+        font-size: 20px;
+        margin-left: auto;
+        margin-left: 15px;
+        transition: transform 0.3s ease; /* Thêm hiệu ứng transform */
+      }
+
+      .contact-add-friend-icon:hover,
+      .contact-send-message-icon:hover {
+        transform: scale(1.5); /* To lên khi hover */
+      }
+    }
+  }
+
+  .no-results-message {
+    padding: 10px;
+    text-align: center;
+    color: #555;
+  }
+}

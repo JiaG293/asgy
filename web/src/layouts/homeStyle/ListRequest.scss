@@ -1,0 +1,102 @@
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.listrequests-container {
+  height: 100vh;
+  width: 75vw;
+  display: flex;
+  flex-direction: column; /* Display cards in a column */
+
+  .listrequests-header {
+    height: 10vh;
+    width: 100%;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-left: none;
+
+    .listrequests-icon-group {
+      .listrequests-icon {
+        font-size: 50px;
+      }
+    }
+
+    .listrequests-text {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+}
+
+.listrequests-card {
+  width: 90%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  align-self: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Added box shadow */
+}
+
+.listrequest-avatar-container {
+  width: 50px; /* Điều chỉnh kích thước avatar */
+  height: 50px;
+  border-radius: 50%; /* Làm cho avatar tròn */
+  overflow: hidden; /* Ẩn phần nội dung vượt quá khung của avatar */
+}
+
+.listrequest-avatar-container img {
+  width: 100%; /* Đảm bảo hình ảnh avatar lấp đầy khu vực của nó */
+  height: 100%;
+  object-fit: cover; /* Đảm bảo hình ảnh không bị biến dạng */
+}
+
+.listrequest-information {
+  flex: 1; /* Thay đổi flex-grow để thông tin mở rộng và lấp đầy không gian trống */
+  margin: 0 10px; /* Điều chỉnh khoảng cách giữa avatar và thông tin */
+}
+
+.listrequest-fullname{
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.listrequest-username{
+  margin-top: 10px;
+  font-size: 14px;
+  color: #777;
+}
+
+.listrequest-time{
+  color: #666;
+  margin-right: 50px;
+}
+
+.listrequest-group-icon {
+  margin-left: auto; /* Di chuyển nhóm biểu tượng sang phải */
+}
+
+.listrequest-icon {
+  font-size: 30px;
+  cursor: pointer;
+  transition: transform 0.5s ease, color 0.5s ease; /* Adjusted transition properties */
+  margin-right: 15px;
+}
+
+.listrequest-icon.accept {
+  color: green; /* Set color to green for accept icon */
+}
+
+.listrequest-icon.decline {
+  color: red; /* Set color to red for decline icon */
+}
+
+.listrequest-icon:hover {
+  transform: scale(1.2);
+}

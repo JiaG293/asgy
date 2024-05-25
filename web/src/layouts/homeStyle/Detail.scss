@@ -1,0 +1,124 @@
+.detail-container {
+  width: 20vw;
+  height: 100vh;
+  border: 1px solid #ddd;
+  background-color: #f8f8f8;
+  display: flex;
+  flex-direction: column;
+
+  .detail-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    font-weight: 500;
+    height: 5%;
+    border-bottom: 1px solid #ddd;
+
+    span {
+      margin-left: 15px;
+    }
+  }
+
+  .detail-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+
+    .detail-avatar {
+      height: 70px;
+      width: 70px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+
+    .detail-group-name {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+  }
+
+  .detail-group-icon {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+
+    .detail-icon {
+      font-size: 25px;
+      margin-right: 10px;
+      cursor: pointer;
+      transition: transform 0.3s ease; 
+      
+      &:hover {
+        transform: scale(1.2); /* Scale up on hover */
+        transition: transform 0.5s ease; 
+      }
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .detail-storage-member {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    max-height: 35%;
+    overflow-y: scroll;
+    .detail-member-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      
+
+      img {
+        height: 35px;
+        width: 35px;
+        border-radius: 50%;
+        margin-right: 10px;
+      }
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+
+  .detail-storage-images,
+  .detail-storage-files {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+  }
+}
+
+.detail-storage-image {
+  margin-top: 10px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  grid-gap: 10px;
+
+  .detail-image-item {
+    img {
+      width: 90%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      margin-left: 15px;
+    }
+
+    video{
+      width: 90%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      margin-left: 15px;
+    }
+
+  }
+}
+.owner-name {
+  color: #43b078;
+  font-weight: bold;
+}

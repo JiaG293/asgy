@@ -1,0 +1,144 @@
+$update-modal-color: #3cd9b6;
+$update-modal-color-disabled: #ccc;
+
+.update-modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.update-modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 100%;
+  animation: modalFadeIn 0.3s ease forwards;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.update-modal-content h1 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: $update-modal-color;
+  text-align: center;
+}
+
+.update-modal-group {
+  margin-bottom: 15px;
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  input[type="text"],
+  select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+  }
+}
+
+.update-modal-group-radio {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+}
+
+.update-modal-radio {
+  display: inline-block;
+  margin-right: 15px;
+
+  input[type="radio"] {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+  }
+
+  .update-modal-radio-label {
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
+.update-modal-selects {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  select {
+    margin-right: 10px;
+  }
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+
+  button {
+    padding: 10px 20px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:first-child {
+      background-color: #ccc;
+      color: #333;
+      border: 1px solid #ccc;
+
+      &:hover {
+        background-color: #eee;
+      }
+    }
+
+    &:last-child {
+      background-color: $update-modal-color;
+      color: white;
+
+      &:disabled {
+        background-color: $update-modal-color-disabled;
+        cursor: not-allowed;
+      }
+
+      &:hover:not(:disabled) {
+        background-color: darken($update-modal-color, 10%);
+      }
+    }
+  }
+}

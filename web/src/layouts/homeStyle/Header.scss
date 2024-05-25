@@ -1,0 +1,56 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  color: #333;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+  height: 10vh;
+  width: 55vw;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.header-mark {
+  font-size: 20px;
+  transform: rotate(90deg); /* Xoay biểu tượng mark 90 độ */
+  cursor: pointer;
+  &:hover {
+    opacity: 0.6;
+  }
+}
+
+.header-name {
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.header-right {
+  display: flex;
+  align-items: center; /* Thêm để căn giữa theo chiều dọc */
+}
+
+.header-icon {
+  font-size: 24px;
+  margin-left: 10px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.6;
+  }
+}

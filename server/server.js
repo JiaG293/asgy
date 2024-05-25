@@ -3,7 +3,7 @@ const app = require('./src/app');
 const SocketController = require('./src/socket/socket.controller');
 const authenticationSocket = require('./src/socket/socket.auth');
 const { instrument } = require('@socket.io/admin-ui');
-const { PORT, URL_CLIENT } = process.env;
+const { PORT, URL_WEB, URL_MOBILE } = process.env;
 
 
 //redis adapter stream
@@ -25,7 +25,7 @@ socketService.io.attach(server); */
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {
     cors: {
-        origin: [URL_CLIENT, "https://admin.socket.io"],
+        origin: [URL_WEB, URL_MOBILE, "https://admin.socket.io"],
         allowedHeaders: ["x-client-id", "authorization"],
         credentials: true,
     },

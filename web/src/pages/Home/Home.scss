@@ -1,0 +1,23 @@
+// Home.scss
+
+.home-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden
+}
+
+.home-header {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-content {
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden; /* Tránh tràn nội dung ra khỏi màn hình */
+}
+
+
+

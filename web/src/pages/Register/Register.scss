@@ -1,0 +1,212 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f2f2f2;
+}
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.register-form {
+  max-width: 540px; // 90% của 600px
+  width: 95%; // Thu nhỏ form đi 5%
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: auto; 
+  transform: scale(0.95); // Thu nhỏ form đi 10%
+
+  .register-input-box {
+    position: relative;
+    margin-bottom: 20px;
+
+    .register-input {
+      width: 100%;
+      padding: 10px 40px 10px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      outline: none;
+      font-size: 16px;
+      box-sizing: border-box;
+      padding-left: 30px;
+      &:focus {
+        border-color: #3cd9b6;
+      }
+    }
+
+    .register-icon {
+      position: absolute;
+      margin-top: 20px;
+      left: 10px;
+      transform: translateY(-50%);
+    }
+
+    .register-warning-text {
+      font-size: 12px;
+      color: #e74c3c;
+      margin-top: 5px;
+    }
+  }
+
+  .register-radio,
+  .register-OTP,
+  .register-checkbox,
+  .register-policy,
+  .register-login-link {
+    margin-bottom: 10px;
+  }
+
+  .register-btn-send-OTP {
+    background-color: #3cd9b6;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+    &:hover {
+      background-color: #2db2a1;
+    }
+  }
+
+  .register-button-box {
+    margin-top: 20px;
+    text-align: center;
+
+    button {
+      background-color: #3cd9b6;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      &:hover {
+        background-color: #2db2a1;
+      }
+    }
+  }
+
+  .register-checkbox {
+    margin-right: 5px;
+  }
+
+  .register-policy {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+
+  .register-login-link {
+    margin-top: 20px;
+    text-align: center;
+
+    a {
+      color: #3cd9b6;
+      text-decoration: underline;
+      font-weight: 400;
+      &:hover{
+        color: #2db2a1;
+        text-decoration: underline;
+      }
+      &:active {
+        color: #2db2a1;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .register-btn {
+    margin-top: 20px; // Tăng giảm khoảng cách từ các phần tử trên
+    display: block; // Đảm bảo nút chiếm toàn bộ chiều rộng của container cha
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+
+    &-enabled {
+      background-color: #3cd9b6;
+      color: #ffffff;
+  
+      &:hover {
+        background: #2db2a1;
+      }
+    }
+    &-disabled {
+      background-color: #dddddd;
+      color: #999999;
+      cursor: not-allowed;
+    }
+  }
+  a {
+    color: #0fbd98;
+    text-decoration: underline;
+    font-weight: 500;
+    &:hover,
+    &:active {
+      color: #2db2a1;
+        text-decoration: underline;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .register-form {
+    max-width: 100%;
+  }
+}
+
+.register-group-otp {
+  display: flex;
+  justify-content: center;
+
+  .register-otp-input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 0px 5px 5px 0px;
+    margin-right: 10px;
+    transition: border-color 0.3s ease;
+
+    &:focus {
+      border-color: #0fbd98;
+      outline: none;
+    }
+
+    &::placeholder {
+      color: #999;
+    }
+  }
+
+  .register-otp-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px 0px 0px 5px;
+    background-color: #3cd9b6;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #2db2a1;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}

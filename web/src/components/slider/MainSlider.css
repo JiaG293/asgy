@@ -1,0 +1,112 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.slider-container {
+  width: 80%;
+  height: 60%;
+  margin: 0 auto;
+  position: relative;
+}
+
+.slider-container .slick-slider {
+  width: 100%;
+}
+
+.slider-container .slick-slide {
+  text-align: center;
+  padding: 20px;
+}
+
+.slider-container .slick-prev,
+.slider-container .slick-next {
+  border: none;
+  transform: translateY(-50%);
+  z-index: 1;
+  cursor: pointer;
+}
+
+.slider-container .slick-prev {
+  left: 10px;
+}
+
+.slider-container .slick-next {
+  right: 10px;
+  background-image: url("../../img/next.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.slider-container .slick-prev {
+  left: 10px;
+  background-image: url("../../img/previous.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.slick-arrow.slick-prev:before {
+  content: none !important;
+}
+
+.slick-arrow.slick-next::before {
+  content: none !important;
+}
+
+.slide {
+  text-align: center; /* Canh giữa nội dung */
+  color: #3cd9b6;
+  font-size: 25px;
+}
+
+.slick-slide img {
+  margin: auto; /* Canh giữa hình ảnh */
+  max-width: 100%; /* Đảm bảo hình ảnh không vượt quá kích thước slide */
+  max-height: 100%; /* Đảm bảo hình ảnh không vượt quá kích thước slide */
+}
+
+.slide-animation1 {
+  animation: bounceUpDown 1s infinite alternate;
+}
+
+@keyframes bounceUpDown {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-20px); /* Nhảy lên 20px */
+  }
+}
+
+
+/* CSS */
+/* CSS */
+/* CSS */
+@keyframes moveLeftRight {
+  0% {
+    margin-left: 0%; /* Bắt đầu từ vị trí bên trái của khung slider */
+  }
+  50% {
+    margin-left: calc(80% - 100px); /* Di chuyển hình ảnh đến biên phải của khung slider */
+  }
+  100% {
+    margin-left: 80%; /* Di chuyển hình ảnh quay trở lại bên trái của khung slider */
+  }
+}
+
+.slide-animation2 {
+  animation: moveLeftRight 4s linear infinite; /* Áp dụng animation */
+}
+
+
+
+
+
+
+
+
+
+
+
+
