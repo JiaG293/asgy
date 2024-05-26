@@ -25,7 +25,7 @@ socketService.io.attach(server); */
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {
     cors: {
-        origin: [URL_WEB, URL_MOBILE, "https://admin.socket.io", "http://ec2-13-212-196-249.ap-southeast-1.compute.amazonaws.com", "http://13.212.196.249", "http://localhost:80"],
+        origin: [URL_WEB, URL_MOBILE, "https://admin.socket.io", "http://ec2-18-142-246-203.ap-southeast-1.compute.amazonaws.com", "http://18.142.246.203", "http://localhost:80"],
         allowedHeaders: ["x-client-id", "authorization"],
         credentials: true,
     },
