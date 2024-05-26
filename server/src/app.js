@@ -73,7 +73,7 @@ app.use(express.urlencoded({
     next();
 }); */
 
-/* app.use(
+app.use(
     helmet.contentSecurityPolicy({
         directives: {
             defaultSrc: ["'self'"],
@@ -82,14 +82,15 @@ app.use(express.urlencoded({
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "'unsafe-inline'", "https://www.google-analytics.com", "https://asgy.s3.ap-southeast-1.amazonaws.com", "https://i.imgur.com"],
             "script-src-attr": ["'unsafe-inline'"],
+
         },
     })
-); */
+);
 //Testing
-/* app.use('/', express.static('public/css'));
+app.use('/', express.static('public/css'));
 app.use('/', express.static('public/js'));
 app.use('/', express.static('public/html'));
- */
+
 //routes
 app.use('/', require('./routes/'))
 
