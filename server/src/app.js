@@ -73,7 +73,7 @@ app.use(express.urlencoded({
     next();
 }); */
 
-app.use(
+/* app.use(
     helmet.contentSecurityPolicy({
         directives: {
             defaultSrc: ["'self'"],
@@ -84,12 +84,12 @@ app.use(
             "script-src-attr": ["'unsafe-inline'"],
         },
     })
-);
+); */
 //Testing
-app.use('/', express.static('public/css'));
+/* app.use('/', express.static('public/css'));
 app.use('/', express.static('public/js'));
 app.use('/', express.static('public/html'));
-
+ */
 //routes
 app.use('/', require('./routes/'))
 

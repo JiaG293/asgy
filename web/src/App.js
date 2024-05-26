@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { publicRoutes, privateRoutes } from "./routes";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,17 +12,18 @@ function App() {
 
   useEffect(() => {
     const refreshToken = Cookies.get("refreshToken");
-    
+
     if (refreshToken) {
       setIsAuthenticated(true);
+      navigate("/home")
     } else {
       setIsAuthenticated(false);
       const currentPath = window.location.pathname;
-      if (!publicRoutes.some(route => route.path === currentPath)) {
-        navigate("/login"); 
+      if (!publicRoutes.some((route) => route.path === currentPath)) {
+        navigate("/login");
+        setIsAuthenticated(false);
       }
     }
-    
   }, [navigate]);
 
   return (
@@ -36,7 +37,9 @@ function App() {
           <Route
             key={index}
             path={route.path}
-            element={isAuthenticated ? <route.component /> : null}
+            element={
+              isAuthenticated ? <route.component /> : <Navigate to="/login" />
+            }
           />
         ))}
       </Routes>

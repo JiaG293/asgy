@@ -40,8 +40,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
+    "start": "set PORT=80 && react-app-rewired start",
+    "build": "set PORT=80 && react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
     "socket": "nodemon src/socket/socket.js"

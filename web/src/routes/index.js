@@ -10,7 +10,9 @@ const publicRoutes = [
     {path:'/login', component:Login},
     {path:'/register', component:Register},
     {path:'/forgot-password', component:ForgotPassword},
-    {path: '/test', component: Test}
+    {path: '/test', component: Test},
+    // {path:'/home', component:Home},
+
 ]
 
 //phai dang nhap moi xem duoc
